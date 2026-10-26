@@ -220,9 +220,41 @@ const { eyebrow, title, summary, pageName, waInterest, buttons = true } = Astro.
       background: linear-gradient(180deg, rgba(251, 250, 247, 0.9) 0%, rgba(251, 250, 247, 0.86) 70%, rgba(251, 250, 247, 0.5) 100%);
     }
   }
+  /* Phones: text at the top, the whole sketch in the clear lower part (the veil only covers the text) */
   @media (max-width: 767px) {
+    .page-hero {
+      justify-content: flex-start;
+    }
+    .page-hero__art {
+      top: auto;
+      bottom: var(--bar-h, 64px);
+      height: 44%;
+      opacity: 1;
+    }
+    .page-hero__veil {
+      background: linear-gradient(180deg, rgba(251, 250, 247, 0.92) 0%, rgba(251, 250, 247, 0.92) 50%, rgba(251, 250, 247, 0.4) 62%, rgba(251, 250, 247, 0) 72%);
+    }
     .page-hero__title {
       font-size: 2rem;
+    }
+    .page-hero__lead {
+      margin-top: 12px;
+      font-size: 0.9375rem;
+    }
+    .page-hero__ctas {
+      margin-top: 18px;
+    }
+    /* facts beside the headline become a compact 2 × 2 grid */
+    .page-hero__aside > :global(dl) {
+      grid-template-columns: 1fr 1fr;
+    }
+    .page-hero__aside :global(dl > div) {
+      padding: 10px 12px !important;
+      border-top: 0 !important;
+    }
+    .page-hero__aside :global(dd) {
+      font-size: 0.8125rem;
+      line-height: 1.35;
     }
     .ph-btn {
       min-height: 46px;

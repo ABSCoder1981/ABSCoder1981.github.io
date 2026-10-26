@@ -541,19 +541,58 @@ const words = ['home', 'buyer', 'land', 'investment'];
   }
 
   /* ---------- Mobile: centred content, bottom-up veil ---------- */
+  /* Phones: the text sits in the top part of the screen and the lower part is kept clear,
+     so the animated tower sketch is actually seen (the veil only covers the text area). */
   @media (max-width: 767px) {
+    .hero {
+      align-items: flex-start;
+    }
+    /* no map pins on phones, so the towers stay at full strength */
+    .hero :global(.tower-sketch) {
+      animation: none;
+      opacity: 1;
+      /* the whole skyline (towers, crane) in the clear lower part, above the Call/WhatsApp bar */
+      top: auto;
+      bottom: var(--bar-h, 64px);
+      height: 48%;
+    }
     .hero__veil {
       background: linear-gradient(
         180deg,
-        rgba(251, 250, 247, 0.72) 0%,
-        rgba(251, 250, 247, 0.84) 30%,
-        rgba(251, 250, 247, 0.84) 62%,
-        rgba(251, 250, 247, 0.35) 82%,
-        rgba(251, 250, 247, 0) 100%
+        rgba(251, 250, 247, 0.9) 0%,
+        rgba(251, 250, 247, 0.9) 52%,
+        rgba(251, 250, 247, 0.5) 62%,
+        rgba(251, 250, 247, 0) 72%
       );
     }
     .hero__content {
-      padding: 104px 20px 96px;
+      padding: 92px 20px calc(var(--bar-h, 64px) + 16px);
+    }
+    .hero__title {
+      font-size: clamp(2rem, 9.5vw, 2.6rem);
+    }
+    .hero__areas {
+      width: 100%;
+      margin-top: 16px;
+    }
+    .hero__areas-k {
+      display: none;
+    }
+    /* one swipeable row instead of a wrapped block of chips */
+    .hero__areas ul {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      width: calc(100% + 40px);
+      margin-inline: -20px;
+      padding: 2px 20px 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .hero__areas ul::-webkit-scrollbar {
+      display: none;
+    }
+    .hero__areas li {
+      flex: none;
     }
     .hero__eyebrow {
       font-size: 0.6875rem;
@@ -563,15 +602,18 @@ const words = ['home', 'buyer', 'land', 'investment'];
       display: none;
     }
     .hero__lead {
-      font-size: 1rem;
-      margin-top: 20px;
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      margin-top: 12px;
     }
     .hero__ctas {
-      margin-top: 28px;
+      gap: 10px;
+      margin-top: 18px;
     }
     .hero-btn {
       flex: 1 1 100%;
       max-width: 340px;
+      min-height: 46px;
     }
   }
 </style>
