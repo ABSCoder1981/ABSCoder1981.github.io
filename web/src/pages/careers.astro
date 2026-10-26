@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Icon from '../components/Icon.astro';
+import { site, waHref } from '../lib/site';
+
+const pageName = 'Careers page';
+const waInterest = 'working at Ashiyana Real Estate';
+const wa = waHref(waInterest, pageName);
+const mail = `mailto:${site.email}?subject=${encodeURIComponent('Job application: [role]')}`;
+
+// Roles the firm usually hires for; openings change through the year, so no live vacancies are claimed
+const roles = [
+  {
+    icon: 'home',
+    title: 'Sales executive',
+    text: 'Understand what buyers and tenants need, shortlist homes and take them on site visits across west Pune.',
+  },
+  {
+    icon: 'phone',
+    title: 'Telecaller',
+    text: 'Call back enquiries, note requirements clearly and set up visits for the sales team.',
+  },
+  {
+    icon: 'key',
+    title: 'Field executive',
+    text: 'Visit properties, check details on the ground and keep listings and photos up to date.',
+  },
+  {
+    icon: 'tag',
+    title: 'Office administrator',
+    text: 'Keep paperwork, appointments and client records in order at our Kothrud office.',
+  },
+];
+const steps = [
+  { title: 'Send your CV', text: 'By WhatsApp or email. Mention the role you want and the area you live in.' },
+  { title: 'A call from us', text: 'If there is a fit, someone from our team calls you for a short conversation.' },
+  { title: 'Meet the team', text: `Come to our office at Karve Statue, Kothrud, to meet ${site.founder.name} and the team.` },
+];
+---
+
+<BaseLayout
+  title="Careers at Ashiyana Real Estate · Kothrud, Pune"
+  description="Work with a Kothrud family firm in Pune real estate. Sales, telecalling, field and office roles. Send your CV on WhatsApp or by email."
+  pageName={pageName}
+  waInterest={waInterest}
+  crumbs={[{ name: 'Careers', path: '/careers' }]}
+>
+  <PageHero
+    eyebrow="Careers"
+    title="Build your career in Pune real estate"
+    summary={`Ashiyana Real Estate has helped ${site.stats.clients} clients across west Pune for ${site.stats.years} years. We are always glad to hear from people who like meeting families and solving their property questions.`}
+    pageName={pageName}
+    waInterest={waInterest}
+    buttons={false}
+  >
+    <div class="btn-row careers__ctas">
+      <a class="btn btn--whatsapp" href={wa} target="_blank" rel="noopener" data-cta="careers"><Icon name="whatsapp" /> Send CV on WhatsApp</a>
+      <a class="btn btn--outline" href={mail} data-cta="careers"><Icon name="mail" /> Email your CV</a>
+    </div>
+  </PageHero>
+
+  <section class="section" aria-labelledby="roles-h">
+    <div class="container">
+      <SectionHead
+        id="roles-h"
+        eyebrow="Roles"
+        title="Roles we"
+        tone="usually hire for"
+        lead="Openings change through the year. Send your CV for the role that suits you and we will keep it on file."
+      />
+      <ul role="list" class="grid grid-4 roles">
+        {
+          roles.map((r) => (
+            <li class="card role">
+              <span class="icon-badge" aria-hidden="true">
+                <Icon name={r.icon} />
+              </span>
+              <h3 class="heading-lg">{r.title}</h3>
+              <p>{r.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="apply-h">
+    <div class="container apply">
+      <SectionHead id="apply-h" eyebrow="How to apply" title="Three simple" tone="steps" />
+      <ol role="list" class="steps">
+        {
+          steps.map((s, i) => (
+            <li class="card step">
+              <span class="step__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="heading-lg">{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="btn-row">
+        <a class="btn btn--whatsapp" href={wa} target="_blank" rel="noopener" data-cta="careers-apply"><Icon name="whatsapp" /> Send CV on WhatsApp</a>
+        <a class="btn btn--outline" href={mail} data-cta="careers-apply"><Icon name="mail" /> {site.email}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .careers__ctas {
+    margin-top: clamp(20px, 4vh, 32px);
+  }
+  .role {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px;
+  }
+  .role p,
+  .step p {
+    color: #4e5d73;
+    font-size: 0.9375rem;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin: 0 0 clamp(20px, 4vh, 36px);
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 24px;
+  }
+  .step__n {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #e8104c;
+  }
+  @media (max-width: 899px) {
+    .steps {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+    .step,
+    .role {
+      padding: 16px;
+    }
+  }
+  @media (max-width: 767px) {
+    .roles {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .role p {
+      display: none;
+    }
+    .role .icon-badge {
+      display: none;
+    }
+    .steps {
+      gap: 8px;
+    }
+    .step {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 12px;
+      padding: 12px 14px;
+    }
+    .step__n {
+      font-size: 1.375rem;
+    }
+    .step p {
+      flex-basis: 100%;
+      font-size: 0.875rem;
+    }
+  }
+</style>

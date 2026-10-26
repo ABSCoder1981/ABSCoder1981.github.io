@@ -78,13 +78,38 @@ const wa = waHref(waInterest, pageName);
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: var(--whatsapp);
+    background: #25d366; /* WhatsApp brand green */
     color: #fff;
-    box-shadow: var(--shadow-float);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 10px 26px rgba(37, 211, 102, 0.45), 0 2px 6px rgba(13, 37, 61, 0.12);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  }
+  /* Two rings radiating outwards, like the office pins on the map */
+  .wa-float::before,
+  .wa-float::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 50%;
+    background: #25d366;
+    animation: wa-ring 2.4s ease-out infinite;
+  }
+  .wa-float::after {
+    animation-delay: 1.2s;
+  }
+  @keyframes wa-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(2.1);
+      opacity: 0;
+    }
   }
   .wa-float:hover {
-    background: var(--whatsapp-press);
+    background: #1ebe5d;
+    transform: scale(1.06);
   }
   /* Step aside while an enquiry form is on screen (it has its own WhatsApp option) */
   :global(html.form-in-view) .wa-float {

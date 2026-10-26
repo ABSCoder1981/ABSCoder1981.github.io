@@ -57,6 +57,11 @@ import sketch from '../../assets/tower-sketch.svg?raw';
     opacity: 0.8;
   }
 
+  /* One speed for the whole drawing: every line's duration and start time are scaled by it */
+  .tower-sketch {
+    --sk-speed: 0.6;
+  }
+
   @media all {
     /* ---- 1. Every line draws itself, in its own time ----
        pathLength="1" on each stroke: one dash = the whole line, followed by a gap of 2 so the
@@ -67,42 +72,42 @@ import sketch from '../../assets/tower-sketch.svg?raw';
       stroke-dasharray: 1 2;
       stroke-dashoffset: 1.06;
       animation:
-        sk-draw var(--t, 0.8s) cubic-bezier(0.45, 0.05, 0.25, 1) var(--d, 0s) forwards,
-        sk-ink 1.8s ease-out var(--d, 0s) backwards;
+        sk-draw calc(var(--t, 0.8s) * var(--sk-speed)) cubic-bezier(0.45, 0.05, 0.25, 1) calc(var(--d, 0s) * var(--sk-speed)) forwards,
+        sk-ink 1.8s ease-out calc(var(--d, 0s) * var(--sk-speed)) backwards;
     }
-    /* Climbing edges and mullions: constant speed, like a pen drawn steadily upwards */
+    /* Climbing edges and mullions: a steady pen stroke that eases in and out */
     .tower-sketch .s.r {
-      animation: sk-draw var(--t, 5s) linear var(--d, 0s) forwards;
+      animation: sk-draw calc(var(--t, 5s) * var(--sk-speed)) cubic-bezier(0.37, 0, 0.63, 1) calc(var(--d, 0s) * var(--sk-speed)) forwards;
     }
     /* Loose draft planes: draw in, then drift */
     .tower-sketch .s.fl {
       animation:
-        sk-draw 2.6s cubic-bezier(0.45, 0.05, 0.25, 1) var(--d, 0s) forwards,
-        sk-float var(--fdur, 9s) ease-in-out calc(var(--d, 0s) + 3s + var(--fdl, 0s)) infinite alternate;
+        sk-draw 1.6s cubic-bezier(0.45, 0.05, 0.25, 1) calc(var(--d, 0s) * var(--sk-speed)) forwards,
+        sk-float calc(var(--fdur, 9s) * 0.75) ease-in-out calc(var(--d, 0s) * var(--sk-speed) + 2s + var(--fdl, 0s)) infinite alternate;
     }
 
     /* ---- 2. Construction guides: fade in, then the dashes slowly march along the line ---- */
     .tower-sketch .guide {
       animation:
         sk-guide-in 2s ease 0.2s backwards,
-        sk-march 36s linear infinite;
+        sk-march 24s linear infinite;
     }
 
     /* ---- 3. Crane works once it is built ---- */
     .tower-sketch .sk-hook {
       opacity: 0;
       animation:
-        sk-show 1s ease var(--hs, 10s) forwards,
-        sk-travel 22s ease-in-out calc(var(--hs, 10s) + 1s) infinite;
+        sk-show 0.8s ease calc(var(--hs, 10s) * var(--sk-speed)) forwards,
+        sk-travel 15s ease-in-out calc(var(--hs, 10s) * var(--sk-speed) + 0.8s) infinite;
     }
     .tower-sketch .sk-beam {
       transform-box: view-box;
       transform-origin: 1303px 276px; /* swing around the hook */
-      animation: sk-sway 5s ease-in-out calc(var(--hs, 10s) + 1s) infinite alternate;
+      animation: sk-sway 4s ease-in-out calc(var(--hs, 10s) * var(--sk-speed) + 0.8s) infinite alternate;
     }
     .tower-sketch .sk-beacon {
       opacity: 0;
-      animation: sk-blink 2.2s ease-in-out var(--bs, 9s) infinite;
+      animation: sk-blink 2s ease-in-out calc(var(--bs, 9s) * var(--sk-speed)) infinite;
     }
   }
 

@@ -5,14 +5,14 @@ import { join, relative, sep } from 'node:path';
 
 const DIST = new URL('../dist/', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
 
-// Prototype pages: checked like every other page, but not part of the 21-page sitemap
+// Prototype pages: checked like every other page, but not part of the 22-page sitemap
 const PROTOTYPES = ['/landing'];
 
 const EXPECTED_PAGES = [
   '/', '/services', '/services/buy', '/services/sell', '/services/rentals', '/services/valuation',
   '/services/investment', '/services/legal', '/services/property-management',
   '/kothrud', '/karvenagar', '/warje', '/prabhat-road', '/bavdhan', '/erandwane',
-  '/about', '/contact', '/projects/sanaswadi-industrial-land', '/privacy', '/terms', '/404',
+  '/about', '/careers', '/contact', '/projects/sanaswadi-industrial-land', '/privacy', '/terms', '/404',
 ];
 
 // Claims the audit/PRD say must not appear anywhere
@@ -61,7 +61,7 @@ const fail = (route, msg) => errors.push(`${route}: ${msg}`);
 const routes = htmlFiles.map(toRoute);
 for (const r of EXPECTED_PAGES) if (!routes.includes(r)) fail(r, 'expected page missing');
 const sitePages = routes.filter((r) => !PROTOTYPES.includes(r));
-if (sitePages.length !== 21) fail('dist', `expected 21 pages, found ${sitePages.length}`);
+if (sitePages.length !== 22) fail('dist', `expected 22 pages, found ${sitePages.length}`);
 // Prototypes must never be indexed by search engines
 for (const p of PROTOTYPES) {
   const file = htmlFiles.find((f) => toRoute(f) === p);
@@ -144,7 +144,7 @@ const robots = await readFile(join(DIST, 'robots.txt'), 'utf8').catch(() => '');
 if (!/Sitemap: https:\/\/www\.ashiyanarealestate\.in\/sitemap-index\.xml/.test(robots)) fail('robots.txt', 'missing sitemap line');
 const sm = await readFile(join(DIST, 'sitemap-0.xml'), 'utf8').catch(() => '');
 const smCount = (sm.match(/<loc>/g) || []).length;
-if (smCount !== 20) fail('sitemap', `expected 20 URLs (all pages except 404), found ${smCount}`);
+if (smCount !== 21) fail('sitemap', `expected 21 URLs (all pages except 404), found ${smCount}`);
 if (/404/.test(sm)) fail('sitemap', '404 page listed');
 
 if (warn.length) console.log(`⚠ ${warn.length} warning(s)\n  ` + warn.slice(0, 10).join('\n  '));

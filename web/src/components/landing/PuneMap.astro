@@ -52,7 +52,6 @@ const areas = localities
       slug: l.slug,
       name: l.name,
       distance: shortDistance(l.distance),
-      homes: l.propertyTypes[0]?.type ?? '',
       ...pos,
       d: r.d,
       roadLabel: { ...label, angle: 0 },
@@ -119,13 +118,27 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
 <!-- Layer 2: routes + pins (above the veil, below the text) -->
 <div class="map-stage map-pins">
   <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
-    <g class="route route--office">
+    <g class="route route--office" data-route="baner">
       <path class="route__line" d={branchRoute.d} pathLength="1" />
+      <g class="route__run">
+        {[0, 1, 2].map((k) => (
+          <path class="route__arrow" d="M-11 -7L4 0L-11 7Z">
+            <animateMotion dur="1.5s" begin={`${k * 0.5}s`} repeatCount="indefinite" rotate="auto" path={branchRoute.d} />
+          </path>
+        ))}
+      </g>
     </g>
     {
       areas.map((a) => (
-        <g class="route" style={`--i:${a.i}`}>
+        <g class="route" data-route={a.slug} style={`--i:${a.i}`}>
           <path class="route__line" d={a.d} pathLength="1" />
+          <g class="route__run">
+            {[0, 1, 2].map((k) => (
+              <path class="route__arrow" d="M-11 -7L4 0L-11 7Z">
+                <animateMotion dur="1.5s" begin={`${k * 0.5}s`} repeatCount="indefinite" rotate="auto" path={a.d} />
+              </path>
+            ))}
+          </g>
           <circle class="route__dot" r="4">
             <animateMotion dur={`${7 + a.i * 0.8}s`} begin={`${5 + a.i * 0.6}s`} repeatCount="indefinite" path={a.d} />
           </circle>
@@ -143,6 +156,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
 
   <a
     class="pin pin--left pin--office"
+    data-pin="baner"
     href={branch.mapUrl}
     target="_blank"
     rel="noopener"
@@ -156,6 +170,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     areas.map((a) => (
       <a
         class:list={['pin', `pin--${a.side}`]}
+        data-pin={a.slug}
         href={`/${a.slug}`}
         style={`left:${pct(a.x, VB.w)};top:${pct(a.y, VB.h)};--i:${a.i}`}
       >
@@ -163,11 +178,6 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
         <span class="pin__chip">
           <strong>{a.name}</strong>
           <span>{a.distance} from our office</span>
-        </span>
-        <span class="pin__card">
-          <span class="pin__card-k">Typical homes</span>
-          {a.homes}
-          <span class="pin__card-go">Explore {a.name} →</span>
         </span>
       </a>
     ))
@@ -388,50 +398,32 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #c8123f;
   }
 
-  /* Hover / focus card: what you'll find there */
-  .pin__card {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 220px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: #fff;
-    border: 1px solid rgba(13, 37, 61, 0.08);
-    box-shadow: 0 16px 36px rgba(13, 37, 61, 0.14);
-    font-size: 0.8125rem;
-    line-height: 1.4;
-    color: #344559;
-    white-space: normal;
+  /* Hover / focus on a pin: its route lights up and arrows run from the Kothrud office to it */
+  .route__arrow {
+    fill: #e8104c;
     opacity: 0;
-    visibility: hidden;
-    transform: translateY(-4px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-    z-index: 3;
+    transition: opacity 0.25s ease;
   }
-  .pin--left .pin__card {
-    right: auto;
-    left: 0;
-  }
-  .pin:hover .pin__card,
-  .pin:focus-visible .pin__card {
+  .route.is-hot .route__arrow {
     opacity: 1;
-    visibility: visible;
-    transform: none;
   }
-  .pin__card-k {
-    font-size: 0.6875rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #b80f3a;
+  .route.is-hot .route__line {
+    opacity: 1;
+    stroke-width: 2.6;
+    animation: route-run 0.9s linear infinite !important;
   }
-  .pin__card-go {
-    margin-top: 4px;
-    font-weight: 600;
-    color: #b80f3a;
+  .route.is-hot .route__dot {
+    opacity: 0 !important;
+  }
+  @keyframes route-run {
+    from {
+      stroke-dasharray: 0.012 0.008;
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dasharray: 0.012 0.008;
+      stroke-dashoffset: -0.02;
+    }
   }
 
   /* Head office hub */
@@ -553,3 +545,18 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     }
   }
 </style>
+
+<script>
+  // Hovering or focusing a pin lights up its route from the Kothrud office
+  const routes = new Map([...document.querySelectorAll<SVGGElement>('[data-route]')].map((g) => [g.dataset.route, g]));
+  for (const pin of document.querySelectorAll<HTMLElement>('[data-pin]')) {
+    const g = routes.get(pin.dataset.pin);
+    if (!g) continue;
+    const on = () => g.classList.add('is-hot');
+    const off = () => g.classList.remove('is-hot');
+    pin.addEventListener('pointerenter', on);
+    pin.addEventListener('pointerleave', off);
+    pin.addEventListener('focus', on);
+    pin.addEventListener('blur', off);
+  }
+</script>

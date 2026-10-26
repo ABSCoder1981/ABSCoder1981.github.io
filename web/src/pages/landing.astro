@@ -41,14 +41,11 @@ const words = ['home', 'buyer', 'land', 'investment'];
     <div class="hero__veil" aria-hidden="true"></div>
 
     <div class="hero__content">
-      <p class="hero__eyebrow">
-        <span class="hero__rule" aria-hidden="true"></span> Kothrud &amp; Baner, Pune <span class="hero__rule" aria-hidden="true"></span>
-      </p>
       <h1 id="hero-title" class="hero__title">
         <span class="hero__line">Find the right</span>
         <span class="sr-only">{words[0]}</span>
-        <span class="rot" aria-hidden="true" data-rotator>
-          {words.map((w, i) => <span class:list={['rot__w', { 'is-on': i === 0 }]}>{w}</span>)}
+        <span class="tw" aria-hidden="true" data-typewriter data-words={JSON.stringify(words)}>
+          <span class="tw__text">{words[0]}</span><span class="tw__caret"></span>
         </span>
         <span class="hero__line">in Pune.</span>
       </h1>
@@ -98,27 +95,43 @@ const words = ['home', 'buyer', 'land', 'investment'];
 
 <script>
 
-  // Rotating headline word: home → buyer → land → investment
-  const rot = document.querySelector('[data-rotator]');
-  if (rot) {
-    const words = [...rot.querySelectorAll<HTMLElement>('.rot__w')];
-    let i = 0;
+  // Typewriter headline word: HOME → BUYER → LAND → INVESTMENT, typed and erased letter by letter
+  const tw = document.querySelector<HTMLElement>('[data-typewriter]');
+  const twText = tw?.querySelector<HTMLElement>('.tw__text');
+  if (tw && twText) {
+    const words: string[] = JSON.parse(tw.dataset.words || '[]');
+    let w = 0;
+    let n = words[0].length;
+    let deleting = true;
     let timer: number | undefined;
-    const next = () => {
-      const cur = words[i];
-      i = (i + 1) % words.length;
-      const nxt = words[i];
-      cur.classList.remove('is-on');
-      cur.classList.add('is-out');
-      nxt.classList.remove('is-out');
-      nxt.classList.add('is-on');
-      // after the slide-out, park the old word below again for its next turn
-      setTimeout(() => cur.classList.remove('is-out'), 750);
+    const tick = () => {
+      if (deleting) {
+        n -= 1;
+        if (n <= 0) {
+          deleting = false;
+          w = (w + 1) % words.length;
+        }
+      } else {
+        n += 1;
+      }
+      twText.textContent = words[w].slice(0, Math.max(0, n));
+      tw.classList.toggle('is-typing', true);
+      let wait = deleting ? 55 : 95; // erase faster than typing
+      if (!deleting && n >= words[w].length) {
+        deleting = true;
+        wait = 2200; // hold the full word
+        tw.classList.remove('is-typing');
+      } else if (!deleting && n === 0) {
+        wait = 250;
+      }
+      timer = window.setTimeout(tick, wait);
     };
-    const start = () => (timer = window.setInterval(next, 2800));
-    const stop = () => window.clearInterval(timer);
-    setTimeout(start, 2400); // first change once the hero has settled
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+    const start = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(tick, 2400); // first change once the hero has settled
+    };
+    start();
+    document.addEventListener('visibilitychange', () => (document.hidden ? window.clearTimeout(timer) : start()));
   }
 
 </script>
@@ -269,25 +282,6 @@ const words = ['home', 'buyer', 'land', 'investment'];
     pointer-events: auto;
   }
 
-  .hero__eyebrow {
-    width: fit-content; /* clickable box = text only, so nearby map pins stay clickable */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin: 0 auto clamp(14px, 2.6vh, 24px);
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: #b80f3a;
-  }
-  .hero__rule {
-    width: 40px;
-    height: 1px;
-    background: currentColor;
-  }
   .hero__title {
     width: fit-content; /* box = the words, so map pins beside it stay clickable */
     margin: 0;
@@ -302,32 +296,41 @@ const words = ['home', 'buyer', 'land', 'investment'];
   .hero__line {
     display: block;
   }
-  /* Rotating word: its own line, words stacked and swapped with a slide */
-  .rot {
-    position: relative;
-    display: block;
-    height: 1.08em;
-    overflow: hidden;
+  /* Typewriter word: its own line, big, bold, capitals, in the logo crimson, with a blinking cursor */
+  .tw {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.15em;
+    margin: 0.04em 0;
+    font-size: min(1.22em, 11vw);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
   }
-  .rot__w {
-    position: absolute;
-    inset: 0;
-    font-weight: 600;
+  .tw__text {
     background: linear-gradient(100deg, #c8123f 0%, #e8104c 45%, #a30d34 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    opacity: 0;
-    transform: translateY(70%);
-    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.7s ease;
   }
-  .rot__w.is-on {
-    opacity: 1;
-    transform: none;
+  .tw__caret {
+    width: 0.07em;
+    height: 0.9em;
+    margin-left: 0.08em;
+    border-radius: 2px;
+    background: #e8104c;
+    animation: tw-blink 1s steps(1) infinite;
   }
-  .rot__w.is-out {
-    opacity: 0;
-    transform: translateY(-70%);
+  .tw.is-typing .tw__caret {
+    animation: none; /* solid while typing, blinks while the word holds */
+  }
+  @keyframes tw-blink {
+    50% {
+      opacity: 0;
+    }
   }
   .hero__lead {
     margin: clamp(14px, 3vh, 28px) auto 0;
@@ -517,9 +520,6 @@ const words = ['home', 'buyer', 'land', 'investment'];
     .hero__content {
       padding-top: 84px;
     }
-    .hero__eyebrow {
-      margin-bottom: 10px;
-    }
     .hero__title {
       font-size: clamp(2rem, 7.4vh, 3rem);
     }
@@ -593,13 +593,6 @@ const words = ['home', 'buyer', 'land', 'investment'];
     }
     .hero__areas li {
       flex: none;
-    }
-    .hero__eyebrow {
-      font-size: 0.6875rem;
-      letter-spacing: 0.2em;
-    }
-    .hero__rule {
-      display: none;
     }
     .hero__lead {
       font-size: 0.9375rem;

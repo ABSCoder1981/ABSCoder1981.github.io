@@ -1,15 +1,17 @@
 ---
 import { Image } from 'astro:assets';
-import { localities, telHref, site } from '../../lib/site';
+import { telHref, site } from '../../lib/site';
 import { img } from '../../lib/images';
 
-// Labels follow the landing-page brief. Ashiyana has no township pages, so TOWNSHIPS lists the six localities.
-const townships = localities.map((l) => ({ href: `/${l.slug}`, label: l.name }));
 const links = [
-  { href: '/projects/sanaswadi-industrial-land', label: 'Projects' },
-  { href: '/about', label: 'About' },
+  { href: '/about', label: 'About us' },
+  { href: '/services', label: 'Services' },
+  { href: '/careers', label: 'Careers' },
   { href: '/contact', label: 'Contact us' },
 ];
+// the current section is marked (a service page counts as Services)
+const path = Astro.url.pathname.replace(/\.html$/, '');
+const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
 ---
 
 <!--
@@ -29,15 +31,15 @@ const links = [
 
     <nav class="nav__menu" aria-label="Main">
       <ul role="list">
-        <li class="nav__drop">
-          <button type="button" class="nav__link" aria-expanded="false" aria-controls="nav-townships">
-            Townships <span class="nav__caret" aria-hidden="true"></span>
-          </button>
-          <ul role="list" class="nav__panel" id="nav-townships">
-            {townships.map((t) => <li><a href={t.href}>{t.label}</a></li>)}
-          </ul>
-        </li>
-        {links.map((l) => <li><a class="nav__link" href={l.href}>{l.label}</a></li>)}
+        {
+          links.map((l) => (
+            <li>
+              <a class="nav__link" href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
 
@@ -51,12 +53,8 @@ const links = [
   </div>
 
   <div class="nav__mobile" id="nav-mobile" hidden>
-    <p class="nav__mobile-h">Townships</p>
-    <ul role="list" class="nav__mobile-grid">
-      {townships.map((t) => <li><a href={t.href}>{t.label}</a></li>)}
-    </ul>
     <ul role="list" class="nav__mobile-list">
-      {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      {links.map((l) => <li><a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
     </ul>
     <div class="nav__mobile-cta">
       <a class="pill pill--gold" href="/contact" data-cta="nav-mobile">Let’s connect</a>
@@ -184,61 +182,9 @@ const links = [
   }
   .nav__link:hover::after,
   .nav__link:focus-visible::after,
-  .nav__drop.is-open > .nav__link::after {
+  .nav__link[aria-current='page']::after {
     transform: scaleX(1);
   }
-  .nav__caret {
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid currentColor;
-    transition: transform 0.3s ease;
-  }
-  .nav__drop {
-    position: relative;
-  }
-  .nav__panel {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    min-width: 220px;
-    margin: 0;
-    padding: 8px;
-    background: #fff;
-    border: 1px solid rgba(13, 37, 61, 0.08);
-    border-radius: 12px;
-    box-shadow: 0 16px 40px rgba(13, 37, 61, 0.12);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-  }
-  .nav__drop:hover .nav__panel,
-  .nav__drop:focus-within .nav__panel,
-  .nav__drop.is-open .nav__panel {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-  }
-  .nav__drop:hover .nav__caret,
-  .nav__drop.is-open .nav__caret {
-    transform: rotate(180deg);
-  }
-  .nav__panel a {
-    display: block;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: #0d253d;
-    font-size: 0.9375rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-  }
-  .nav__panel a:hover {
-    background: #fdecf0;
-    color: #b80f3a;
-  }
-
   .nav__actions {
     display: flex;
     align-items: center;
@@ -327,19 +273,6 @@ const links = [
   .nav__mobile[hidden] {
     display: none;
   }
-  .nav__mobile-h {
-    margin: 12px 0 4px;
-    font-size: 0.75rem;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: #b80f3a;
-  }
-  .nav__mobile-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 16px;
-    margin: 0;
-  }
   .nav__mobile a:not(.pill) {
     display: flex;
     align-items: center;
@@ -410,6 +343,12 @@ const links = [
       transition: none;
     }
   }
+  .nav__link[aria-current='page'] {
+    color: #c8123f;
+  }
+  .nav__mobile-list a[aria-current='page'] {
+    color: #c8123f;
+  }
 </style>
 
 <script>
@@ -442,28 +381,6 @@ const links = [
     );
     check();
   }
-
-  // TOWNSHIPS dropdown: hover/focus via CSS; click toggles for touch + keyboard; Escape closes
-  const drop = nav.querySelector<HTMLElement>('.nav__drop')!;
-  const dropBtn = drop.querySelector('button')!;
-  const closeDrop = () => {
-    drop.classList.remove('is-open');
-    dropBtn.setAttribute('aria-expanded', 'false');
-  };
-  dropBtn.addEventListener('click', () => {
-    const open = !drop.classList.contains('is-open');
-    drop.classList.toggle('is-open', open);
-    dropBtn.setAttribute('aria-expanded', String(open));
-  });
-  drop.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeDrop();
-      dropBtn.focus();
-    }
-  });
-  document.addEventListener('click', (e) => {
-    if (!drop.contains(e.target as Node)) closeDrop();
-  });
 
   // Mobile menu
   const burger = nav.querySelector<HTMLButtonElement>('.nav__burger')!;

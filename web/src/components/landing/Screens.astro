@@ -106,8 +106,35 @@
   document.addEventListener('click', () => window.setTimeout(fitAll, 520));
   document.addEventListener('ashiyana:refit', queue);
 
-  // Wheel paging: one wheel notch / trackpad swipe = one section. (Touch and keyboard use CSS snapping.)
+  // Wheel and keyboard paging: one wheel notch / trackpad swipe / key press = one section, with a soft
+  // eased glide (touch keeps the browser's own snapping, which already glides).
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const GLIDE_MS = 900;
+  const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); // ease-in-out cubic
+  let gliding = 0;
+  const glideTo = (target: number) => {
+    if (reducedMotion) {
+      window.scrollTo(0, target);
+      return;
+    }
+    const from = window.scrollY;
+    const dist = target - from;
+    const t0 = performance.now();
+    const id = ++gliding;
+    root.style.scrollSnapType = 'none'; // snapping would fight the frame-by-frame glide
+    root.style.scrollBehavior = 'auto';
+    const step = (now: number) => {
+      if (id !== gliding) return;
+      const t = Math.min(1, (now - t0) / GLIDE_MS);
+      window.scrollTo(0, from + dist * ease(t));
+      if (t < 1) requestAnimationFrame(step);
+      else {
+        root.style.scrollSnapType = '';
+        root.style.scrollBehavior = '';
+      }
+    };
+    requestAnimationFrame(step);
+  };
   const stops = () =>
     [document.querySelector('.hero'), ...document.querySelectorAll('[data-screen]'), document.querySelector('footer.tf')].filter(
       Boolean,
@@ -124,7 +151,7 @@
     'wheel',
     (e) => {
       if (e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // pinch-zoom or sideways scroll
-      if ((e.target as Element).closest?.('.nav__mobile, .nav__panel, dialog')) return;
+      if ((e.target as Element).closest?.('.nav__mobile, dialog')) return;
       const y = window.scrollY;
       const vh = window.innerHeight;
       const dir = Math.sign(e.deltaY);
@@ -147,12 +174,44 @@
       if (target === undefined) return;
       target = Math.min(target, max);
       locked = true;
-      unlockAt = performance.now() + (reducedMotion ? 150 : 750);
-      window.scrollTo({ top: target, behavior: reducedMotion ? 'auto' : 'smooth' });
+      unlockAt = performance.now() + (reducedMotion ? 150 : GLIDE_MS + 50);
+      glideTo(target);
       tryUnlock();
     },
     { passive: false },
   );
+
+  // Keyboard: Page Up/Down, arrows and Space move one section with the same glide
+  window.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    const el = e.target as HTMLElement;
+    if (el.closest?.('input, textarea, select, [contenteditable], dialog, .nav__mobile, [role="tablist"], .board__grid')) return;
+    const down = ['PageDown', 'ArrowDown'].includes(e.key) || (e.key === ' ' && !e.shiftKey);
+    const up = ['PageUp', 'ArrowUp'].includes(e.key) || (e.key === ' ' && e.shiftKey);
+    if (!down && !up) return;
+    const y = window.scrollY;
+    const vh = window.innerHeight;
+    // inside a section taller than the screen, let the keys scroll it normally
+    const here = stops().find((s) => {
+      const top = s.getBoundingClientRect().top + y;
+      return top <= y + 2 && top + s.offsetHeight > y + 2;
+    });
+    if (here && here.offsetHeight > vh + 2) {
+      const top = here.getBoundingClientRect().top + y;
+      if ((down && y + vh < top + here.offsetHeight - 2) || (up && y > top + 2)) return;
+    }
+    e.preventDefault();
+    if (locked) return;
+    const tops = stops().map((s) => Math.round(s.getBoundingClientRect().top + y));
+    const max = document.documentElement.scrollHeight - vh;
+    const target = down ? tops.find((t) => t > y + 4) : [...tops].reverse().find((t) => t < y - 4);
+    if (target === undefined) return;
+    locked = true;
+    lastWheel = 0;
+    unlockAt = performance.now() + (reducedMotion ? 150 : GLIDE_MS + 50);
+    glideTo(Math.min(target, max));
+    tryUnlock();
+  });
 </script>
 
 
