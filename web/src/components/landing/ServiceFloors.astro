@@ -529,7 +529,7 @@ const wa = waHref('your property services', 'Landing page · services');
   }
 
   /* ---------- Scroll-in: floors draw in bottom-up ---------- */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .floors__art .f-ln {
       stroke-dasharray: 1;
       stroke-dashoffset: 1;
@@ -581,12 +581,6 @@ const wa = waHref('your property services', 'Landing page · services');
     .floors.is-in .floors__unsure {
       opacity: 1;
       transform: none;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .f-hook,
-    .floor__panel {
-      transition: none;
     }
   }
 

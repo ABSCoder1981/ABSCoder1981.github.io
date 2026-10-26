@@ -116,16 +116,14 @@ li > span a,
 .skip-link:focus {
   top: 12px;
 }
+/* Reduce motion: calm effects (line drawing, fades, counters) still play once; large movement does not.
+   Scrolling jumps instead of gliding, and the background sketch plays once then rests. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
+  .tower-sketch * {
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 }
 

@@ -463,7 +463,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
   }
 
   /* ---------- Motion: map fades in, hub then areas drop in, routes draw, dots travel ---------- */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .map-base {
       opacity: 0;
       animation: map-in 2s ease 1.2s forwards;

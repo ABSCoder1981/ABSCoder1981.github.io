@@ -603,7 +603,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
   }
 
   /* ---------- Entrance ---------- */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .ptk__head,
     .ptk__grid {
       opacity: 0;
@@ -617,27 +617,6 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     .ptk.is-in .ptk__grid {
       opacity: 1;
       transform: none;
-    }
-  }
-  /* Reduced motion: finished home, nothing animates */
-  @media (prefers-reduced-motion: reduce) {
-    .st .ln {
-      stroke-dashoffset: 0 !important;
-      transition: none;
-    }
-    .roof {
-      opacity: 0.12 !important;
-    }
-    .wall,
-    .st .key {
-      opacity: 1 !important;
-      transform: none !important;
-    }
-    .st1 .dash {
-      stroke-dasharray: 0.012 0.012;
-    }
-    .step {
-      min-height: 0;
     }
   }
 
@@ -713,7 +692,6 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     const dots = [...root.querySelectorAll<HTMLElement>('[data-dot]')];
     const stageNum = root.querySelector('[data-stage-num]')!;
     const stageName = root.querySelector('[data-stage-name]')!;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const setStage = (n: number) => {
       root.dataset.stage = String(n);
@@ -749,7 +727,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
       steps.forEach((s, i) => s.querySelector('.step__btn')?.setAttribute('aria-expanded', String(i === n - 1)));
     };
     const play = () => {
-      if (reduced || userTook) return;
+      if (userTook) return;
       window.clearInterval(timer);
       root.classList.add('is-playing');
       timer = window.setInterval(() => go((Number(root.dataset.stage) % steps.length) + 1), STEP_MS);
@@ -774,7 +752,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     window.addEventListener('resize', reserve);
     document.fonts?.ready.then(reserve);
 
-    if (reduced || !('IntersectionObserver' in window)) root.classList.add('is-in');
+    if (!('IntersectionObserver' in window)) root.classList.add('is-in');
     else {
       new IntersectionObserver(
         (es) => {

@@ -593,7 +593,7 @@ const wa = waHref('talking to your team', 'Landing page · our people');
   }
 
   /* ---------- Motion: entrance + pillars rise ---------- */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .pb__head,
     .founder,
     .team,
@@ -756,7 +756,6 @@ const wa = waHref('talking to your team', 'Landing page · our people');
 <script>
   const root = document.querySelector<HTMLElement>('[data-pb]');
   if (root) {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Entrance (each block as it arrives) + pillars rising
     const targets = [
@@ -766,7 +765,7 @@ const wa = waHref('talking to your team', 'Landing page · our people');
       root.querySelector('.pillars__intro'),
       root.querySelector('[data-pillars]'),
     ].filter(Boolean) as Element[];
-    if (reduced || !('IntersectionObserver' in window)) targets.forEach((t) => t.classList.add('is-in'));
+    if (!('IntersectionObserver' in window)) targets.forEach((t) => t.classList.add('is-in'));
     else {
       const io = new IntersectionObserver(
         (es) => {

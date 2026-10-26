@@ -483,7 +483,7 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
   }
 
   /* draw-in when a panel becomes active */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .lx__panel .sv {
       stroke-dasharray: 1;
       stroke-dashoffset: 1;
@@ -820,7 +820,7 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
   }
 
   /* entrance */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .lx__head,
     .lx__tabs {
       opacity: 0;
@@ -923,7 +923,7 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
 
     // Entrance + first draw-in when the section scrolls into view
     const plot = root.querySelector<HTMLElement>('.plot');
-    if (reduced || !('IntersectionObserver' in window)) {
+    if (!('IntersectionObserver' in window)) {
       root.classList.add('is-in');
       plot?.classList.add('is-in');
       panels[0].classList.add('is-drawn');

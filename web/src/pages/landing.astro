@@ -97,11 +97,10 @@ const words = ['home', 'buyer', 'land', 'investment'];
 </BaseLayout>
 
 <script>
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Rotating headline word: home → buyer → land → investment
   const rot = document.querySelector('[data-rotator]');
-  if (rot && !reduced) {
+  if (rot) {
     const words = [...rot.querySelectorAll<HTMLElement>('.rot__w')];
     let i = 0;
     let timer: number | undefined;
@@ -467,7 +466,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
   }
 
   /* Content entrance, after the sketch starts drawing */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .hero__content > * {
       opacity: 0;
       transform: translateY(18px);

@@ -522,7 +522,7 @@ const stars = (r: number) => Math.round((r / 5) * 100);
   }
 
   /* ---------- Motion: prints settle onto the board ---------- */
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .cb__top,
     .board {
       opacity: 0;
@@ -633,8 +633,7 @@ const stars = (r: number) => Math.round((r / 5) * 100);
 <script>
   const root = document.querySelector<HTMLElement>('[data-cb]');
   if (root) {
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || !('IntersectionObserver' in window)) root.classList.add('is-in');
+    if (!('IntersectionObserver' in window)) root.classList.add('is-in');
     else {
       const io = new IntersectionObserver(
         (es) => {

@@ -411,7 +411,7 @@ const offices = site.offices;
     transform: rotate(-6deg);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
+  @media all {
     .so__head,
     .offices,
     .sheet {
@@ -500,8 +500,7 @@ const offices = site.offices;
     update();
     setInterval(update, 60_000);
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || !('IntersectionObserver' in window)) root.classList.add('is-in');
+    if (!('IntersectionObserver' in window)) root.classList.add('is-in');
     else {
       const io = new IntersectionObserver(
         (es) => {
