@@ -1,0 +1,59 @@
+---
+import { Image } from 'astro:assets';
+import { img } from '../lib/images';
+
+interface Props {
+  review: { name: string; label: string; area: string; photo: string; quote: string };
+}
+const { review } = Astro.props;
+---
+
+<figure class="card review">
+  <blockquote>
+    <p>“{review.quote}”</p>
+  </blockquote>
+  <figcaption>
+    <Image src={img(review.photo)} alt="" width={96} height={96} fit="cover" loading="lazy" />
+    <span>
+      <strong>{review.name}</strong>
+      <span class="review__meta">{review.label}, {review.area}</span>
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .review {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-5);
+    margin: 0;
+  }
+  blockquote {
+    margin: 0;
+    flex: 1;
+    font-size: var(--fs-body-lg);
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hairline);
+  }
+  figcaption :global(img) {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  strong {
+    display: block;
+    font-weight: var(--fw-heading);
+  }
+  .review__meta {
+    font-size: var(--fs-caption);
+    color: var(--ink-mute);
+  }
+</style>

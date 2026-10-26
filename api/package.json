@@ -1,0 +1,21 @@
+{
+  "name": "ashiyana-enquiry-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Enquiry endpoint for ashiyanarealestate.in: validates the form and emails it over SMTP.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.js",
+    "dev": "node --watch --env-file-if-exists=.env src/server.js",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "@fastify/rate-limit": "^11.2.1",
+    "fastify": "^5.12.7",
+    "nodemailer": "^10.1.7"
+  }
+}

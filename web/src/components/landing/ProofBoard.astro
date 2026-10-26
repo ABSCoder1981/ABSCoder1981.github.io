@@ -1,0 +1,629 @@
+---
+// Section 2 — "Blueprint proof board" (option B) with a continuous developer-logo marquee (option A).
+// Continues the hero's drawing-paper look: sketch grid, dimension lines, Jost type, logo crimson.
+// Motion: proof cards draw their outlines in and count up once when scrolled into view;
+// the two logo rows scroll continuously in opposite directions (pause button, pauses on hover/focus,
+// static grid for reduced motion).
+import { Image } from 'astro:assets';
+import { img } from '../../lib/images';
+import { site } from '../../lib/site';
+import people from '../../data/people.json';
+
+const proofs = [
+  { value: site.stats.years, label: 'Years in Pune real estate', note: 'A Kothrud family firm' },
+  { value: site.stats.clients, label: 'Families helped', note: 'Buyers, sellers and investors' },
+  { value: site.stats.developers, label: 'Developer partners', note: 'Long-standing relationships' },
+  { value: String(site.offices.length), label: 'Offices', note: site.offices.map((o) => o.name).join(' · ') },
+];
+
+const devs = people.developers;
+const half = Math.ceil(devs.length / 2);
+const rows = [devs.slice(0, half), devs.slice(half)];
+const story = people.reviews[0];
+---
+
+<section class="proof" aria-labelledby="proof-h" data-proof data-screen>
+  <!-- decorative drafting marks -->
+  <svg class="proof__marks" viewBox="0 0 1600 900" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <path d="M1520 180V760M1512 180h16M1512 760h16" />
+    <path class="dash" d="M0 860L1600 640M0 300L1600 520" />
+  </svg>
+
+  <div class="container proof__inner">
+    <header class="proof__head">
+      <h2 id="proof-h" class="proof__title">Why Pune <em>trusts us.</em></h2>
+      <p class="proof__lead">
+        From our offices in Kothrud and Baner, we have helped thousands of families buy, sell and invest across west
+        Pune, and worked side by side with the city's leading developers.
+      </p>
+    </header>
+
+    <!-- Proof cards: outlines draw in, numbers count up -->
+    <ul role="list" class="proof__cards">
+      {
+        proofs.map((p, i) => (
+          <li class="pcard" style={`--i:${i}`}>
+            <svg class="pcard__frame" aria-hidden="true" focusable="false">
+              <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="14" pathLength="1" />
+            </svg>
+            <span class="pcard__tick pcard__tick--tl" aria-hidden="true" />
+            <span class="pcard__tick pcard__tick--br" aria-hidden="true" />
+            <span class="pcard__value num" data-count={p.value}>{p.value}</span>
+            <span class="pcard__label">{p.label}</span>
+            <span class="pcard__note">{p.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="proof__grid">
+      <!-- Developer logos: two rows, continuous motion in opposite directions -->
+      <div class="partners">
+        <div class="partners__top">
+          <p class="partners__k">Developers we work with</p>
+        </div>
+        <div class="marquee" data-marquee>
+          {
+            rows.map((row, r) => (
+              <div class:list={['marquee__row', { 'marquee__row--rev': r === 1 }]}>
+                <ul role="list" class="marquee__track">
+                  {row.map((d) => (
+                    <li class="plaque">
+                      <Image src={img(d.logo)} alt={d.name} width={280} loading="lazy" />
+                    </li>
+                  ))}
+                  {row.map((d) => (
+                    <li class="plaque" aria-hidden="true">
+                      <Image src={img(d.logo)} alt="" width={280} loading="lazy" />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proof {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(44px, 5vw, 72px);
+    /* drawing paper with a faint drafting grid, continuing the hero */
+    background-color: #fbfaf7;
+    background-image:
+      linear-gradient(rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(rgba(61, 74, 92, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.03) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    border-top: 1px solid rgba(13, 37, 61, 0.06);
+    color: #0d253d;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+  .proof__marks {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-width: 1;
+    opacity: 0.22;
+  }
+  .proof__marks .dash {
+    stroke-dasharray: 6 8;
+    opacity: 0.7;
+  }
+  .proof__marks circle {
+    fill: #e8104c;
+    stroke: none;
+  }
+  .proof__inner {
+    position: relative;
+  }
+
+  /* ---------- Heading ---------- */
+  .proof__head {
+    max-width: 760px;
+  }
+  .proof__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .proof__num {
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .proof__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .proof__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: #0d253d;
+    text-wrap: balance;
+  }
+  .proof__title em {
+    font-style: normal;
+    font-weight: 600;
+    color: #c8123f;
+  }
+  .proof__lead {
+    margin: 18px 0 0;
+    max-width: 60ch;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: #344559;
+  }
+
+  /* ---------- Proof cards ---------- */
+  .proof__cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin: clamp(40px, 5vw, 64px) 0 0;
+  }
+  .pcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 28px 24px 24px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 32px rgba(13, 37, 61, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .pcard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(200, 18, 63, 0.12);
+  }
+  .pcard__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .pcard__frame rect {
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-width: 1;
+    opacity: 0.45;
+  }
+  .pcard:hover .pcard__frame rect {
+    stroke: #e8104c;
+    opacity: 0.8;
+  }
+  /* drafting corner ticks */
+  .pcard__tick {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: #e8104c;
+    border-style: solid;
+  }
+  .pcard__tick--tl {
+    top: -6px;
+    left: -6px;
+    border-width: 2px 0 0 2px;
+  }
+  .pcard__tick--br {
+    right: -6px;
+    bottom: -6px;
+    border-width: 0 2px 2px 0;
+  }
+  .pcard__value {
+    font-size: clamp(2.25rem, 1.6rem + 1.8vw, 3.25rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #0d253d;
+  }
+  .pcard__label {
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .pcard__note {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: #4e5d73;
+  }
+
+  /* ---------- Logos + story ---------- */
+  .proof__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+    align-items: stretch;
+    margin-top: clamp(40px, 5vw, 64px);
+  }
+  .partners {
+    min-width: 0;
+    padding: 24px 0 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(13, 37, 61, 0.08);
+  }
+  .partners__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-inline: 24px;
+    margin-bottom: 14px;
+  }
+  .partners__k {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #4e5d73;
+  }
+  .partners__pause {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(13, 37, 61, 0.18);
+    border-radius: 9999px;
+    background: #fff;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #0d253d;
+    cursor: pointer;
+  }
+  .partners__pause:hover {
+    border-color: #c8123f;
+  }
+  .partners__pause-icon {
+    width: 8px;
+    height: 10px;
+    border-left: 3px solid currentColor;
+    border-right: 3px solid currentColor;
+  }
+  .partners__pause[aria-pressed='true'] .partners__pause-icon {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 0 5px 8px;
+    border-color: transparent transparent transparent currentColor;
+  }
+
+  .marquee {
+    display: grid;
+    gap: 14px;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  }
+  .marquee__track {
+    display: flex;
+    gap: 14px;
+    width: max-content;
+    margin: 0;
+    padding: 6px 0;
+    animation: marquee 38s linear infinite;
+  }
+  .marquee__row--rev .marquee__track {
+    animation-direction: reverse;
+    animation-duration: 44s;
+  }
+  .marquee:hover .marquee__track,
+  .marquee:focus-within .marquee__track,
+  .marquee.is-paused .marquee__track {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(calc(-50% - 7px));
+    }
+  }
+  .plaque {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 168px;
+    height: 84px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 6px 16px rgba(13, 37, 61, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .plaque::after {
+    content: '';
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 10px;
+    height: 2px;
+    border-radius: 2px;
+    background: #e8104c;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .plaque :global(img) {
+    max-height: 50px;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+  .plaque:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(13, 37, 61, 0.12);
+  }
+  .plaque:hover::after {
+    transform: scaleX(1);
+  }
+  .plaque:hover :global(img) {
+    filter: none;
+    opacity: 1;
+  }
+
+  /* Site note */
+  .note {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 34px 30px 28px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 18px 40px rgba(13, 37, 61, 0.08);
+    transform: rotate(-0.8deg);
+    transition: transform 0.3s ease;
+  }
+  .note:hover {
+    transform: rotate(0deg) translateY(-3px);
+  }
+  .note__pin {
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    margin-left: -11px;
+    border-radius: 50%;
+    background: #e8104c;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px rgba(232, 16, 76, 0.2), 0 6px 12px rgba(200, 18, 63, 0.35);
+  }
+  .note__k {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .note blockquote {
+    flex: 1;
+    margin: 14px 0 0;
+    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.45rem);
+    font-weight: 400;
+    line-height: 1.45;
+    color: #0d253d;
+  }
+  .note figcaption {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(13, 37, 61, 0.18);
+  }
+  .note figcaption :global(img) {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fdecf0;
+  }
+  .note strong {
+    display: block;
+    font-weight: 600;
+  }
+  .note figcaption span span {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: #4e5d73;
+  }
+
+  /* ---------- Scroll-in motion (once) ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .proof__head,
+    .proof__grid {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .proof__grid {
+      transition-delay: 0.5s;
+    }
+    .pcard {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.7s ease calc(0.2s + var(--i) * 0.15s), transform 0.7s ease calc(0.2s + var(--i) * 0.15s),
+        box-shadow 0.3s ease;
+    }
+    .pcard__frame rect {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.6s ease calc(0.3s + var(--i) * 0.15s), stroke 0.3s ease;
+    }
+    .proof.is-in .proof__head,
+    .proof.is-in .proof__grid,
+    .proof.is-in .pcard {
+      opacity: 1;
+      transform: none;
+    }
+    .proof.is-in .pcard:hover {
+      transform: translateY(-4px);
+    }
+    .proof.is-in .pcard__frame rect {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Reduced motion: logos as a static wrapped grid, one copy */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      mask-image: none;
+      -webkit-mask-image: none;
+      padding-inline: 18px;
+    }
+    .marquee__track {
+      animation: none;
+      width: auto;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .plaque[aria-hidden='true'],
+    .partners__pause {
+      display: none;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1023px) {
+    .proof__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .proof__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .note {
+      transform: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .proof__cards {
+      gap: 14px;
+    }
+    .pcard {
+      padding: 22px 16px 18px;
+    }
+    .pcard__label {
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+    }
+    .plaque {
+      width: 138px;
+      height: 72px;
+    }
+    .partners__top {
+      padding-inline: 16px;
+    }
+    .note {
+      padding: 30px 20px 22px;
+    }
+  }
+
+  /* ===== One-screen compaction ===== */
+
+  .proof__lead { margin-top: 10px; }
+  .proof__cards, .proof__grid { margin-top: clamp(16px, 3.5vh, 44px); }
+  .pcard { padding: clamp(14px, 2.4vh, 28px) 22px clamp(12px, 2vh, 24px); }
+  .partners { padding: 16px 0 12px; }
+  .plaque { height: clamp(56px, 8vh, 84px); }
+  @media (max-width: 699px) {
+    .proof__title { font-size: 1.9rem; }
+    .proof__lead, .pcard__note, .marquee__row--rev { display: none; }
+    .proof__cards { gap: 10px; }
+    .pcard { padding: 14px 12px 12px; }
+    .pcard__value { font-size: 1.9rem; }
+  }
+</style>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const section = document.querySelector<HTMLElement>('[data-proof]');
+
+  if (section) {
+    // Running counter on the four proof cards ("30+", "10,000+", "12", "2").
+    // Starts when the cards themselves are on screen and replays each time they come back into view.
+    // The server-rendered final values remain for no-JS, SEO and reduced motion.
+    const cards = section.querySelector<HTMLElement>('.proof__cards');
+    const counters = [...section.querySelectorAll<HTMLElement>('.pcard [data-count]')].map((el) => {
+      const raw = el.dataset.count || '';
+      return { el, target: Number(raw.replace(/[^\d]/g, '')), suffix: raw.replace(/[\d,]/g, '') };
+    });
+    const fmt = new Intl.NumberFormat('en-IN');
+    let raf = 0;
+    const show = (p: number) => {
+      const e = 1 - Math.pow(1 - p, 3); // ease-out: fast start, gentle landing
+      for (const c of counters) c.el.textContent = fmt.format(Math.round(c.target * e)) + c.suffix;
+    };
+    const run = () => {
+      cancelAnimationFrame(raf);
+      const t0 = performance.now();
+      const tick = (now: number) => {
+        const p = Math.min(1, (now - t0) / 2400);
+        show(p);
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    if (reduced || !('IntersectionObserver' in window) || !cards) {
+      section.classList.add('is-in');
+    } else {
+      show(0);
+      // Reveal (outlines draw in) once, when the section arrives
+      const reveal = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            section.classList.add('is-in');
+            reveal.disconnect();
+          }
+        },
+        { threshold: 0.15 },
+      );
+      reveal.observe(section);
+      // Count: every time the cards are at least half visible; reset to 0 when they leave
+      new IntersectionObserver(
+        ([e]) => {
+          if (e.isIntersecting) setTimeout(run, 250);
+          else {
+            cancelAnimationFrame(raf);
+            show(0);
+          }
+        },
+        { threshold: 0.5 },
+      ).observe(cards);
+    }
+  }
+</script>

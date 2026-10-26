@@ -1,0 +1,800 @@
+---
+// Section 6 — "Built by people" (option B).
+//  1. Founder: portrait in a blueprint frame with an architect's title block, beside the message.
+//  2. The site team: three title-block cards (Chand, Tosif, Prashant) with full bios.
+//  3. "What holds us up": six pillars under a slab labelled ASHIYANA; each pillar is one reason.
+// Photos share one crop and frame (full colour) until a matching reshoot.
+// The Baner branch has no team photo yet, so it isn't shown here.
+import { Picture } from 'astro:assets';
+import { img } from '../../lib/images';
+import { site, waHref } from '../../lib/site';
+import people from '../../data/people.json';
+import home from '../../data/home.json';
+
+const msg = people.founderMessage;
+const founder = people.team[0];
+// Short title-block notes (from the bios)
+const notes: Record<string, string> = {
+  'Chand Sayyad': 'Daily operations',
+  'Tosif Sayyad': 'Kothrud head office',
+  Prashant: 'Over 15 years with us',
+};
+const team = people.team.slice(1).map((m, i) => ({ ...m, note: notes[m.name] ?? '', sheet: `06.${i + 2}` }));
+const pillars = home.why.map((w, i) => ({ ...w, n: String(i + 1).padStart(2, '0') }));
+const wa = waHref('talking to your team', 'Landing page · our people');
+---
+
+<section class="pb" aria-labelledby="pb-h" data-pb data-screen>
+  <div class="container">
+    <header class="pb__head">
+      <h2 id="pb-h" class="pb__title">The people who build <em>your deal.</em></h2>
+      <p class="pb__lead">A Kothrud family firm. The same faces from your first call to the registration office.</p>
+    </header>
+
+    <!-- 1. Founder -->
+    <article class="founder" aria-labelledby="founder-h">
+      <figure class="frame frame--lg">
+        <span class="frame__corner frame__corner--tl" aria-hidden="true"></span>
+        <span class="frame__corner frame__corner--br" aria-hidden="true"></span>
+        <Picture
+          src={img(founder.photo)}
+          alt={`${msg.name}, ${msg.role} of Ashiyana Real Estate`}
+          formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+          width={560}
+          height={640}
+          widths={[320, 480, 560]}
+          sizes="(max-width: 899px) 80vw, 420px"
+          fit="cover"
+          position="top"
+          loading="lazy"
+          class="photo"
+        />
+      </figure>
+
+      <div class="founder__text">
+        <p class="founder__k">Leadership message</p>
+        <h3 id="founder-h" class="founder__quote">“{msg.quote}”</h3>
+        {msg.body.map((p) => <p class="founder__body">{p}</p>)}
+        <p class="founder__sig">
+          <strong>{msg.name}</strong>
+          <span>{msg.role} · {msg.meta}</span>
+        </p>
+      </div>
+    </article>
+
+    <!-- 2. The site team -->
+    <div class="team">
+      <p class="team__k">The site team</p>
+      <ul role="list" class="team__grid">
+        {
+          team.map((m, i) => (
+            <li class="mcard" style={`--i:${i}`}>
+              <figure class="frame">
+                <span class="frame__corner frame__corner--tl" aria-hidden="true" />
+                <span class="frame__corner frame__corner--br" aria-hidden="true" />
+                <Picture
+                  src={img(m.photo)}
+                  alt={`${m.name}, ${m.role}`}
+                  formats={['avif', 'webp']}
+                  fallbackFormat="jpg"
+                  width={480}
+                  height={560}
+                  widths={[280, 400, 480]}
+                  sizes="(max-width: 699px) 80vw, (max-width: 1099px) 45vw, 340px"
+                  fit="cover"
+                  position="top"
+                  loading="lazy"
+                  class="photo"
+                />
+              </figure>
+              <div class="mcard__who">
+                <h3 class="mcard__name">{m.name}</h3>
+                <p class="mcard__role">{m.role.replace(', Kothrud', '')}</p>
+                <p class="mcard__focus">{m.note}</p>
+              </div>
+              <p class="mcard__bio">{m.bio}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- 3. What holds us up -->
+    <div class="pillars" data-pillars>
+      <div class="pillars__intro">
+        <p class="team__k">What holds us up</p>
+        <h3 class="pillars__title">Six reasons families choose Ashiyana</h3>
+      </div>
+
+      <div class="build" aria-hidden="true">
+        <div class="build__slab"><span>Ashiyana</span></div>
+      </div>
+      <div class="pillars__row" role="list">
+        {
+          pillars.map((p, i) => (
+            <div class="pillar" role="listitem" style={`--i:${i}`}>
+              <button
+                type="button"
+                class="pillar__btn"
+                aria-expanded={i === 0 ? 'true' : 'false'}
+                aria-controls={`pillar-${i}`}
+                data-pillar={i}
+              >
+                <span class="pillar__shaft" aria-hidden="true" />
+                <span class="pillar__n">{p.n}</span>
+                <span class="pillar__name">{p.title}</span>
+              </button>
+              <p class="pillar__text" id={`pillar-${i}`} data-pillar-text={i} hidden={i !== 0}>
+                <strong>{p.title}.</strong> {p.text}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="pillars__reason" aria-live="polite" data-pillar-out></p>
+
+      <div class="pb__cta">
+        <p><strong>Talk to the team directly.</strong> No call centre, no hand-offs.</p>
+        <a class="pb__btn" href={wa} target="_blank" rel="noopener" data-cta="our-people">WhatsApp our team <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pb {
+    position: relative;
+    padding-block: clamp(44px, 5vw, 72px);
+    background-color: #fbfaf7;
+    background-image:
+      linear-gradient(rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(rgba(61, 74, 92, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.03) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    border-top: 1px solid rgba(13, 37, 61, 0.06);
+    color: #0d253d;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+
+  /* ---------- Heading ---------- */
+  .pb__head {
+    max-width: 780px;
+  }
+  .pb__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .pb__num {
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .pb__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .pb__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .pb__title em {
+    font-style: normal;
+    font-weight: 600;
+    color: #c8123f;
+  }
+  .pb__lead {
+    margin: 16px 0 0;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: #344559;
+  }
+
+  /* ---------- Blueprint frame + photo treatment ---------- */
+  .frame {
+    position: relative;
+    margin: 0;
+    padding: 10px;
+    border: 1px solid rgba(13, 37, 61, 0.25);
+    background: #fff;
+  }
+  .frame__corner {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-color: #e8104c;
+    border-style: solid;
+    z-index: 1;
+  }
+  .frame__corner--tl {
+    top: -7px;
+    left: -7px;
+    border-width: 2px 0 0 2px;
+  }
+  .frame__corner--br {
+    right: -7px;
+    bottom: -7px;
+    border-width: 0 2px 2px 0;
+  }
+  .frame :global(picture) {
+    display: block;
+    overflow: hidden;
+  }
+  .frame :global(.photo) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 6 / 7;
+    object-fit: cover;
+    object-position: top;
+    transition: filter 0.6s ease, transform 0.8s ease;
+  }
+  @media (hover: hover) {
+    .founder:hover .frame :global(.photo),
+    .mcard:hover .frame :global(.photo),
+    .mcard:focus-within .frame :global(.photo) {
+      transform: scale(1.03);
+    }
+  }
+
+  /* Architect's title block */
+  .tblock {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 10px;
+    border: 1px solid rgba(13, 37, 61, 0.25);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .tblock__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-right: 1px solid rgba(13, 37, 61, 0.15);
+    border-top: 1px solid rgba(13, 37, 61, 0.15);
+  }
+  .tblock__cell:last-child {
+    border-right: 0;
+  }
+  .tblock__cell--wide {
+    grid-column: 1 / -1;
+    border-top: 0;
+    border-right: 0;
+    font-size: 1.0625rem;
+  }
+  .tblock small {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .tblock strong {
+    font-weight: 600;
+  }
+
+  /* ---------- Founder ---------- */
+  .founder {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: center;
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+  .frame--lg {
+    max-width: 440px;
+    box-shadow: 0 24px 50px rgba(13, 37, 61, 0.12);
+  }
+  .founder__k,
+  .team__k {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .founder__quote {
+    margin: 14px 0 0;
+    font-size: clamp(1.5rem, 1.15rem + 1.3vw, 2.25rem);
+    font-weight: 400;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: #0d253d;
+    text-wrap: balance;
+  }
+  .founder__body {
+    margin: 16px 0 0;
+    max-width: 58ch;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #344559;
+  }
+  .founder__sig {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 22px 0 0;
+    padding-left: 16px;
+    border-left: 2px solid #e8104c;
+  }
+  .founder__sig strong {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .founder__sig span {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: #4e5d73;
+  }
+
+  /* ---------- Team ---------- */
+  .team {
+    margin-top: clamp(56px, 7vw, 88px);
+  }
+  .team__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 36px);
+    margin: 18px 0 0;
+  }
+  .mcard {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+  }
+  .mcard:hover {
+    transform: translateY(-4px);
+  }
+  .mcard .frame {
+    box-shadow: 0 14px 32px rgba(13, 37, 61, 0.08);
+  }
+  .tblock--card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    background: #fff;
+  }
+  .mcard__who {
+    position: relative;
+    margin-top: 18px;
+    padding-left: 16px;
+    border-left: 3px solid #e8104c;
+  }
+  .mcard__name {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #0d253d;
+  }
+  .mcard__role {
+    margin: 4px 0 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .mcard__focus {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 0;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    background: #fdecf0;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: #344559;
+  }
+  .mcard__focus::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e8104c;
+  }
+  .mcard__bio {
+    margin: 12px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #344559;
+  }
+
+  /* ---------- Pillars ---------- */
+  .pillars {
+    margin-top: clamp(64px, 8vw, 104px);
+  }
+  .pillars__title {
+    margin: 8px 0 0;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .build {
+    margin-top: 28px;
+  }
+  .build__slab {
+    position: relative;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #0d253d;
+    background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(13, 37, 61, 0.06) 8px 9px), #fff;
+  }
+  .build__slab span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: #c8123f;
+  }
+  .pillars__row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: clamp(10px, 2vw, 24px);
+    padding-inline: clamp(8px, 2vw, 28px);
+  }
+  .pillar {
+    position: relative;
+  }
+  .pillar__btn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  .pillar__shaft {
+    width: 34%;
+    min-width: 28px;
+    height: 150px;
+    border: 1.5px solid #3d4a5c;
+    border-top: 0;
+    background:
+      linear-gradient(90deg, transparent 30%, rgba(13, 37, 61, 0.06) 30% 31%, transparent 31% 69%, rgba(13, 37, 61, 0.06) 69% 70%, transparent 70%),
+      #fff;
+    transform-origin: top;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .pillar__n {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #4e5d73;
+  }
+  .pillar__name {
+    margin-top: 4px;
+    min-height: 2.6em;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: center;
+    transition: color 0.3s ease;
+  }
+  .pillar__btn:hover .pillar__shaft,
+  .pillar__btn[aria-expanded='true'] .pillar__shaft {
+    border-color: #c8123f;
+    background-color: #fdecf0;
+  }
+  .pillar__btn[aria-expanded='true'] .pillar__name,
+  .pillar__btn:hover .pillar__name {
+    color: #c8123f;
+  }
+  .pillar__btn[aria-expanded='true'] .pillar__n {
+    color: #c8123f;
+  }
+  .pillar__btn:focus-visible {
+    outline: none;
+    box-shadow: none; /* the ring goes on the pillar name instead */
+  }
+  .pillar__btn:focus-visible .pillar__name {
+    outline: 2px solid #c8123f;
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+  /* reasons: on desktop, the selected one is shown once, below the foundation */
+  .pillar__text {
+    display: none;
+  }
+  .build__base {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid #0d253d;
+    background: repeating-linear-gradient(45deg, transparent 0 10px, rgba(13, 37, 61, 0.07) 10px 11px), #f3efe7;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #344559;
+  }
+  .pillars__reason {
+    min-height: 3.4em;
+    margin: 20px auto 0;
+    max-width: 70ch;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: #344559;
+  }
+  .pillars__reason :global(strong) {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-weight: 600;
+    color: #c8123f;
+  }
+
+  /* CTA */
+  .pb__cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    margin-top: clamp(36px, 5vw, 56px);
+    padding: 22px 28px;
+    border-radius: 18px;
+    border: 1px dashed rgba(200, 18, 63, 0.4);
+    background: rgba(253, 236, 240, 0.5);
+  }
+  .pb__cta p {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    color: #344559;
+  }
+  .pb__cta strong {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .pb__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 26px;
+    border-radius: 9999px;
+    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    box-shadow: 0 10px 24px rgba(200, 18, 63, 0.28);
+    transition: transform 0.2s ease;
+  }
+  .pb__btn:hover {
+    transform: translateY(-1px);
+  }
+
+  /* ---------- Motion: entrance + pillars rise ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .pb__head,
+    .founder,
+    .team,
+    .pillars__intro {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .is-in.pb__head,
+    .is-in.founder,
+    .is-in.team,
+    .is-in.pillars__intro {
+      opacity: 1;
+      transform: none;
+    }
+    .pillar__shaft {
+      transform: scaleY(0);
+      transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.3s + var(--i) * 0.12s), background-color 0.3s ease,
+        border-color 0.3s ease;
+    }
+    .build__slab {
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path 1s ease;
+    }
+    .pillars.is-in .pillar__shaft {
+      transform: none;
+    }
+    .pillars.is-in .build__slab {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 899px) {
+    .founder {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .frame--lg {
+      max-width: 340px;
+    }
+  }
+  @media (max-width: 1099px) {
+    .team__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 699px) {
+    .team__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    /* phones: the six pillars become a swipeable row of short cards with their reasons visible */
+    .build,
+    .build__base,
+    .pillars__reason {
+      display: none;
+    }
+    .pillars__row {
+      display: flex;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 4px 2px 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+    .pillar {
+      flex: 0 0 78%;
+      scroll-snap-align: start;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(13, 37, 61, 0.12);
+      border-top: 3px solid #c8123f;
+      background: #fff;
+    }
+    .pillar__btn {
+      align-items: flex-start;
+      pointer-events: none;
+    }
+    .pillar__shaft {
+      display: none;
+    }
+    .pillar__n {
+      margin-top: 0;
+      color: #c8123f;
+    }
+    .pillar__name {
+      min-height: 0;
+      text-align: left;
+      font-size: 1.0625rem;
+      color: #0d253d !important;
+    }
+    .pillar__text,
+    .pillar__text[hidden] {
+      display: block;
+      margin: 8px 0 0;
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: #344559;
+    }
+    .pillar__text strong {
+      display: none;
+    }
+  }
+
+  /* ===== One-screen compaction ===== */
+
+  /* founder + team side by side, reasons below */
+  .pb > .container {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.6fr);
+    grid-template-areas: 'head head' 'founder team' 'pillars pillars';
+    gap: clamp(14px, 2.6vh, 32px) clamp(24px, 3vw, 48px);
+    align-items: start;
+  }
+  .pb__head { grid-area: head; }
+  .pb__lead { margin-top: 6px; }
+  .founder { grid-area: founder; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 16px; align-items: start; margin: 0; }
+  .frame--lg { max-width: none; padding: 6px; }
+  .frame--lg :global(.photo) { max-height: 30svh; }
+  .founder__body { display: none; }
+  .founder__quote { margin-top: 6px; font-size: clamp(1rem, 0.8rem + 0.7vw, 1.3rem); }
+  .founder__sig { margin-top: 12px; }
+  .team { grid-area: team; margin: 0; }
+  .team__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+  .mcard .frame { padding: 6px; }
+  .mcard .frame :global(.photo) { max-height: 28svh; }
+  .mcard__bio { display: none; }
+  .mcard__who { margin-top: 10px; }
+  .mcard__name { font-size: 1.125rem; }
+  .pillars { grid-area: pillars; margin: 0; }
+  .pillars__title { display: none; }
+  .build { margin-top: 8px; }
+  .build__slab { height: 30px; }
+  .pillar__shaft { height: clamp(28px, 6vh, 70px); }
+  .pillar__name { min-height: 0; font-size: 0.875rem; }
+  .pillars__reason { min-height: 0; margin-top: 8px; font-size: 0.9375rem; }
+  .pb__cta { display: none; }
+  @media (max-width: 899px) {
+    .pb > .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'head' 'founder' 'team' 'pillars'; gap: 14px; }
+    .pb__lead, .founder__k, .team__k, .pillars__intro { display: none; }
+    .pb__title { font-size: 1.8rem; }
+    .founder { grid-template-columns: 84px minmax(0, 1fr); align-items: center; }
+    .frame--lg :global(.photo) { max-height: none; }
+    .frame__corner { display: none; }
+    .founder__quote { margin: 0; font-size: 0.9375rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .founder__sig { margin-top: 6px; padding-left: 10px; }
+    .founder__sig span { display: none; }
+    .team__grid { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+    .mcard { flex: 0 0 44%; scroll-snap-align: start; }
+    .mcard .frame :global(.photo) { max-height: 20svh; }
+    .mcard__name { font-size: 1rem; }
+    .mcard__role { font-size: 0.625rem; letter-spacing: 0.1em; }
+    .mcard__focus { display: none; }
+    .pillars__row { margin-top: 0; }
+    .pillar { flex-basis: 64%; padding: 12px 14px; }
+    .pillar__text, .pillar__text[hidden] { font-size: 0.875rem; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-pb]');
+  if (root) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Entrance (each block as it arrives) + pillars rising
+    const targets = [
+      root.querySelector('.pb__head'),
+      root.querySelector('.founder'),
+      root.querySelector('.team'),
+      root.querySelector('.pillars__intro'),
+      root.querySelector('[data-pillars]'),
+    ].filter(Boolean) as Element[];
+    if (reduced || !('IntersectionObserver' in window)) targets.forEach((t) => t.classList.add('is-in'));
+    else {
+      const io = new IntersectionObserver(
+        (es) => {
+          for (const e of es)
+            if (e.isIntersecting) {
+              e.target.classList.add('is-in');
+              io.unobserve(e.target);
+            }
+        },
+        { threshold: 0.15 },
+      );
+      targets.forEach((t) => io.observe(t));
+    }
+
+    // Pillars: hover / focus / tap selects; the reason shows under the foundation
+    const btns = [...root.querySelectorAll<HTMLButtonElement>('[data-pillar]')];
+    const texts = [...root.querySelectorAll<HTMLElement>('[data-pillar-text]')];
+    const out = root.querySelector<HTMLElement>('[data-pillar-out]')!;
+    const show = (i: number) => {
+      btns.forEach((b, k) => b.setAttribute('aria-expanded', String(k === i)));
+      texts.forEach((t, k) => (t.hidden = k !== i));
+      out.innerHTML = texts[i].innerHTML;
+    };
+    btns.forEach((b, i) => {
+      b.addEventListener('click', () => show(i));
+      b.addEventListener('mouseenter', () => show(i));
+      b.addEventListener('focus', () => show(i));
+    });
+    show(0);
+  }
+</script>

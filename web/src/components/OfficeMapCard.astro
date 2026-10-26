@@ -1,0 +1,103 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../lib/site';
+
+interface Props {
+  distance?: string;
+}
+const { distance } = Astro.props;
+---
+
+<!-- No embedded map (PRD: map link only). A drawn street grid stands in for the map preview. -->
+<a class="office" href={site.mapUrl} target="_blank" rel="noopener">
+  <svg class="office__map" viewBox="0 0 400 200" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+    <rect width="400" height="200" class="m-bg" />
+    <path d="M0 140 C 80 120 160 150 240 110 S 360 70 400 80" class="m-road m-road--main" />
+    <path d="M60 0 L 110 200 M 200 0 L 180 200 M 300 0 L 330 200 M 0 60 L 400 40" class="m-road" />
+    <rect x="20" y="20" width="60" height="30" rx="4" class="m-block" />
+    <rect x="230" y="140" width="70" height="40" rx="4" class="m-block" />
+    <rect x="320" y="100" width="60" height="30" rx="4" class="m-park" />
+    <circle cx="190" cy="104" r="34" class="m-pulse" />
+  </svg>
+  <span class="office__pin"><Icon name="pin" size={28} /></span>
+  <div class="office__body">
+    <p class="office__label">Ashiyana Real Estate, head office</p>
+    <p>{site.address.full}</p>
+    {distance && <p class="office__dist"><Icon name="route" size={18} /> {distance}</p>}
+    <span class="text-link">Open in Google Maps <Icon name="external" /></span>
+  </div>
+</a>
+
+<style>
+  .office {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card-lg);
+    background: var(--canvas-raised);
+    color: var(--ink);
+    text-decoration: none !important;
+    box-shadow: var(--shadow-soft);
+  }
+  .office:hover {
+    border-color: var(--hairline-strong);
+  }
+  .office__map {
+    width: 100%;
+    height: 180px;
+  }
+  .m-bg {
+    fill: var(--canvas-soft);
+  }
+  .m-road {
+    fill: none;
+    stroke: var(--hairline);
+    stroke-width: 8;
+  }
+  .m-road--main {
+    stroke: var(--hairline-input);
+    stroke-width: 12;
+  }
+  .m-block {
+    fill: var(--hairline);
+  }
+  .m-park {
+    fill: color-mix(in srgb, var(--whatsapp) 18%, transparent);
+  }
+  .m-pulse {
+    fill: color-mix(in srgb, var(--primary) 18%, transparent);
+  }
+  .office__pin {
+    position: absolute;
+    top: 72px;
+    left: 50%;
+    transform: translate(-50%, -6px);
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    box-shadow: var(--shadow-float);
+  }
+  .office__body {
+    padding: var(--s-5);
+    color: var(--ink-secondary);
+  }
+  .office__label {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .office__dist {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: var(--s-2);
+    color: var(--ink);
+  }
+  .office__dist :global(svg) {
+    color: var(--link);
+  }
+</style>

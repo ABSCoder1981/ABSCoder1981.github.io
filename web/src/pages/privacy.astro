@@ -1,0 +1,49 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { site } from '../lib/site';
+---
+
+<LegalLayout
+  title="Privacy Policy · Ashiyana Real Estate"
+  description="How Ashiyana Real Estate collects, uses and protects the details you share through our website, WhatsApp and phone."
+  h1="Privacy policy"
+  path="/privacy"
+  updated="21 October 2026"
+>
+  <p>
+    This policy explains what {site.name} ("we", "us") collects when you use {site.url.replace('https://', '')}, and how we use it.
+    We collect as little as we need to help you with your property enquiry.
+  </p>
+
+  <h2>What we collect</h2>
+  <ul>
+    <li><strong>Enquiry form:</strong> your name, mobile number, what you want to do (buy, sell, rent or invest), and, if you choose, your locality and requirement.</li>
+    <li><strong>Technical details sent with the form:</strong> the page you sent it from, the time, and any campaign tags in the link you followed (UTM tags). Our server also sees your IP address, which we use only to block spam.</li>
+    <li><strong>Analytics:</strong> we use Google Analytics to understand which pages are useful, and to count clicks on our call and WhatsApp buttons. It uses cookies and collects information such as pages viewed, device type and approximate location.</li>
+    <li><strong>WhatsApp and phone:</strong> if you contact us this way, we see your number and the messages you send. WhatsApp is operated by Meta under its own privacy policy.</li>
+  </ul>
+
+  <h2>How we use it</h2>
+  <ul>
+    <li>To call or message you back about your enquiry, and to follow up on it.</li>
+    <li>To understand which pages and services people are interested in, so we can improve the website.</li>
+  </ul>
+  <p>We do not sell your details, and we do not add you to marketing lists without asking.</p>
+
+  <h2>Where it goes and how long we keep it</h2>
+  <p>
+    Enquiries are emailed to our office inbox ({site.email}) and may be copied into our internal client records. We keep
+    enquiry details for as long as we're helping you, and for up to three years afterwards unless you ask us to delete them
+    sooner.
+  </p>
+
+  <h2>Your choices</h2>
+  <p>
+    You can ask us to show you, correct or delete the details we hold about you, or to stop contacting you. Email
+    {' '}<a href={`mailto:${site.email}`}>{site.email}</a> or call <a href={`tel:${site.phone.e164}`}>{site.phone.display}</a>.
+    You can block or delete analytics cookies in your browser settings.
+  </p>
+
+  <h2>Contact</h2>
+  <p>{site.name}, {site.address.full}.</p>
+</LegalLayout>

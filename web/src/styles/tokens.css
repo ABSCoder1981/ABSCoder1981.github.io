@@ -1,0 +1,145 @@
+/*
+ * Design tokens — single source of truth for colour, type, radius, spacing and depth.
+ * Palette and scale follow the Ashiyana UI Design Guidelines (Linear-inspired restraint),
+ * built on the Stripi tokens from the PRD. Light and dark use the same token names.
+ */
+:root {
+  color-scheme: light;
+
+  /* Brand / action — the Ashiyana logo crimson (#e8104c), deepened where text needs AA contrast */
+  --brand: #e8104c;            /* logo colour: decoration, large text, accents */
+  --primary: #c8123f;          /* buttons: white text 5.8:1 */
+  --primary-deep: #a30d34;     /* hover */
+  --primary-press: #8f0b2e;
+  --primary-subdued: #fdecf0;  /* blush tint */
+  --brand-dark: #1d0f16;       /* deep wine-charcoal bands */
+  --brand-red: #e8164f;        /* logo colour; not used for UI */
+  --whatsapp: #0f7a40;         /* 5.3:1 with white text (WCAG AA) */
+  --whatsapp-press: #0b6334;
+  --success: #16834a;
+  --error: #b42318;
+
+  /* Text */
+  --ink: #0d253d;
+  --ink-secondary: #344559;
+  --ink-mute: #667085;         /* 4.8:1 on white */
+  --on-primary: #ffffff;
+  --link: #b80f3a;             /* 6.6:1 on white */
+
+  /* Surfaces */
+  --canvas: #ffffff;
+  --canvas-soft: #f6f8fb;
+  --canvas-cream: #fbf1f3;    /* warm blush band */
+  --canvas-raised: #ffffff;
+  --hairline: #e3e8ee;
+  --hairline-strong: #cfd6df;
+  --hairline-input: #a9b4c2;
+  --chip: #ffffff;              /* developer logos sit on white in both themes */
+
+  /* Type — Inter Variable; headings 600, body 400 */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fw-body: 400;
+  --fw-medium: 500;
+  --fw-heading: 600;
+  --fs-hero: clamp(2.125rem, 1.4rem + 3vw, 3.5rem);        /* 34 → 56 */
+  --fs-page: clamp(1.875rem, 1.45rem + 1.8vw, 2.75rem);    /* 30 → 44 */
+  --fs-section: clamp(1.625rem, 1.35rem + 1.2vw, 2.25rem); /* 26 → 36 */
+  --fs-sub: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);       /* 20 → 24 */
+  --fs-card: 1.1875rem;                                     /* 19 */
+  --fs-body-lg: 1.125rem;
+  --fs-body: 1rem;
+  --fs-body-sm: 0.9375rem;
+  --fs-caption: 0.875rem;
+  --fs-label: 0.8125rem;
+
+  /* Radius — 8–16 for components; larger only for hero media */
+  --r-input: 8px;
+  --r-sm: 8px;
+  --r-card: 12px;
+  --r-card-lg: 16px;
+  --r-hero: 20px;
+  --r-pill: 9999px;
+
+  /* Spacing (8 px base) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 80px;
+  --s-10: 96px;
+  --section-gap: 96px;
+  --gutter: 32px;
+  --container: 1200px;
+
+  /* Depth — shadows only for floating things (menus, the WhatsApp button, the form) */
+  --shadow-float: 0 12px 32px rgba(13, 37, 61, 0.12), 0 2px 6px rgba(13, 37, 61, 0.06);
+  --shadow-soft: 0 1px 2px rgba(13, 37, 61, 0.05);
+  --focus-ring: 0 0 0 2px var(--canvas), 0 0 0 4px var(--primary);
+
+  /* Layout */
+  --header-h: 72px;
+  --mobile-bar-h: 64px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --section-gap: 64px;
+    --gutter: 16px;
+    --header-h: 64px;
+  }
+}
+
+/* Dark theme: deliberate and tested (PRD: light and dark from the same tokens). Follows the OS. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --primary: #d4134a;
+    --primary-deep: #b80f3a;
+    --primary-press: #a30d34;
+    --primary-subdued: #3a1222;
+    --link: #ff8aa8;
+    --success: #4cc38a;
+    --error: #ff8a80;
+    --ink: #e8eef6;
+    --ink-secondary: #c3cedb;
+    --ink-mute: #98a6b8;
+    --canvas: #0b1526;
+    --canvas-soft: #0f1c31;
+    --canvas-cream: #241f16;
+    --canvas-raised: #111e34;
+    --hairline: #22324b;
+    --hairline-strong: #2e425f;
+    --hairline-input: #4a5f7d;
+    --brand-dark: #170b11;
+    --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+    --shadow-soft: none;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --primary: #d4134a;
+  --primary-deep: #b80f3a;
+  --primary-press: #a30d34;
+  --primary-subdued: #3a1222;
+  --link: #ff8aa8;
+  --success: #4cc38a;
+  --error: #ff8a80;
+  --ink: #e8eef6;
+  --ink-secondary: #c3cedb;
+  --ink-mute: #98a6b8;
+  --canvas: #0b1526;
+  --canvas-soft: #0f1c31;
+  --canvas-cream: #241f16;
+  --canvas-raised: #111e34;
+  --hairline: #22324b;
+  --hairline-strong: #2e425f;
+  --hairline-input: #4a5f7d;
+  --brand-dark: #170b11;
+  --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-soft: none;
+}

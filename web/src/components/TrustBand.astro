@@ -1,0 +1,108 @@
+---
+import { Image } from 'astro:assets';
+import LogoGrid from './LogoGrid.astro';
+import { site } from '../lib/site';
+import { img } from '../lib/images';
+import people from '../data/people.json';
+
+// Trust evidence right under the hero: developer relationships + one real, attributed client story.
+const story = people.reviews[0];
+---
+
+<section class="trust" aria-labelledby="trust-h">
+  <div class="container trust__grid">
+    <div>
+      <h2 id="trust-h" class="display-lg">
+        Trusted by {site.stats.clients} clients <span class="tone-mute">and long-standing relationships with Pune’s developers.</span>
+      </h2>
+      <div class="trust__logos">
+        <LogoGrid columns={4} />
+      </div>
+    </div>
+
+    <figure class="story">
+      <p class="story__label">Client story · {story.area}</p>
+      <blockquote>
+        <p>“{story.quote}”</p>
+      </blockquote>
+      <figcaption>
+        <Image src={img(story.photo)} alt="" width={112} height={112} fit="cover" loading="lazy" />
+        <span>
+          <strong>{story.name}</strong>
+          <span class="story__meta">{story.label}, {story.area}</span>
+        </span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .trust {
+    padding-block: var(--s-8);
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .trust__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--s-8);
+    align-items: center;
+  }
+  .trust h2 {
+    max-width: 30ch;
+  }
+  .trust__logos {
+    margin-top: var(--s-5);
+  }
+  .story {
+    margin: 0;
+    padding-left: var(--s-6);
+    border-left: 2px solid var(--ink);
+  }
+  .story__label {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  blockquote {
+    margin: var(--s-3) 0 0;
+    font-size: var(--fs-sub);
+    font-weight: var(--fw-medium);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+  figcaption :global(img) {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  strong {
+    display: block;
+    font-weight: var(--fw-heading);
+  }
+  .story__meta {
+    font-size: var(--fs-caption);
+    color: var(--ink-mute);
+  }
+  @media (max-width: 1023px) {
+    .trust__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-7);
+    }
+  }
+  @media (max-width: 767px) {
+    .story {
+      padding-left: var(--s-4);
+    }
+  }
+</style>

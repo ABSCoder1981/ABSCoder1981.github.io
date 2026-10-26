@@ -1,0 +1,555 @@
+---
+// "Where we work": a sketch-style schematic map of west Pune for the hero.
+// Drawn like a metro map: directions are true (west areas on the left, east on the right,
+// north above south), distances are schematic so the pins frame the centred headline.
+// Kothrud (head office) is the hub; crimson routes run along the real roads to each area.
+//
+// Two layers, both positioned on the same 16:10 "stage" so they line up exactly:
+//   .map-base  → faint roads, river, hills, blocks (sits under the white veil)
+//   .map-pins  → routes, travelling dots and clickable area pins (above the veil)
+import { localities, site } from '../../lib/site';
+
+const VB = { w: 1600, h: 1000 };
+const HUB = { x: 800, y: 905 };
+// Baner branch office: north-west of Kothrud, beyond Bavdhan, east of the highway
+const BRANCH = { x: 280, y: 192 };
+const branch = site.offices.find((o) => o.id === 'baner')!;
+
+// Schematic positions (viewBox units) + the road each route follows
+const layout: Record<string, { x: number; y: number; side: 'left' | 'right'; road: string }> = {
+  bavdhan: { x: 300, y: 300, side: 'left', road: 'Paud Road' },
+  warje: { x: 280, y: 680, side: 'left', road: 'NDA Road' },
+  'prabhat-road': { x: 1320, y: 262, side: 'right', road: 'Karve Road' },
+  erandwane: { x: 1365, y: 462, side: 'right', road: 'Karve Road' },
+  karvenagar: { x: 1310, y: 682, side: 'right', road: 'Karvenagar Road' },
+};
+
+const shortDistance = (d: string) => {
+  const km = d.match(/([\d.]+)\s*km/);
+  return km ? `~${km[1]} km` : 'Head office';
+};
+
+// Quadratic route from the hub: leaves sideways (like a road), then bends up to the area
+const route = (to: { x: number; y: number }) => {
+  const c = { x: HUB.x * 0.35 + to.x * 0.65, y: HUB.y * 0.86 + to.y * 0.14 };
+  const at = (t: number) => ({
+    x: (1 - t) ** 2 * HUB.x + 2 * (1 - t) * t * c.x + t ** 2 * to.x,
+    y: (1 - t) ** 2 * HUB.y + 2 * (1 - t) * t * c.y + t ** 2 * to.y,
+  });
+  return { d: `M${HUB.x} ${HUB.y}Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${to.x} ${to.y}`, at };
+};
+
+const hub = localities.find((l) => l.slug === 'kothrud')!;
+// Office-to-office line runs around the left edge, clear of the headline
+const branchRoute = { d: `M${HUB.x} ${HUB.y}Q200 900 ${BRANCH.x} ${BRANCH.y}` };
+const areas = localities
+  .filter((l) => layout[l.slug])
+  .map((l, i) => {
+    const pos = layout[l.slug];
+    const r = route(pos);
+    const label = r.at(0.42);
+    return {
+      slug: l.slug,
+      name: l.name,
+      distance: shortDistance(l.distance),
+      homes: l.propertyTypes[0]?.type ?? '',
+      ...pos,
+      d: r.d,
+      roadLabel: { ...label, angle: 0 },
+      i,
+    };
+  });
+
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
+
+// Faint city-block texture (deterministic)
+const blocks: string[] = [];
+let seed = 7;
+const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120, 150], [380, 820], [1210, 820]]) {
+  for (let k = 0; k < 7; k++) {
+    const x = cx + (rnd() - 0.5) * 220;
+    const y = cy + (rnd() - 0.5) * 140;
+    const w = 24 + rnd() * 40;
+    const h = 14 + rnd() * 26;
+    blocks.push(`M${x.toFixed(0)} ${y.toFixed(0)}h${w.toFixed(0)}v${h.toFixed(0)}h${(-w).toFixed(0)}Z`);
+  }
+}
+---
+
+<!-- Layer 1: base map (under the veil) -->
+<div class="map-stage map-base" aria-hidden="true">
+  <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" focusable="false">
+    <g class="mb-blocks"><path d={blocks.join('')} /></g>
+    <!-- Bavdhan hills -->
+    <g class="mb-hills">
+      <path d="M90 250c40-60 150-80 230-40s60 120-30 130-240-20-200-90z" />
+      <path d="M120 255c30-40 110-55 170-28s40 85-22 92-178-14-148-64z" />
+      <path d="M160 262c18-22 62-30 96-15s22 48-12 52-102-8-84-37z" />
+    </g>
+    <!-- Mutha river (double bank) -->
+    <path class="mb-river" d="M-20 860C260 790 470 900 760 812S1210 610 1620 650" />
+    <path class="mb-river" d="M-20 884C262 814 476 924 770 836S1220 634 1620 674" />
+    <!-- Mumbai–Bengaluru highway -->
+    <path class="mb-hwy" d="M330 -20C270 250 360 520 270 1020" />
+    <path class="mb-hwy mb-hwy--centre" d="M330 -20C270 250 360 520 270 1020" />
+    <!-- Roads the routes follow -->
+    {areas.map((a) => <path class="mb-road" d={a.d} />)}
+    <!-- Labels -->
+    <text class="mb-label" x="1150" y="700" transform="rotate(-9 1150 700)">Mutha River</text>
+    <text class="mb-label" x="300" y="150" transform="rotate(-80 300 150)">Mumbai–Bengaluru Hwy</text>
+    {
+      areas
+        .filter((a, i, all) => all.findIndex((b) => b.road === a.road) === i)
+        .map((a) => (
+          <text class="mb-label mb-label--road" x={a.roadLabel.x.toFixed(0)} y={(a.roadLabel.y - 10).toFixed(0)}>
+            {a.road}
+          </text>
+        ))
+    }
+    <!-- North arrow -->
+    <g class="mb-north" transform="translate(1520 110)">
+      <circle r="26" />
+      <path d="M0 -18L7 6L0 1L-7 6Z" />
+      <text y="-32" text-anchor="middle">N</text>
+    </g>
+  </svg>
+</div>
+
+<!-- Layer 2: routes + pins (above the veil, below the text) -->
+<div class="map-stage map-pins">
+  <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <g class="route route--office">
+      <path class="route__line" d={branchRoute.d} pathLength="1" />
+    </g>
+    {
+      areas.map((a) => (
+        <g class="route" style={`--i:${a.i}`}>
+          <path class="route__line" d={a.d} pathLength="1" />
+          <circle class="route__dot" r="4">
+            <animateMotion dur={`${7 + a.i * 0.8}s`} begin={`${5 + a.i * 0.6}s`} repeatCount="indefinite" path={a.d} />
+          </circle>
+        </g>
+      ))
+    }
+  </svg>
+
+  <p class="map-caption"><span class="map-caption__dot" aria-hidden="true"></span> 2 offices · West Pune</p>
+
+  <a class="pin pin--hub" href="/kothrud" style={`left:${pct(HUB.x, VB.w)};top:${pct(HUB.y, VB.h)}`}>
+    <span class="pin__dot" aria-hidden="true"><span class="pin__pulse"></span></span>
+    <span class="pin__chip"><strong>Kothrud</strong><span>Head office · Karve Statue</span></span>
+  </a>
+
+  <a
+    class="pin pin--left pin--office"
+    href={branch.mapUrl}
+    target="_blank"
+    rel="noopener"
+    style={`left:${pct(BRANCH.x, VB.w)};top:${pct(BRANCH.y, VB.h)}`}
+  >
+    <span class="pin__dot" aria-hidden="true"><span class="pin__pulse"></span></span>
+    <span class="pin__chip"><strong>{branch.name}</strong><span>{branch.label} · Directions ↗</span></span>
+  </a>
+
+  {
+    areas.map((a) => (
+      <a
+        class:list={['pin', `pin--${a.side}`]}
+        href={`/${a.slug}`}
+        style={`left:${pct(a.x, VB.w)};top:${pct(a.y, VB.h)};--i:${a.i}`}
+      >
+        <span class="pin__dot" aria-hidden="true" />
+        <span class="pin__chip">
+          <strong>{a.name}</strong>
+          <span>{a.distance} from our office</span>
+        </span>
+        <span class="pin__card">
+          <span class="pin__card-k">Typical homes</span>
+          {a.homes}
+          <span class="pin__card-go">Explore {a.name} →</span>
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  /* Both layers share one 16:10 stage, centred and fully visible ("meet"), so pins never crop */
+  .map-stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(100%, calc(100vh * 1.6));
+    width: min(100%, calc(100svh * 1.6));
+    aspect-ratio: 16 / 10;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .map-stage svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* ---------- Base map (faint graphite + soft crimson river) ---------- */
+  .map-base {
+    z-index: 0;
+    color: #3d4a5c;
+  }
+  .mb-blocks path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.8;
+    opacity: 0.16;
+  }
+  .mb-hills path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.9;
+    opacity: 0.2;
+  }
+  .mb-river {
+    fill: none;
+    stroke: #e8104c;
+    stroke-width: 1.2;
+    opacity: 0.22;
+  }
+  .mb-hwy {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 9;
+    opacity: 0.08;
+  }
+  .mb-hwy--centre {
+    stroke-width: 1;
+    stroke-dasharray: 10 10;
+    opacity: 0.3;
+  }
+  .mb-road {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 7;
+    stroke-linecap: round;
+    opacity: 0.07;
+  }
+  .mb-label {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 15px;
+    font-style: italic;
+    letter-spacing: 0.08em;
+    fill: currentColor;
+    opacity: 0.45;
+  }
+  .mb-label--road {
+    font-size: 13px;
+    text-anchor: middle;
+  }
+  .mb-north circle {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    opacity: 0.3;
+  }
+  .mb-north path {
+    fill: #e8104c;
+    opacity: 0.7;
+  }
+  .mb-north text {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    fill: currentColor;
+    opacity: 0.55;
+  }
+
+  /* ---------- Routes, dots and pins ---------- */
+  .map-pins {
+    z-index: 2;
+  }
+  .route__line {
+    fill: none;
+    stroke: #c8123f;
+    stroke-width: 1.6;
+    stroke-dasharray: 0.012 0.008; /* dashes, in pathLength units */
+    opacity: 0.55;
+  }
+  /* Office-to-office link: solid, stronger than the dashed area routes */
+  .route--office .route__line {
+    stroke-width: 2.2;
+    stroke-dasharray: none;
+    opacity: 0.7;
+  }
+  .route__dot {
+    fill: #e8104c;
+    opacity: 0.85;
+  }
+
+  .map-caption {
+    position: absolute;
+    left: 4%;
+    bottom: 4%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #344559;
+  }
+  .map-caption__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e8104c;
+  }
+
+  .pin {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+    color: #0d253d;
+    text-decoration: none !important;
+    transform: translate(-11px, -50%); /* the dot sits exactly on the map point */
+  }
+  .pin--left {
+    flex-direction: row-reverse;
+    transform: translate(calc(-100% + 11px), -50%);
+  }
+  .pin__dot {
+    position: relative;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #e8104c;
+    box-shadow: 0 0 0 4px rgba(232, 16, 76, 0.12);
+    transition: transform 0.25s ease, background-color 0.25s ease;
+  }
+  .pin__dot::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: #e8104c;
+  }
+  .pin__chip {
+    display: flex;
+    flex-direction: column;
+    padding: 7px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 6px 18px rgba(13, 37, 61, 0.08);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    line-height: 1.25;
+    white-space: nowrap;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .pin--left .pin__chip {
+    text-align: right;
+  }
+  .pin__chip strong {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .pin__chip span {
+    font-size: 0.75rem;
+    color: #4e5d73;
+  }
+  .pin:hover .pin__dot,
+  .pin:focus-visible .pin__dot {
+    transform: scale(1.15);
+  }
+  .pin:hover .pin__chip,
+  .pin:focus-visible .pin__chip {
+    border-color: rgba(232, 16, 76, 0.45);
+    box-shadow: 0 10px 26px rgba(200, 18, 63, 0.16);
+  }
+  .pin:focus-visible {
+    outline: none;
+  }
+  .pin:focus-visible .pin__chip {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #c8123f;
+  }
+
+  /* Hover / focus card: what you'll find there */
+  .pin__card {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 16px 36px rgba(13, 37, 61, 0.14);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: #344559;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 3;
+  }
+  .pin--left .pin__card {
+    right: auto;
+    left: 0;
+  }
+  .pin:hover .pin__card,
+  .pin:focus-visible .pin__card {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  .pin__card-k {
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .pin__card-go {
+    margin-top: 4px;
+    font-weight: 600;
+    color: #b80f3a;
+  }
+
+  /* Head office hub */
+  .pin--hub {
+    transform: translate(-11px, -50%);
+  }
+  .pin--hub .pin__dot,
+  .pin--office .pin__dot {
+    width: 26px;
+    height: 26px;
+    background: #e8104c;
+    border-color: #fff;
+    box-shadow: 0 0 0 3px #e8104c, 0 8px 18px rgba(200, 18, 63, 0.35);
+  }
+  .pin--hub .pin__dot::after,
+  .pin--office .pin__dot::after {
+    inset: 8px;
+    background: #fff;
+  }
+  .pin__pulse {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid #e8104c;
+  }
+  .pin--hub .pin__chip strong,
+  .pin--office .pin__chip strong {
+    color: #b80f3a;
+  }
+
+  /* ---------- Motion: map fades in, hub then areas drop in, routes draw, dots travel ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .map-base {
+      opacity: 0;
+      animation: map-in 2s ease 1.2s forwards;
+    }
+    .map-caption {
+      opacity: 0;
+      animation: map-in 0.8s ease 2.4s forwards;
+    }
+    .pin {
+      opacity: 0;
+      animation: pin-drop 0.7s cubic-bezier(0.2, 1.4, 0.4, 1) calc(3.2s + var(--i, 0) * 0.45s) forwards;
+    }
+    .pin--hub {
+      animation-delay: 2.5s;
+    }
+    .pin--office {
+      animation-delay: 2.9s;
+    }
+    .route--office .route__line {
+      animation: route-office 1.4s ease 2.6s forwards;
+    }
+    .pin__pulse {
+      animation: pin-pulse 2.4s ease-out 3.3s infinite;
+    }
+    .route__line {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: route-draw 1.6s ease calc(3s + var(--i, 0) * 0.45s) forwards;
+    }
+    .route__dot {
+      opacity: 0;
+      animation: map-in 0.6s ease calc(5s + var(--i, 0) * 0.6s) forwards;
+    }
+  }
+  @keyframes map-in {
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes pin-drop {
+    from {
+      opacity: 0;
+      margin-top: -18px;
+    }
+    to {
+      opacity: 1;
+      margin-top: 0;
+    }
+  }
+  @keyframes route-office {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes pin-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+  /* After drawing, switch the route to dashes */
+  @keyframes route-draw {
+    99% {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dasharray: 0.012 0.008;
+      stroke-dashoffset: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route__dot {
+      display: none;
+    }
+  }
+
+  /* Pins need room either side of the headline: wide, tall-enough screens only.
+     Smaller screens get the area chips under the stats instead. */
+  @media (max-width: 1179px), (max-height: 540px) {
+    .map-pins {
+      display: none;
+    }
+  }
+</style>

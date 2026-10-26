@@ -1,0 +1,948 @@
+---
+// Section 5 — "Where we work" (option C).
+// Part 1: Street views. Six tabs, one per locality. Each shows a line-sketch street elevation of the
+//         kind of homes typical of that area (generic building types, no real buildings) beside the
+//         facts we already publish: description, typical homes, price range scale, distance from office.
+// Part 2: Sanaswadi "site plan". The real aerial photo in a blueprint frame with callouts + key facts.
+import { Picture } from 'astro:assets';
+import { localities, telHref, waHref } from '../../lib/site';
+import { img } from '../../lib/images';
+import sanaswadi from '../../data/sanaswadi.json';
+
+// ---------------- Street elevation generator (viewBox 600 × 320) ----------------
+const GY = 286; // ground line
+type Part = { d: string; k: 'body' | 'ln' | 'thin' | 'accent' | 'leaf' };
+const r1 = (n: number) => Math.round(n * 10) / 10;
+
+function block(x: number, w: number, floors: number, fh = 22): Part[] {
+  const top = GY - floors * fh;
+  let floorsD = '';
+  for (let f = 1; f < floors; f++) floorsD += `M${x} ${GY - f * fh}H${x + w}`;
+  let mull = '';
+  for (let c = x + 16; c < x + w - 8; c += 18) mull += `M${c} ${top + 6}V${GY - 4}`;
+  const tank = `M${x + w * 0.6} ${top}v-10h${w * 0.22}v10`;
+  return [
+    { d: `M${x} ${GY}V${top}H${x + w}V${GY}Z`, k: 'body' },
+    { d: `M${x} ${GY}V${top}H${x + w}V${GY}` + tank, k: 'ln' },
+    { d: floorsD + mull, k: 'thin' },
+  ];
+}
+function tower(x: number, w: number, floors: number, fh = 15): Part[] {
+  const top = GY - floors * fh;
+  let floorsD = '';
+  for (let f = 1; f < floors; f++) floorsD += `M${x} ${GY - f * fh}H${x + w}`;
+  let mull = '';
+  for (let c = x + 12; c < x + w - 6; c += 12) mull += `M${c} ${top + 4}V${GY - 4}`;
+  const crown = `M${x + 6} ${top}V${top - 14}H${x + w - 6}V${top}M${x + w / 2} ${top - 14}V${top - 30}`;
+  return [
+    { d: `M${x} ${GY}V${top}H${x + w}V${GY}Z`, k: 'body' },
+    { d: `M${x} ${GY}V${top}H${x + w}V${GY}` + crown, k: 'ln' },
+    { d: floorsD + mull, k: 'thin' },
+  ];
+}
+function bungalow(x: number, w: number): Part[] {
+  const g = GY - 34;
+  const u = g - 32;
+  const peak = u - 30;
+  const outline = `M${x} ${GY}V${u}H${x + w}V${GY}Z`;
+  const roof = `M${x - 8} ${u}L${x + w / 2} ${peak}L${x + w + 8} ${u}Z`;
+  const details =
+    `M${x} ${g}H${x + w}` +
+    `M${x + w / 2 - 9} ${GY}v-24h18v24` +
+    `M${x + 12} ${g - 22}h20v14h-20zM${x + w - 32} ${g - 22}h20v14h-20z` +
+    `M${x + 12} ${GY - 24}h18v14h-18zM${x + w - 30} ${GY - 24}h18v14h-18z`;
+  return [
+    { d: outline + roof, k: 'body' },
+    { d: `M${x} ${GY}V${u}H${x + w}V${GY}` + roof, k: 'ln' },
+    { d: details, k: 'thin' },
+  ];
+}
+function tree(x: number, s = 1): Part[] {
+  const rr = 16 * s;
+  const cy = GY - 30 * s - rr;
+  return [
+    { d: `M${x} ${GY}V${cy + rr * 0.6}`, k: 'ln' },
+    { d: `M${x - rr} ${cy}a${rr} ${rr} 0 1 0 ${2 * rr} 0a${rr} ${rr} 0 1 0 ${-2 * rr} 0`, k: 'leaf' },
+  ];
+}
+function metro(y: number): Part[] {
+  let p = '';
+  for (let x = 40; x < 600; x += 110) p += `M${x} ${y + 10}V${GY}M${x + 10} ${y + 10}V${GY}`;
+  return [
+    { d: `M0 ${y}H600M0 ${y + 10}H600`, k: 'accent' },
+    { d: p, k: 'thin' },
+  ];
+}
+function hill(): Part[] {
+  return [{ d: `M0 ${GY - 70}C120 ${GY - 150} 230 ${GY - 160} 330 ${GY - 110}S520 ${GY - 60} 600 ${GY - 120}`, k: 'thin' }];
+}
+function road(): Part[] {
+  return [
+    { d: `M0 ${GY + 18}H600`, k: 'ln' },
+    { d: `M0 ${GY + 9}H600`, k: 'accent' },
+  ];
+}
+function wall(gateX: number): Part[] {
+  return [{ d: `M0 ${GY - 16}H${gateX}M${gateX + 50} ${GY - 16}H600M${gateX} ${GY}V${GY - 30}M${gateX + 50} ${GY}V${GY - 30}`, k: 'ln' }];
+}
+
+const scenes: Record<string, { parts: Part[][]; caption: string }> = {
+  kothrud: {
+    caption: 'Settled societies, redevelopment and the metro line',
+    parts: [metro(118), block(20, 120, 6), tree(160), block(180, 110, 7), block(310, 130, 5), tree(458, 1.1), block(480, 100, 6)],
+  },
+  karvenagar: {
+    caption: 'Quiet, green lanes with societies and independent homes',
+    parts: [tree(20, 1.2), block(50, 110, 4), bungalow(190, 100), tree(312, 1.3), block(340, 120, 5), tree(475), bungalow(495, 90)],
+  },
+  warje: {
+    caption: 'Newer high-rise projects along the highway',
+    parts: [road(), tower(40, 70, 14), tower(130, 70, 16), block(222, 110, 5), tower(352, 76, 15), tower(450, 64, 12), tree(538)],
+  },
+  'prabhat-road': {
+    caption: 'Tree-lined lanes, bungalows and premium low-rise',
+    parts: [tree(18, 1.3), bungalow(40, 110), tree(175, 1.4), bungalow(205, 100), block(330, 120, 4), tree(468, 1.3), bungalow(490, 96)],
+  },
+  bavdhan: {
+    caption: 'Gated towers against the Bavdhan hills',
+    parts: [hill(), tower(70, 80, 13), tower(180, 80, 15), tower(300, 80, 14), tree(410, 1.2), block(450, 110, 5), wall(240)],
+  },
+  erandwane: {
+    caption: 'Older societies and redeveloped buildings, central and quiet',
+    parts: [block(20, 110, 4), block(150, 120, 8), tree(292, 1.2), block(320, 100, 4), bungalow(445, 110)],
+  },
+};
+
+// ---------------- Price range: words → a 4-step scale ----------------
+const level = (band: string) => {
+  const b = band.toLowerCase();
+  const hits = [b.includes('entry') && 1, b.includes('mid') && 2, b.includes('premium') && 3, b.includes('luxury') && 4].filter(Boolean) as number[];
+  return hits;
+};
+const scaleNames = ['Entry', 'Mid', 'Premium', 'Luxury'];
+
+const areas = localities.map((l) => {
+  const lv = l.propertyTypes.flatMap((t) => level(t.band));
+  const lo = Math.min(...lv);
+  const hi = Math.max(...lv);
+  return {
+    slug: l.slug,
+    name: l.name,
+    hq: l.slug === 'kothrud',
+    about: l.about[0],
+    homes: l.propertyTypes.slice(0, 3).map((t) => t.type),
+    lo,
+    hi,
+    range: lo === hi ? scaleNames[lo - 1] : `${scaleNames[lo - 1]} to ${scaleNames[hi - 1]}`,
+    distance: l.slug === 'kothrud' ? 'Our head office is here' : l.distance.replace(' from our Kothrud office', ''),
+    scene: scenes[l.slug],
+    wa: waHref(`property in ${l.name}`, 'Landing page · where we work'),
+  };
+});
+
+const hwy = sanaswadi.distances.find((d) => d.verified)!;
+const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page · where we work');
+---
+
+<section class="lx" aria-labelledby="lx-h" data-lx data-screen>
+  <div class="container">
+    <header class="lx__head">
+      <h2 id="lx-h" class="lx__title">Six neighbourhoods. <em>We know every street.</em></h2>
+      <p class="lx__lead">Pick an area to see what it's like, the homes you'll find there and how far it is from our Kothrud office.</p>
+    </header>
+
+    <!-- Part 1: street views -->
+    <div class="lx__tabs" role="tablist" aria-label="Neighbourhoods">
+      {
+        areas.map((a, i) => (
+          <button
+            type="button"
+            role="tab"
+            class="lx__tab"
+            id={`lx-tab-${a.slug}`}
+            aria-controls={`lx-panel-${a.slug}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            {a.name}
+            {a.hq && <span class="lx__hq">HQ</span>}
+          </button>
+        ))
+      }
+      <button type="button" role="tab" class="lx__tab" id="lx-tab-sanaswadi" aria-controls="lx-panel-sanaswadi" aria-selected="false" tabindex="-1">
+        Sanaswadi <span class="lx__hq">Land</span>
+      </button>
+    </div>
+
+    {
+      areas.map((a, i) => (
+        <div
+          class:list={['lx__panel', { 'is-active': i === 0 }]}
+          role="tabpanel"
+          id={`lx-panel-${a.slug}`}
+          aria-labelledby={`lx-tab-${a.slug}`}
+          hidden={i !== 0}
+        >
+          <figure class="lx__scene">
+            <svg viewBox="0 0 600 320" aria-hidden="true" focusable="false">
+              <path class="sv-ground" d={`M0 ${GY}H600`} />
+              {a.scene.parts.map((group, gi) => (
+                <g style={`--g:${gi}`}>
+                  {group.map((p) =>
+                    p.k === 'body' ? <path class="sv-body" d={p.d} /> : <path class={`sv sv-${p.k}`} d={p.d} pathLength="1" />,
+                  )}
+                </g>
+              ))}
+            </svg>
+            <figcaption>{a.scene.caption}</figcaption>
+          </figure>
+
+          <div class="lx__facts">
+            <p class="lx__area">
+              {a.name}
+              {a.hq && <span class="lx__badge">Head office</span>}
+            </p>
+            <p class="lx__about">{a.about}</p>
+            <dl class="lx__dl">
+              <div>
+                <dt>Typical homes</dt>
+                <dd>
+                  <ul role="list" class="lx__homes">
+                    {a.homes.map((h) => (
+                      <li>{h}</li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+              <div>
+                <dt>Price range</dt>
+                <dd>
+                  <span class="lx__scale" aria-hidden="true">
+                    {[1, 2, 3, 4].map((n) => (
+                      <span class:list={{ on: n >= a.lo && n <= a.hi }} />
+                    ))}
+                  </span>
+                  <span class="lx__range">{a.range}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>From our office</dt>
+                <dd>{a.distance}</dd>
+              </div>
+            </dl>
+            <div class="lx__btns">
+              <a class="lx__go" href={`/${a.slug}`}>
+                Explore {a.name} <span aria-hidden="true">→</span>
+              </a>
+              <a class="lx__ask" href={a.wa} target="_blank" rel="noopener" data-cta="where-we-work">
+                Ask about {a.name}
+              </a>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    <!-- Part 2: Sanaswadi site plan (7th tab) -->
+    <article class="plot lx__panel--plot" role="tabpanel" id="lx-panel-sanaswadi" aria-labelledby="lx-tab-sanaswadi" hidden>
+      <div class="plot__frame">
+        <Picture
+          src={img('sanaswadi/ariel_view.png')}
+          alt="Aerial view of the 4.5-acre Sanaswadi industrial plot, outlined in red, among operating industrial units"
+          formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+          width={900}
+          widths={[480, 720, 900]}
+          sizes="(max-width: 899px) calc(100vw - 32px), 640px"
+          loading="lazy"
+          class="plot__img"
+        />
+        <!-- blueprint overlay -->
+        <svg class="plot__overlay" viewBox="0 0 100 75" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path class="bp" d="M3 3h8M3 3v8M97 3h-8M97 3v8M3 72h8M3 72v-8M97 72h-8M97 72v-8" />
+          <path class="bp bp--dim" d="M18 68H52M18 65.5v5M52 65.5v5" />
+        </svg>
+        <span class="plot__dim">4.5 acres · 1,95,000 sq ft</span>
+        <span class="plot__north" aria-hidden="true"><span>N</span></span>
+        <span class="plot__hwy">{hwy.km} km to <span class="plot__hwy-long">the {hwy.place}</span><span class="plot__hwy-short">highway</span> <span aria-hidden="true">→</span></span>
+      </div>
+
+      <div class="plot__body">
+        <p class="plot__k">Featured project · Industrial land</p>
+        <h3 id="plot-h" class="plot__title">4.5 acres in Sanaswadi</h3>
+        <p class="plot__text">{sanaswadi.summary}</p>
+        <dl class="plot__facts">
+          {
+            sanaswadi.facts.map((f) => (
+              <div>
+                <dt>{f.label}</dt>
+                <dd class="num">{f.value}</dd>
+              </div>
+            ))
+          }
+          <div>
+            <dt>Highway</dt>
+            <dd class="num">{hwy.km} km</dd>
+          </div>
+        </dl>
+        <div class="plot__btns">
+          <a class="lx__go" href="/projects/sanaswadi-industrial-land">View plot details <span aria-hidden="true">→</span></a>
+          <a class="plot__enq" href={waPlot} target="_blank" rel="noopener" data-cta="sanaswadi-landing">Enquire on WhatsApp</a>
+        </div>
+        <p class="plot__call">or call <a href={telHref} class="num" data-cta="sanaswadi-landing">074999 14181</a></p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .lx {
+    position: relative;
+    padding-block: clamp(44px, 5vw, 72px);
+    background-color: #fff;
+    background-image:
+      linear-gradient(rgba(61, 74, 92, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.045) 1px, transparent 1px);
+    background-size: 120px 120px;
+    border-top: 1px solid rgba(13, 37, 61, 0.06);
+    color: #0d253d;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+
+  /* ---------- Heading ---------- */
+  .lx__head {
+    max-width: 780px;
+  }
+  .lx__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .lx__num {
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .lx__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .lx__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .lx__title em {
+    font-style: normal;
+    font-weight: 600;
+    color: #c8123f;
+  }
+  .lx__lead {
+    margin: 16px 0 0;
+    max-width: 62ch;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: #344559;
+  }
+
+  /* ---------- Tabs ---------- */
+  .lx__tabs {
+    display: flex;
+    gap: 8px;
+    margin-top: clamp(32px, 4vw, 48px);
+    padding: 6px;
+    border-radius: 9999px;
+    background: #f6f2f3;
+    border: 1px solid rgba(13, 37, 61, 0.06);
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .lx__tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .lx__tab {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: #344559;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .lx__tab:hover {
+    color: #c8123f;
+  }
+  .lx__tab[aria-selected='true'] {
+    background: #fff;
+    color: #c8123f;
+    box-shadow: 0 6px 16px rgba(13, 37, 61, 0.1);
+  }
+  .lx__tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #c8123f;
+  }
+  .lx__hq {
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: #fdecf0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #b80f3a;
+  }
+
+  /* ---------- Panel ---------- */
+  .lx__panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+    margin-top: 24px;
+    padding: clamp(20px, 3vw, 32px);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 20px 48px rgba(13, 37, 61, 0.07);
+  }
+  .lx__panel[hidden] {
+    display: none;
+  }
+  .lx__scene {
+    margin: 0;
+    padding: 18px 18px 12px;
+    border-radius: 16px;
+    background:
+      linear-gradient(rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      #fbfaf7;
+    background-size: 24px 24px;
+  }
+  .lx__scene svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .lx__scene figcaption {
+    margin-top: 6px;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: #4e5d73;
+  }
+  .sv-ground {
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-width: 1.4;
+  }
+  .sv-body {
+    fill: #fff;
+  }
+  .sv {
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .sv-ln {
+    stroke-width: 1.3;
+  }
+  .sv-thin {
+    stroke-width: 0.8;
+    opacity: 0.65;
+  }
+  .sv-accent {
+    stroke: #e8104c;
+    stroke-width: 1.4;
+    stroke-dasharray: 8 6;
+  }
+  .sv-leaf {
+    stroke: #c8123f;
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+
+  /* draw-in when a panel becomes active */
+  @media (prefers-reduced-motion: no-preference) {
+    .lx__panel .sv {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.3s ease calc(var(--g, 0) * 0.12s);
+    }
+    .lx__panel .sv-accent {
+      transition: stroke-dashoffset 1.3s ease calc(var(--g, 0) * 0.12s), stroke-dasharray 0s linear 1.6s;
+    }
+    .lx__panel .sv-body {
+      opacity: 0;
+      transition: opacity 0.6s ease calc(0.2s + var(--g, 0) * 0.12s);
+    }
+    .lx.is-in .lx__panel.is-drawn .sv {
+      stroke-dashoffset: 0;
+    }
+    .lx.is-in .lx__panel.is-drawn .sv-accent {
+      stroke-dasharray: 0.02 0.015;
+    }
+    .lx.is-in .lx__panel.is-drawn .sv-body {
+      opacity: 1;
+    }
+    .lx__panel .lx__facts > * {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .lx.is-in .lx__panel.is-drawn .lx__facts > * {
+      opacity: 1;
+      transform: none;
+    }
+    .lx__panel.is-drawn .lx__facts > :nth-child(2) { transition-delay: 0.08s; }
+    .lx__panel.is-drawn .lx__facts > :nth-child(3) { transition-delay: 0.16s; }
+    .lx__panel.is-drawn .lx__facts > :nth-child(4) { transition-delay: 0.24s; }
+  }
+
+  .lx__area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .lx__badge {
+    padding: 3px 10px;
+    border-radius: 9999px;
+    background: #c8123f;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .lx__about {
+    margin: 10px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: #344559;
+  }
+  .lx__dl {
+    display: grid;
+    gap: 14px;
+    margin: 18px 0 0;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(13, 37, 61, 0.16);
+  }
+  .lx__dl > div {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .lx__dl dt {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #b80f3a;
+    padding-top: 2px;
+  }
+  .lx__dl dd {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: #0d253d;
+  }
+  .lx__homes {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+  }
+  .lx__homes li::before {
+    content: '·';
+    margin-right: 6px;
+    color: #c8123f;
+    font-weight: 700;
+  }
+  .lx__scale {
+    display: inline-flex;
+    gap: 4px;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  .lx__scale span {
+    width: 26px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(13, 37, 61, 0.1);
+  }
+  .lx__scale span.on {
+    background: #e8104c;
+  }
+  .lx__range {
+    vertical-align: middle;
+  }
+  .lx__btns,
+  .plot__btns {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin-top: 22px;
+  }
+  .lx__go {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 9999px;
+    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    box-shadow: 0 8px 20px rgba(200, 18, 63, 0.25);
+    transition: transform 0.2s ease;
+  }
+  .lx__go:hover {
+    transform: translateY(-1px);
+  }
+  .lx__ask,
+  .plot__enq {
+    display: inline-flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 0 20px;
+    border-radius: 9999px;
+    border: 1px solid rgba(13, 37, 61, 0.25);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #0d253d;
+    text-decoration: none !important;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  .lx__ask:hover,
+  .plot__enq:hover {
+    background: #0d253d;
+    color: #fff;
+  }
+
+  /* ---------- Sanaswadi site plan ---------- */
+  .plot[hidden] {
+    display: none;
+  }
+  .plot__frame {
+    max-height: calc(100svh - 330px);
+  }
+  .plot {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+    margin-top: 16px;
+    padding: clamp(16px, 2.4vw, 28px);
+    border-radius: 22px;
+    background: #1d0f16;
+    color: #f6e8ec;
+  }
+  .plot__frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    aspect-ratio: 4 / 3;
+    background: #2a1a21;
+    outline: 1px solid rgba(255, 255, 255, 0.18);
+    outline-offset: 6px;
+  }
+  .plot__frame :global(picture),
+  .plot__frame :global(.plot__img) {
+    width: 100%;
+    height: 100%;
+  }
+  .plot__frame :global(.plot__img) {
+    object-fit: cover;
+  }
+  .plot__overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .bp {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
+    stroke-width: 2;
+  }
+  .bp--dim {
+    stroke: #fff;
+  }
+  .plot__dim,
+  .plot__hwy {
+    position: absolute;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(29, 15, 22, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .plot__dim {
+    left: 18%;
+    bottom: 12%;
+  }
+  .plot__hwy {
+    right: 4%;
+    top: 6%;
+    background: #c8123f;
+    border-color: #c8123f;
+  }
+  .plot__hwy-short {
+    display: none;
+  }
+  .plot__north {
+    position: absolute;
+    left: 5%;
+    top: 7%;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+    background: rgba(29, 15, 22, 0.55);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .plot__north::before {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    margin-left: -5px;
+    border: 5px solid transparent;
+    border-bottom: 8px solid #e8104c;
+    border-top: 0;
+  }
+
+  .plot__k {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #ff8aa8;
+  }
+  .plot__title {
+    margin: 10px 0 0;
+    font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.4rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .plot__text {
+    margin: 10px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: #ecd3da;
+  }
+  .plot__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 20px;
+    margin: 20px 0 0;
+    padding-top: 18px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.2);
+  }
+  .plot__facts dt {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #d9a9b6;
+  }
+  .plot__facts dd {
+    margin: 4px 0 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #fff;
+  }
+  .plot__facts > div:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .plot__enq {
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+  }
+  .plot__enq:hover {
+    background: #fff;
+    color: #1d0f16;
+  }
+  .plot__call {
+    margin: 14px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: #ecd3da;
+  }
+  .plot__call a {
+    color: #fff;
+  }
+
+  /* entrance */
+  @media (prefers-reduced-motion: no-preference) {
+    .lx__head,
+    .lx__tabs {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .lx.is-in .lx__head,
+    .lx.is-in .lx__tabs {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 899px) {
+    .lx__panel,
+    .plot {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lx__tabs {
+      width: auto;
+    }
+  }
+  @media (max-width: 560px) {
+    .lx__dl > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+    .plot__dim {
+      left: 6%;
+    }
+    .plot__hwy-long {
+      display: none;
+    }
+    .plot__hwy-short {
+      display: inline;
+    }
+  }
+
+  /* ===== One-screen compaction ===== */
+
+  .lx__panel { margin-top: 16px; padding: clamp(14px, 2.4vh, 28px); }
+  .lx__tabs { margin-top: clamp(14px, 2.6vh, 32px); }
+  .lx__scene svg { max-height: calc(100svh - 420px); }
+  @media (max-width: 899px) {
+    .lx__lead, .lx__scene figcaption { display: none; }
+    .lx__title { font-size: 1.8rem; }
+    .lx__scene { padding: 8px; }
+    .lx__scene svg { max-height: 20svh; }
+    .lx__about { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .lx__homes li:nth-child(n + 3) { display: none; }
+    .lx__dl { gap: 8px; margin-top: 10px; padding-top: 10px; }
+    .lx__btns, .plot__btns { margin-top: 12px; }
+    .lx__go, .lx__ask, .plot__enq { min-height: 42px; padding: 0 16px; }
+    .plot__text, .plot__call { display: none; }
+    .plot__frame { max-height: 26svh; }
+    .plot__facts { margin-top: 10px; padding-top: 10px; gap: 8px 14px; }
+    .plot__facts dd { font-size: 1.0625rem; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-lx]');
+  if (root) {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')!)!);
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, k) => {
+        const on = k === i;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        panels[k].hidden = !on;
+        panels[k].classList.toggle('is-active', on);
+        if (!on) panels[k].classList.remove('is-drawn');
+      });
+      // next frame: start the draw-in (so the transition runs after the panel becomes visible)
+      requestAnimationFrame(() => requestAnimationFrame(() => panels[i].classList.add('is-drawn')));
+      if (focus) tabs[i].focus();
+      tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+    };
+
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(i));
+      t.addEventListener('keydown', (e) => {
+        const last = tabs.length - 1;
+        const cur = tabs.indexOf(document.activeElement as HTMLButtonElement);
+        let next = -1;
+        if (e.key === 'ArrowRight') next = cur === last ? 0 : cur + 1;
+        else if (e.key === 'ArrowLeft') next = cur === 0 ? last : cur - 1;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = last;
+        if (next >= 0) {
+          e.preventDefault();
+          select(next, true);
+        }
+      });
+    });
+
+    // Entrance + first draw-in when the section scrolls into view
+    const plot = root.querySelector<HTMLElement>('.plot');
+    if (reduced || !('IntersectionObserver' in window)) {
+      root.classList.add('is-in');
+      plot?.classList.add('is-in');
+      panels[0].classList.add('is-drawn');
+    } else {
+      const io = new IntersectionObserver(
+        (es) => {
+          for (const e of es) {
+            if (!e.isIntersecting) continue;
+            if (e.target === root) {
+              root.classList.add('is-in');
+              panels[0].classList.add('is-drawn');
+            } else e.target.classList.add('is-in');
+            io.unobserve(e.target);
+          }
+        },
+        { threshold: 0.12 },
+      );
+      io.observe(root);
+      if (plot) io.observe(plot);
+    }
+  }
+</script>

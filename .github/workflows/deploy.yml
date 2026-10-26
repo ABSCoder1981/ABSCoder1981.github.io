@@ -1,0 +1,102 @@
+name: Build and deploy
+
+# Manual "Run workflow": test, build and deploy to the VPS (staging, or production once staging is approved).
+# Switch back to deploying on every push to main once the VPS secrets are set (see README).
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to deploy
+        type: choice
+        options: [staging, production]
+        default: staging
+
+concurrency:
+  group: deploy-${{ github.event.inputs.target || 'staging' }}
+  cancel-in-progress: false
+
+env:
+  TARGET: ${{ github.event.inputs.target || 'staging' }}
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            api/package-lock.json
+
+      - name: API — install and test
+        working-directory: api
+        run: |
+          npm ci
+          npm test
+
+      - name: Site — install and build
+        working-directory: web
+        env:
+          PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Site — QA checks (SEO, links, CTAs, banned claims)
+        working-directory: web
+        run: npm run check
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: web/dist
+          retention-days: 14
+
+  deploy:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.target || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ vars.VPS_PORT || 22 }}" -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy site (rsync dist/)
+        run: |
+          rsync -az --delete-after --checksum \
+            -e "ssh -p ${{ vars.VPS_PORT || 22 }}" \
+            dist/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/ashiyana/${TARGET}/"
+
+      - name: Deploy enquiry API
+        run: |
+          rsync -az --delete \
+            --exclude node_modules --exclude .env --exclude test \
+            -e "ssh -p ${{ vars.VPS_PORT || 22 }}" \
+            api/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/opt/ashiyana-api/"
+          ssh -p "${{ vars.VPS_PORT || 22 }}" "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "cd /opt/ashiyana-api && npm ci --omit=dev --no-audit --no-fund && sudo /usr/bin/systemctl restart ashiyana-api && sleep 2 && sudo /usr/bin/systemctl is-active ashiyana-api"
+
+      - name: Smoke test
+        run: |
+          if [ "$TARGET" = "production" ]; then BASE=https://www.ashiyanarealestate.in; AUTH=""; else BASE=https://staging.ashiyanarealestate.in; AUTH="-u review:${{ secrets.STAGING_PASSWORD }}"; fi
+          for path in / /contact /kothrud /services/sell /projects/sanaswadi-industrial-land /api/health; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' $AUTH "$BASE$path")
+            echo "$path → $code"
+            [ "$code" = "200" ] || exit 1
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' $AUTH "$BASE/pages/contact")
+          echo "/pages/contact → $code (expect 301)"; [ "$code" = "301" ]

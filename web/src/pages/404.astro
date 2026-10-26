@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { services, localities, telHref, waHref } from '../lib/site';
+
+const pageName = 'Page not found';
+const wa = waHref('help finding something on your website', pageName);
+---
+
+<BaseLayout
+  title="Page Not Found · Ashiyana Real Estate"
+  description="The page you were looking for has moved or doesn't exist. Head back home, or WhatsApp us and we'll help directly."
+  pageName={pageName}
+  noindex
+  finalCta={false}
+>
+  <section class="nf">
+    <div class="container nf__inner">
+      <span class="eyebrow">404 · Page not found</span>
+      <h1 class="page-title">This page has moved, <span class="tone-mute">but we haven't.</span></h1>
+      <p class="lead">The page you were looking for doesn't exist any more. Tell us what you need on WhatsApp, or start again from the home page.</p>
+      <div class="btn-row">
+        <a class="btn btn--whatsapp" href={wa} target="_blank" rel="noopener" data-cta="404"><Icon name="whatsapp" /> WhatsApp us</a>
+        <a class="btn btn--outline" href="/">Back to home</a>
+        <a class="btn btn--ghost" href={telHref} data-cta="404"><Icon name="phone" /> Call us</a>
+      </div>
+      <div class="nf__links">
+        <div>
+          <h2 class="heading-md">Services</h2>
+          <ul role="list">{services.map((s) => <li><a href={`/services/${s.slug}`}>{s.name}</a></li>)}</ul>
+        </div>
+        <div>
+          <h2 class="heading-md">Localities</h2>
+          <ul role="list">{localities.map((l) => <li><a href={`/${l.slug}`}>{l.name}</a></li>)}</ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    position: relative;
+    padding-block: var(--s-8);
+  }
+  .nf__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 880px;
+  }
+  .lead {
+    margin-top: var(--s-4);
+  }
+  .btn-row {
+    margin-top: var(--s-6);
+  }
+  .nf__links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-6);
+    margin-top: var(--s-8);
+  }
+  .nf__links ul {
+    margin: var(--s-3) 0 0;
+  }
+  .nf__links a {
+    display: inline-block;
+    padding-block: 8px;
+  }
+</style>

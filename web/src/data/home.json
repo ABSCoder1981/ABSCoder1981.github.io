@@ -1,0 +1,79 @@
+{
+  "problems": [
+    {
+      "icon": "tag",
+      "problem": "Unclear pricing",
+      "text": "Portal prices vary wildly, and it's hard to know what a flat is really worth.",
+      "how": "We price from recent deals in the same society or lane, and show you the reasoning."
+    },
+    {
+      "icon": "file",
+      "problem": "Document risk",
+      "text": "A missing NOC or a broken title chain can stall a deal, or worse.",
+      "how": "We check title, society papers and approvals before you pay a token."
+    },
+    {
+      "icon": "route",
+      "problem": "Wasted site visits",
+      "text": "Weekends lost to visiting homes that never matched your brief.",
+      "how": "One requirement call, then a short list of homes that actually fit."
+    },
+    {
+      "icon": "file",
+      "problem": "Paperwork delays",
+      "text": "Agreements, loan papers and registration dates are easy to get wrong, and every mistake costs weeks.",
+      "how": "We coordinate the agreement, loan paperwork and registration date, and stay with you until the keys are handed over.",
+      "_note": "Drafted for the landing page journey section; confirm with Ashiyana."
+    }
+  ],
+  "process": [
+    {
+      "title": "Requirement call",
+      "text": "Tell us area, budget, size and timeline, in about 10 minutes."
+    },
+    {
+      "title": "Shortlist and site visits",
+      "text": "We share homes that fit and visit the best ones with you."
+    },
+    {
+      "title": "Negotiation",
+      "text": "We negotiate price and terms and check the papers before you commit."
+    },
+    {
+      "title": "Documentation and registration",
+      "text": "We coordinate the agreement, loan paperwork and registration."
+    }
+  ],
+  "why": [
+    {
+      "icon": "clock",
+      "title": "Three decades in Pune",
+      "text": "Experience across residential, commercial and industrial property since before the portals existed."
+    },
+    {
+      "icon": "eye",
+      "title": "Straight answers",
+      "text": "Realistic prices and honest advice, even when it isn't what you hoped to hear."
+    },
+    {
+      "icon": "pin",
+      "title": "We know the lanes",
+      "text": "Society by society knowledge of Kothrud and the neighbourhoods around it."
+    },
+    {
+      "icon": "users",
+      "title": "One team, start to finish",
+      "text": "The same people from your first call to the registration office."
+    },
+    {
+      "icon": "file",
+      "title": "Paperwork done right",
+      "text": "Title checks, agreements and registration coordinated with property lawyers."
+    },
+    {
+      "icon": "handshake",
+      "title": "Clients who come back",
+      "text": "Many clients return for their next home, and send their families to us."
+    }
+  ]
+}

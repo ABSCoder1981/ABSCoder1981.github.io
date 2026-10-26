@@ -1,0 +1,155 @@
+[
+  {
+    "slug": "kothrud",
+    "name": "Kothrud",
+    "draft": true,
+    "title": "Property Consultants in Kothrud, Pune · Ashiyana",
+    "description": "Buy, sell or rent a flat in Kothrud with a local team whose head office is at Karve Statue. Resale flats, redevelopment and new projects.",
+    "card": "Our head office is here, at Karve Statue. Resale flats, redevelopment and new projects.",
+    "about": [
+      "Kothrud is one of west Pune's largest and most settled residential areas, popular with families for its schools, hospitals, parks and the Vanaz–Ramwadi metro line. Neighbourhoods such as Mayur Colony, Dahanukar Colony, Ideal Colony and Karve Road each have their own character and price levels.",
+      "Much of Kothrud's housing is in older cooperative societies, many of which are now being redeveloped. That creates opportunities for buyers and sellers, and makes document checks and redevelopment terms especially important.",
+      "Our head office is at Karve Statue, so we know these lanes, societies and recent deals first-hand."
+    ],
+    "help": {
+      "buy": "Resale flats in established societies, redeveloped buildings and new projects, shortlisted to your budget.",
+      "sell": "Pricing based on recent deals in your society, with buyers already looking in Kothrud.",
+      "rent": "Verified tenants for landlords, and family-friendly rentals near schools and the metro."
+    },
+    "propertyTypes": [
+      { "type": "1 and 2 BHK resale flats", "band": "Entry to mid range" },
+      { "type": "3 BHK flats in redeveloped and newer buildings", "band": "Mid to premium" },
+      { "type": "Large 3 and 4 BHK homes", "band": "Premium" },
+      { "type": "Bungalows and row houses in older colonies", "band": "Premium, rarely available" }
+    ],
+    "reviewArea": "Kothrud",
+    "distance": "Our office is in Kothrud, at Karve Statue"
+  },
+  {
+    "slug": "karvenagar",
+    "name": "Karvenagar",
+    "draft": true,
+    "title": "Property Consultants in Karvenagar, Pune · Ashiyana",
+    "description": "Buy, sell or rent a home in Karvenagar with a team based next door in Kothrud. Honest pricing, real shortlists and complete paperwork.",
+    "card": "A quiet residential neighbourhood right next to Kothrud, with settled societies and newer buildings.",
+    "about": [
+      "Karvenagar sits just south of Kothrud and is known as a quieter, greener residential neighbourhood, with easy access to Kothrud, Warje and Sinhagad Road.",
+      "It has a mix of older societies, independent homes and newer buildings, which suits families who want space without moving far from Kothrud's schools and markets.",
+      "Because it's minutes from our office, we can arrange visits at short notice."
+    ],
+    "help": {
+      "buy": "Spacious resale flats and independent homes, with document checks before you commit.",
+      "sell": "Realistic pricing and buyers who specifically want Karvenagar.",
+      "rent": "Tenants for family-sized homes, and rentals close to Kothrud."
+    },
+    "propertyTypes": [
+      { "type": "2 BHK resale flats", "band": "Mid range" },
+      { "type": "3 BHK and larger flats", "band": "Mid to premium" },
+      { "type": "Fully furnished 4 BHK homes", "band": "Premium" },
+      { "type": "Independent houses", "band": "Premium, rarely available" }
+    ],
+    "reviewArea": "Karve Nagar",
+    "distance": "About 2 km from our Kothrud office"
+  },
+  {
+    "slug": "warje",
+    "name": "Warje",
+    "draft": true,
+    "title": "Real Estate Agent in Warje, Pune · Ashiyana Real Estate",
+    "description": "Flats and new projects in Warje along the Mumbai–Bengaluru highway. Shortlists, site visits, negotiation and paperwork handled for you.",
+    "card": "West Pune along the Mumbai–Bengaluru highway, with newer projects and good value.",
+    "about": [
+      "Warje lies on Pune's western edge along the Mumbai–Bengaluru highway, with quick access to Kothrud, Karvenagar and the highway towards Satara and Mumbai.",
+      "It has grown quickly, with many newer residential projects and larger complexes that often offer more space for the money than central areas.",
+      "We help buyers compare projects carefully, from approvals to amenities, and help owners price and let their homes well."
+    ],
+    "help": {
+      "buy": "Newer projects and resale flats compared on approvals, amenities and value.",
+      "sell": "Pricing that reflects the building, floor and project, not just the area.",
+      "rent": "Tenants for newer flats, and rentals with highway access."
+    },
+    "propertyTypes": [
+      { "type": "1 and 2 BHK flats in newer projects", "band": "Entry to mid range" },
+      { "type": "3 BHK flats in larger complexes", "band": "Mid range" },
+      { "type": "Investment flats for rental income", "band": "Entry to mid range" }
+    ],
+    "reviewArea": "Warje",
+    "distance": "About 5 km from our Kothrud office"
+  },
+  {
+    "slug": "prabhat-road",
+    "name": "Prabhat Road",
+    "draft": true,
+    "title": "Property Consultants on Prabhat Road, Pune · Ashiyana",
+    "description": "Buy or sell a premium home on Prabhat Road, near Deccan. Discreet marketing, careful pricing and complete documentation support.",
+    "card": "A central Pune address close to Deccan, with premium flats and older bungalows.",
+    "about": [
+      "Prabhat Road is one of central Pune's most sought-after addresses, close to Deccan Gymkhana, Law College Road and FC Road.",
+      "Its tree-lined lanes have older bungalows, low-rise buildings and newer premium flats, many from redevelopment, and good homes here rarely stay on the market for long.",
+      "Sellers often prefer a quiet approach to known buyers. We handle that discreetly, and help buyers act quickly when the right home appears."
+    ],
+    "help": {
+      "buy": "Early access to premium flats and redevelopment opportunities, with careful document checks.",
+      "sell": "Discreet marketing to serious buyers and pricing based on recent deals in the lane.",
+      "rent": "Tenants for premium homes, and rentals for professionals near Deccan."
+    },
+    "propertyTypes": [
+      { "type": "3 BHK flats", "band": "Premium" },
+      { "type": "Unused and semi-furnished 4 BHK flats", "band": "Premium" },
+      { "type": "Redevelopment opportunities", "band": "Case by case" },
+      { "type": "Bungalows", "band": "Luxury, rarely available" }
+    ],
+    "reviewArea": null,
+    "distance": "About 4 km from our Kothrud office"
+  },
+  {
+    "slug": "bavdhan",
+    "name": "Bavdhan",
+    "draft": true,
+    "title": "Property Consultants in Bavdhan, Pune · Ashiyana",
+    "description": "Gated projects and spacious flats in Bavdhan near Chandni Chowk. Shortlists, visits, negotiation and paperwork, handled by a local team.",
+    "card": "Green, hilly west Pune near Chandni Chowk, with newer gated projects.",
+    "about": [
+      "Bavdhan is a green, hilly part of west Pune near Chandni Chowk, with good access to Kothrud, the Mumbai–Bengaluru highway and Hinjewadi.",
+      "It's known for newer gated projects and larger flats, which appeal to families and professionals who want more space and open surroundings.",
+      "We help buyers compare projects and builders, and help owners price and let their homes to the right tenants."
+    ],
+    "help": {
+      "buy": "Gated projects and resale flats compared on builder record, approvals and value.",
+      "sell": "Pricing that reflects the project, view and floor, with buyers looking in Bavdhan.",
+      "rent": "Tenants for larger flats, including professionals working in Hinjewadi."
+    },
+    "propertyTypes": [
+      { "type": "2 BHK flats in gated projects", "band": "Mid range" },
+      { "type": "3 BHK and larger flats", "band": "Mid to premium" },
+      { "type": "Row houses and villas", "band": "Premium, rarely available" }
+    ],
+    "reviewArea": null,
+    "distance": "About 5 km from our Kothrud office"
+  },
+  {
+    "slug": "erandwane",
+    "name": "Erandwane",
+    "draft": true,
+    "title": "Property Consultants in Erandwane, Pune · Ashiyana",
+    "description": "Buy, sell or rent a home in Erandwane, between Kothrud and Deccan. Honest pricing, real shortlists and documentation handled end to end.",
+    "card": "An established, central neighbourhood between Kothrud and Deccan.",
+    "about": [
+      "Erandwane sits between Kothrud and Deccan along Karve Road, close to hospitals, colleges and some of Pune's best-known schools.",
+      "It's an established neighbourhood of older societies, bungalows and redeveloped buildings, valued for its central location and quieter inner lanes.",
+      "It's minutes from our office, so we know its societies, redevelopment projects and recent prices well."
+    ],
+    "help": {
+      "buy": "Resale and redeveloped flats in central lanes, checked before you commit.",
+      "sell": "Pricing based on your society's recent deals, and buyers who want a central address.",
+      "rent": "Tenants for well-located homes, and rentals near hospitals and colleges."
+    },
+    "propertyTypes": [
+      { "type": "2 BHK resale flats", "band": "Mid range" },
+      { "type": "3 BHK flats in redeveloped buildings", "band": "Premium" },
+      { "type": "Bungalows and redevelopment plots", "band": "Luxury, rarely available" }
+    ],
+    "reviewArea": null,
+    "distance": "About 2.5 km from our Kothrud office"
+  }
+]

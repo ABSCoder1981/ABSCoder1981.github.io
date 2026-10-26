@@ -1,0 +1,60 @@
+---
+import Icon from './Icon.astro';
+import { site, telHref, waHref } from '../lib/site';
+
+interface Props {
+  pageName: string;
+  waInterest: string;
+  text?: string;
+}
+const { pageName, waInterest, text = 'Tell us what you need. We’ll take it from there.' } = Astro.props;
+---
+
+<section class="final-cta" aria-labelledby="final-cta-h">
+  <div class="container final-cta__inner">
+    <div>
+      <h2 id="final-cta-h" class="display-lg">{text}</h2>
+      <p class="final-cta__sub">{site.hours.display} · <span class="num">{site.phone.display}</span></p>
+    </div>
+    <div class="btn-row">
+      <a class="btn btn--whatsapp" href={waHref(waInterest, pageName)} target="_blank" rel="noopener" data-cta="final-cta"><Icon name="whatsapp" /> WhatsApp us</a>
+      <a class="btn btn--on-dark" href={telHref} data-cta="final-cta"><Icon name="phone" /> Call now</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .final-cta {
+    position: relative;
+    overflow: hidden;
+    background: var(--brand-dark);
+    color: #fff;
+    padding-block: var(--s-8);
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    inset: -40% -10% auto auto;
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(closest-side, rgba(232, 16, 76, 0.45), transparent);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .final-cta__inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-6);
+    flex-wrap: wrap;
+  }
+  .final-cta h2 {
+    color: #fff;
+    max-width: 22ch;
+  }
+  .final-cta__sub {
+    margin-top: var(--s-3);
+    color: #ecd3da;
+  }
+</style>

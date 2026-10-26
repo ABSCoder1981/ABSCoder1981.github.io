@@ -1,0 +1,148 @@
+---
+import EnquiryForm from './react/EnquiryForm';
+import Icon from './Icon.astro';
+import { site, localityNames, telHref, waHref } from '../lib/site';
+
+interface Props {
+  pageName: string;
+  waInterest: string;
+  headingLevel?: 'h2' | 'h3';
+  title?: string;
+  lead?: string;
+}
+const {
+  pageName,
+  waInterest,
+  headingLevel: H = 'h2',
+  title = 'Talk to us',
+  lead = 'WhatsApp, call or send an enquiry. Whichever you choose, a real person from our Kothrud office will get back to you.',
+} = Astro.props;
+const wa = waHref(waInterest, pageName);
+---
+
+<div class="contact">
+  <div>
+    {H !== "h1" && <span class="eyebrow">Contact</span>}
+    <H class={H === "h1" ? "page-title" : "display-xl"} id="contact-h">{title}</H>
+    <p class="lead">{lead}</p>
+
+    <ul role="list" class="contact__list">
+      <li>
+        <a class="contact__row" href={wa} target="_blank" rel="noopener" data-cta="contact-block">
+          <span class="contact__icon contact__icon--wa"><Icon name="whatsapp" /></span>
+          <span><strong>WhatsApp <span class="contact__fast">Fastest reply</span></strong><span class="num">{site.phone.display}</span></span>
+        </a>
+      </li>
+      <li>
+        <a class="contact__row" href={telHref} data-cta="contact-block">
+          <span class="contact__icon"><Icon name="phone" /></span>
+          <span><strong>Call</strong><span class="num">{site.phone.display}</span></span>
+        </a>
+      </li>
+      <li>
+        <a class="contact__row" href={`mailto:${site.email}`}>
+          <span class="contact__icon"><Icon name="mail" /></span>
+          <span><strong>Email</strong><span>{site.email}</span></span>
+        </a>
+      </li>
+      <li>
+        <div class="contact__row">
+          <span class="contact__icon"><Icon name="clock" /></span>
+          <span><strong>Office hours</strong><span>{site.hours.display}</span></span>
+        </div>
+      </li>
+      <li>
+        <a class="contact__row" href={site.mapUrl} target="_blank" rel="noopener">
+          <span class="contact__icon"><Icon name="pin" /></span>
+          <span><strong>Office <Icon name="external" size={14} /></strong><span>{site.address.full}</span></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <EnquiryForm
+    client:visible
+    localities={localityNames}
+    telHref={telHref}
+    waHref={wa}
+    phoneDisplay={site.phone.display}
+    headingLevel={H === "h1" ? "h2" : "h3"}
+  />
+</div>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--s-8);
+    align-items: start;
+  }
+  @media (max-width: 1023px) {
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-6);
+    }
+  }
+  .lead {
+    margin-top: var(--s-4);
+  }
+  .contact__list {
+    margin-top: var(--s-6);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    background: var(--canvas-raised);
+    overflow: hidden;
+  }
+  .contact__list li + li {
+    border-top: 1px solid var(--hairline);
+  }
+  .contact__row {
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+    min-height: 64px;
+    padding: var(--s-3) var(--s-4);
+    color: var(--ink);
+    text-decoration: none !important;
+  }
+  a.contact__row:hover {
+    background: var(--canvas-soft);
+  }
+  .contact__fast {
+    margin-left: 4px;
+    padding: 1px 8px;
+    border-radius: var(--r-pill);
+    background: color-mix(in srgb, var(--success) 14%, transparent);
+    color: var(--ink);
+    font-weight: var(--fw-medium);
+  }
+  .contact__row strong {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: var(--fs-caption);
+    color: var(--ink-mute);
+  }
+  .contact__row > span:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .contact__icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--canvas-soft);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+  }
+  .contact__icon--wa {
+    background: color-mix(in srgb, var(--whatsapp) 14%, transparent);
+    color: var(--whatsapp);
+  }
+</style>

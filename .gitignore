@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+web/e2e-shots/
+*.log
+.DS_Store
+Thumbs.db
+~$*
+
+# Kept local: internal documents, reference material and working files (the repository is public)
+/*.docx
+/*.pdf
+/*.png
+/*.zip
+/Stripi.md
+/CONTENT-SIGNOFF.md
+/Ashiyana Website Audit & Redesign Plan.md
+/Ashiyana-Real-Estate-Landing-Page/
+/images/
+/.claude/
+web/$S/
+web/.vscode/

@@ -1,0 +1,67 @@
+---
+import { Picture } from 'astro:assets';
+import people from '../data/people.json';
+import { img } from '../lib/images';
+
+// 11 photos; the first spans two columns (one row) → 12 cells: fills 4 columns (3 rows) and 2 columns (6 rows) evenly.
+// Its height comes from the row, which the 4:3 single photos set.
+---
+
+<ul role="list" class="wall">
+  {
+    people.wall.map((p, i) => (
+      <li class:list={['wall__item', { 'wall__item--wide': i === 0 }]}>
+        <Picture
+          src={img(p)}
+          alt="Ashiyana Real Estate clients and team at a property handover"
+          formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+          width={i === 0 ? 800 : 480}
+          widths={i === 0 ? [480, 800] : [240, 360, 480]}
+          sizes={i === 0 ? '(max-width: 767px) 100vw, 50vw' : '(max-width: 767px) 50vw, 25vw'}
+          loading="lazy"
+        />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-3);
+    margin: 0;
+  }
+  .wall__item {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--r-card);
+    background: var(--canvas-soft);
+  }
+  .wall__item--wide {
+    grid-column: span 2;
+    aspect-ratio: auto; /* height comes from the row, set by the 4:3 tiles */
+  }
+  /* Images fill their tile without contributing to its height */
+  .wall__item :global(picture),
+  .wall__item :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .wall__item :global(img) {
+    object-fit: cover;
+  }
+  @media (max-width: 767px) {
+    .wall {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--s-2);
+    }
+    .wall__item--wide {
+      aspect-ratio: 2 / 1;
+    }
+  }
+</style>

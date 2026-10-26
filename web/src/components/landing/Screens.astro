@@ -1,0 +1,169 @@
+---
+// One screen per section, shared by every page in the landing look: each section is one viewport
+// tall, content is scaled down slightly to fit (never below 75%), and the wheel pages section by section.
+---
+
+<style is:global>
+  /* ---------- One screen per section (all devices) ----------
+     Each section is exactly one viewport tall, its content starts under the fixed navbar,
+     and scrolling snaps section by section. The fit script below scales a section's content
+     down slightly (never below 75%) if it is still a little too tall for a given screen. */
+  :root {
+    --nav-h: 68px;
+    --bar-h: 0px; /* mobile Call/WhatsApp bar */
+  }
+  @media (max-width: 767px) {
+    :root {
+      --bar-h: calc(64px + env(safe-area-inset-bottom));
+    }
+  }
+  html.screens {
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0;
+  }
+  html.screens .hero,
+  html.screens :is([data-screen], main > section:not(.hero), main > article) {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  html.screens footer.tf {
+    scroll-snap-align: end;
+  }
+  :is([data-screen], main > section:not(.hero), main > article) {
+    box-sizing: border-box;
+    height: 100vh;
+    height: 100svh;
+    min-height: 0 !important;
+    padding: calc(var(--nav-h) + 12px) 0 calc(var(--bar-h) + 12px) !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  :is([data-screen], main > section:not(.hero), main > article) > .container {
+    width: 100%;
+  }
+  /* the mobile bar's own body padding is not needed here: sections reserve that space themselves */
+  @media (max-width: 767px) {
+    html.screens body {
+      padding-bottom: 0;
+    }
+  }
+  :is([data-screen], main > section:not(.hero), main > article).is-overfull {
+    height: auto;
+    min-height: 100svh !important;
+  }
+</style>
+
+<script>
+  // Fit each section's content into one screen (CSS zoom keeps layout, clicks and text crisp).
+  const root = document.documentElement;
+  root.classList.add('screens');
+  // inner pages: every top-level section of <main> is a screen
+  for (const el of document.querySelectorAll<HTMLElement>('main > section:not(.hero), main > article')) el.setAttribute('data-screen', '');
+  const MIN = 0.75;
+  const fitAll = () => {
+    for (const sec of document.querySelectorAll<HTMLElement>('[data-screen]')) {
+      const box = sec.querySelector<HTMLElement>(':scope > .container');
+      if (!box) continue;
+      box.style.zoom = '1';
+      sec.classList.remove('is-overfull'); // measure against one screen, not a previously grown section
+      const cs = getComputedStyle(sec);
+      const avail = sec.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+      const need = box.scrollHeight;
+      // on phones, forms and button rows keep full-size (44px+) tap targets: such a section grows instead
+      const keep = window.innerWidth < 768 && !!box.querySelector('form, .btn-row');
+      const z = need > avail && !keep ? Math.max(MIN, avail / need) : 1;
+      box.style.zoom = String(Math.floor(z * 1000) / 1000);
+      // still too tall even at the minimum: let this one section grow rather than cut content
+      sec.classList.toggle('is-overfull', need * z > avail + 2);
+    }
+  };
+  let t: number | undefined;
+  const queue = () => {
+    window.clearTimeout(t);
+    t = window.setTimeout(fitAll, 120);
+  };
+  fitAll();
+  document.fonts?.ready.then(fitAll);
+  // refit when a section changes width (late viewport on phones, images arriving, panels opening)
+  if ('ResizeObserver' in window) {
+    const widths = new WeakMap<Element, number>();
+    const ro = new ResizeObserver((entries) => {
+      let changed = false;
+      for (const e of entries) {
+        const w = Math.round(e.contentRect.width);
+        if (widths.get(e.target) !== w) changed = true;
+        widths.set(e.target, w);
+      }
+      if (changed) queue();
+    });
+    document.querySelectorAll('[data-screen]').forEach((s) => ro.observe(s));
+  }
+  window.addEventListener('load', fitAll);
+  window.addEventListener('resize', queue);
+  // content that changes height (tabs, accordions, steppers): refit after its transition
+  document.addEventListener('click', () => window.setTimeout(fitAll, 520));
+  document.addEventListener('ashiyana:refit', queue);
+
+  // Wheel paging: one wheel notch / trackpad swipe = one section. (Touch and keyboard use CSS snapping.)
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stops = () =>
+    [document.querySelector('.hero'), ...document.querySelectorAll('[data-screen]'), document.querySelector('footer.tf')].filter(
+      Boolean,
+    ) as HTMLElement[];
+  let locked = false;
+  let lastWheel = 0;
+  let unlockAt = 0;
+  const tryUnlock = () => {
+    // stay locked until the move has finished AND the trackpad's momentum has died down
+    if (performance.now() >= unlockAt && performance.now() - lastWheel > 220) locked = false;
+    else window.setTimeout(tryUnlock, 60);
+  };
+  window.addEventListener(
+    'wheel',
+    (e) => {
+      if (e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // pinch-zoom or sideways scroll
+      if ((e.target as Element).closest?.('.nav__mobile, .nav__panel, dialog')) return;
+      const y = window.scrollY;
+      const vh = window.innerHeight;
+      const dir = Math.sign(e.deltaY);
+      // a section that had to grow taller than the screen scrolls normally inside itself
+      const here = stops().find((s) => {
+        const top = s.getBoundingClientRect().top + y;
+        return top <= y + 2 && top + s.offsetHeight > y + 2;
+      });
+      if (here && here.offsetHeight > vh + 2) {
+        const top = here.getBoundingClientRect().top + y;
+        const bottom = top + here.offsetHeight;
+        if ((dir > 0 && y + vh < bottom - 2) || (dir < 0 && y > top + 2)) return;
+      }
+      e.preventDefault();
+      lastWheel = performance.now();
+      if (locked) return;
+      const tops = stops().map((s) => Math.round(s.getBoundingClientRect().top + y));
+      const max = document.documentElement.scrollHeight - vh;
+      let target = dir > 0 ? tops.find((t) => t > y + 4) : [...tops].reverse().find((t) => t < y - 4);
+      if (target === undefined) return;
+      target = Math.min(target, max);
+      locked = true;
+      unlockAt = performance.now() + (reducedMotion ? 150 : 750);
+      window.scrollTo({ top: target, behavior: reducedMotion ? 'auto' : 'smooth' });
+      tryUnlock();
+    },
+    { passive: false },
+  );
+</script>
+
+
+<style is:global>
+  @font-face {
+    font-family: 'Jost Variable';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 100 900;
+    src: url('../../../node_modules/@fontsource-variable/jost/files/jost-latin-wght-normal.woff2') format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+      U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+</style>

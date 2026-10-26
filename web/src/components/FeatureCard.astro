@@ -1,0 +1,25 @@
+---
+// A short reason to choose Ashiyana. Text only: hierarchy comes from type, not icons.
+interface Props {
+  icon?: string;
+  title: string;
+  text: string;
+}
+const { title, text } = Astro.props;
+---
+
+<div class="feature">
+  <h3 class="heading-md">{title}</h3>
+  <p>{text}</p>
+</div>
+
+<style>
+  .feature {
+    padding-left: var(--s-4);
+    border-left: 2px solid var(--hairline-strong);
+  }
+  .feature p {
+    margin-top: var(--s-1);
+    color: var(--ink-secondary);
+  }
+</style>

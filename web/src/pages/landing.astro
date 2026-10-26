@@ -1,0 +1,578 @@
+---
+// Landing page prototype: architectural-sketch hero + overlay navbar.
+// Not indexed and kept out of the sitemap until approved to replace the home page.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LandingNav from '../components/landing/LandingNav.astro';
+import TowerSketch from '../components/landing/TowerSketch.astro';
+import PuneMap from '../components/landing/PuneMap.astro';
+import ProofBoard from '../components/landing/ProofBoard.astro';
+import ServiceFloors from '../components/landing/ServiceFloors.astro';
+import PlotToKeys from '../components/landing/PlotToKeys.astro';
+import StreetViews from '../components/landing/StreetViews.astro';
+import PeopleBoard from '../components/landing/PeopleBoard.astro';
+import ClientBoard from '../components/landing/ClientBoard.astro';
+import SiteOffice from '../components/landing/SiteOffice.astro';
+import LandingFooter from '../components/landing/LandingFooter.astro';
+import { site, telHref, waHref, localities } from '../lib/site';
+
+const pageName = 'Landing page';
+const waInterest = 'buying, selling or investing in property';
+// Rotating headline word (first one is the static, SEO/screen-reader version)
+const words = ['home', 'buyer', 'land', 'investment'];
+---
+
+<BaseLayout
+  title="Ashiyana Real Estate · Homes, Land & Investment, Pune"
+  description="A Kothrud family firm guiding buyers, sellers and investors across Pune for 30+ years. Talk to us on WhatsApp or call 074999 14181."
+  pageName={pageName}
+  waInterest={waInterest}
+  noindex
+  siteLook={false}
+>
+  <LandingNav slot="header" />
+  <LandingFooter slot="footer" />
+
+  <!-- Hero: 100svh, the navbar overlays it (no top margin).
+       Layers: map base + tower sketch (0) → white veil (1) → map pins/routes (2) → content (3) -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__sentinel" data-nav-sentinel aria-hidden="true"></div>
+    <PuneMap />
+    <TowerSketch />
+    <div class="hero__veil" aria-hidden="true"></div>
+
+    <div class="hero__content">
+      <p class="hero__eyebrow">
+        <span class="hero__rule" aria-hidden="true"></span> Kothrud &amp; Baner, Pune <span class="hero__rule" aria-hidden="true"></span>
+      </p>
+      <h1 id="hero-title" class="hero__title">
+        <span class="hero__line">Find the right</span>
+        <span class="sr-only">{words[0]}</span>
+        <span class="rot" aria-hidden="true" data-rotator>
+          {words.map((w, i) => <span class:list={['rot__w', { 'is-on': i === 0 }]}>{w}</span>)}
+        </span>
+        <span class="hero__line">in Pune.</span>
+      </h1>
+      <p class="hero__lead">
+        Resale flats, new projects and land across west Pune, guided by a Kothrud family firm from the first visit
+        to registration.
+      </p>
+      <div class="hero__ctas">
+        <a class="hero-btn hero-btn--brand" href={waHref(waInterest, pageName)} target="_blank" rel="noopener" data-cta="hero">
+          Talk to an expert
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="hero-btn hero-btn--line" href={telHref} data-cta="hero">Call <span class="num">{site.phone.display}</span></a>
+      </div>
+      <!-- Smaller screens: the map pins become a row of area chips -->
+      <nav class="hero__areas" aria-label="Areas we work in">
+        <span class="hero__areas-k">Offices in Kothrud &amp; Baner · We work in</span>
+        <ul role="list">
+          {
+            localities.map((l) => (
+              <li>
+                <a href={`/${l.slug}`} class:list={{ 'is-hq': l.slug === 'kothrud' }}>
+                  {l.name}
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href={site.offices[1].mapUrl} target="_blank" rel="noopener" class="is-hq">Baner office ↗</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <div id="after-hero"></div>
+  <ProofBoard />
+
+  <ServiceFloors />
+  <PlotToKeys />
+  <StreetViews />
+  <PeopleBoard />
+  <ClientBoard />
+
+  <SiteOffice />
+</BaseLayout>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Rotating headline word: home → buyer → land → investment
+  const rot = document.querySelector('[data-rotator]');
+  if (rot && !reduced) {
+    const words = [...rot.querySelectorAll<HTMLElement>('.rot__w')];
+    let i = 0;
+    let timer: number | undefined;
+    const next = () => {
+      const cur = words[i];
+      i = (i + 1) % words.length;
+      const nxt = words[i];
+      cur.classList.remove('is-on');
+      cur.classList.add('is-out');
+      nxt.classList.remove('is-out');
+      nxt.classList.add('is-on');
+      // after the slide-out, park the old word below again for its next turn
+      setTimeout(() => cur.classList.remove('is-out'), 750);
+    };
+    const start = () => (timer = window.setInterval(next, 2800));
+    const stop = () => window.clearInterval(timer);
+    setTimeout(start, 2400); // first change once the hero has settled
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+  }
+
+</script>
+
+<style is:global>
+  /* ---------- Short screens (laptops ≤ 820px tall): tighter headings, fewer secondary lines ---------- */
+  @media (max-height: 820px) {
+    [data-screen] :is(.proof__title, .floors__title, .ptk__title, .lx__title, .pb__title, .cb__title, .so__title) {
+      font-size: clamp(1.6rem, 4.6vh, 2.4rem) !important;
+      line-height: 1.08 !important;
+    }
+    [data-screen] :is(.proof__lead, .floors__lead, .ptk__lead, .lx__lead, .pb__lead, .cb__lead, .so__lead) {
+      margin-top: 6px !important;
+      font-size: 0.9375rem !important;
+      line-height: 1.5 !important;
+    }
+    /* How we work */
+    [data-ptk] .step__problem {
+      display: none !important;
+    }
+    [data-ptk] .ptk__art svg {
+      max-height: calc(100svh - 300px) !important;
+    }
+    [data-ptk] .ptk__art {
+      padding: 12px 14px !important;
+    }
+    [data-ptk] .step__text {
+      margin-top: 4px !important;
+    }
+    /* Where we work */
+    [data-lx] .lx__about {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    [data-lx] .lx__homes li:nth-child(n + 3) {
+      display: none !important;
+    }
+    [data-lx] .lx__dl {
+      gap: 8px !important;
+      margin-top: 10px !important;
+      padding-top: 10px !important;
+    }
+    /* Where we work: Sanaswadi tab */
+    [data-lx] :is(.plot__text, .plot__call) {
+      display: none !important;
+    }
+    [data-lx] .plot__facts {
+      margin-top: 10px !important;
+      padding-top: 10px !important;
+      gap: 8px 16px !important;
+    }
+    [data-lx] .plot__facts dd {
+      font-size: 1.0625rem !important;
+    }
+    [data-lx] .plot__btns {
+      margin-top: 12px !important;
+    }
+    [data-lx] .plot__frame {
+      aspect-ratio: auto !important;
+      height: calc(100svh - 340px) !important;
+      max-height: none !important;
+    }
+    /* Talk to us: requirement beside locality */
+    [data-so] .ef--sheet .ef__full {
+      grid-column: auto !important;
+    }
+    [data-so] .ef--sheet textarea {
+      min-height: 42px !important;
+    }
+  }
+  @media (max-height: 700px) {
+    [data-screen] :is(.proof__lead, .floors__lead, .ptk__lead, .lx__lead, .pb__lead, .cb__lead, .so__lead) {
+      display: none !important;
+    }
+    [data-so] :is(.sheet__label, .ef__sub, .so__k) {
+      display: none !important;
+    }
+    [data-ptk] .ptk__stage {
+      margin-top: 6px !important;
+    }
+    /* What we do: the left column has room, so the building can stay large enough to read */
+    [data-floors] .floors__art svg {
+      max-height: calc(100svh - 190px) !important;
+    }
+  }
+
+</style>
+
+
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    /* min-height (not height): the hero is at least one screen tall but grows with its content,
+       so on short laptop screens the text is never pushed up underneath the fixed navbar. */
+    min-height: 100vh; /* fallback */
+    min-height: 100svh; /* mobile browsers: excludes the dynamic toolbar */
+    overflow: hidden;
+    background: #fbfaf7; /* drawing paper */
+    color: #0d253d;
+  }
+  .hero__sentinel {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  /* White veil between the sketch and the text: left → right on desktop */
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      linear-gradient(180deg, rgba(251, 250, 247, 0.85) 0%, rgba(251, 250, 247, 0) 18%),
+      radial-gradient(
+        ellipse 38% 50% at 50% 56%,
+        rgba(251, 250, 247, 0.9) 0%,
+        rgba(251, 250, 247, 0.82) 45%,
+        rgba(251, 250, 247, 0.45) 72%,
+        rgba(251, 250, 247, 0) 100%
+      );
+  }
+
+  .hero__content {
+    position: relative;
+    z-index: 3;
+    pointer-events: none; /* the wrapper spans the width; only its children take clicks, so side pins stay clickable */
+    width: 100%;
+    max-width: 1320px;
+    margin-inline: auto;
+    padding: 124px 32px 150px; /* top clears the 96px overlay navbar, bottom clears the Kothrud hub pin */
+    text-align: center;
+  }
+  .hero__content > * {
+    max-width: 760px;
+    margin-inline: auto;
+    pointer-events: auto;
+  }
+
+  .hero__eyebrow {
+    width: fit-content; /* clickable box = text only, so nearby map pins stay clickable */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 0 auto clamp(14px, 2.6vh, 24px);
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .hero__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .hero__title {
+    width: fit-content; /* box = the words, so map pins beside it stay clickable */
+    margin: 0;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: clamp(2.6rem, min(1.5rem + 4vw, 9vh), 4.75rem); /* also scales with screen height */
+    font-weight: 400;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    color: #0d253d;
+    text-wrap: balance;
+  }
+  .hero__line {
+    display: block;
+  }
+  /* Rotating word: its own line, words stacked and swapped with a slide */
+  .rot {
+    position: relative;
+    display: block;
+    height: 1.08em;
+    overflow: hidden;
+  }
+  .rot__w {
+    position: absolute;
+    inset: 0;
+    font-weight: 600;
+    background: linear-gradient(100deg, #c8123f 0%, #e8104c 45%, #a30d34 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0;
+    transform: translateY(70%);
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.7s ease;
+  }
+  .rot__w.is-on {
+    opacity: 1;
+    transform: none;
+  }
+  .rot__w.is-out {
+    opacity: 0;
+    transform: translateY(-70%);
+  }
+  .hero__lead {
+    margin: clamp(14px, 3vh, 28px) auto 0;
+    font-size: 1.125rem;
+    line-height: 1.7;
+    color: #344559;
+    max-width: 560px !important;
+  }
+
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: clamp(20px, 4.5vh, 40px);
+  }
+  .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 30px;
+    border-radius: 9999px;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.3s ease, background-position 0.5s ease, background-color 0.3s ease, color 0.3s ease;
+  }
+  .hero-btn svg {
+    transition: transform 0.3s ease;
+  }
+  .hero-btn:hover svg {
+    transform: translateX(4px);
+  }
+  .hero-btn--brand {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
+    background-size: 200% 100%;
+    box-shadow: 0 10px 28px rgba(200, 18, 63, 0.3);
+  }
+  /* light sweep across the button on hover */
+  .hero-btn--brand::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 -60%;
+    width: 50%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.7s ease;
+  }
+  .hero-btn--brand:hover::before {
+    left: 120%;
+  }
+  .hero-btn--brand:hover {
+    background-position: 100% 0;
+    transform: translateY(-1px);
+    box-shadow: 0 14px 32px rgba(200, 18, 63, 0.38);
+  }
+  .hero-btn--line {
+    color: #0d253d;
+    border: 1px solid rgba(13, 37, 61, 0.35);
+    background: rgba(255, 255, 255, 0.6);
+  }
+  .hero-btn--line:hover {
+    background: #0d253d;
+    border-color: #0d253d;
+    color: #fff;
+  }
+
+
+  /* Area chips (shown when the map pins don't fit) */
+  .hero__areas {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: clamp(18px, 3vh, 28px);
+  }
+  .hero__areas-k {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .hero__areas ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .hero__areas a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(13, 37, 61, 0.12);
+    font-size: 0.875rem;
+    color: #0d253d;
+    text-decoration: none !important;
+  }
+  .hero__areas a::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e8104c;
+  }
+  .hero__areas a.is-hq {
+    border-color: rgba(232, 16, 76, 0.45);
+    font-weight: 600;
+  }
+  .hero__areas a:hover {
+    border-color: #c8123f;
+  }
+  @media (max-width: 1179px), (max-height: 540px) {
+    .hero__areas {
+      display: flex;
+    }
+    .hero__content {
+      padding-bottom: 72px;
+    }
+  }
+
+  /* Content entrance, after the sketch starts drawing */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__content > * {
+      opacity: 0;
+      transform: translateY(18px);
+      animation: hero-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    }
+    .hero__content > :nth-child(1) { animation-delay: 0.15s; }
+    .hero__content > :nth-child(2) { animation-delay: 0.3s; }
+    .hero__content > :nth-child(3) { animation-delay: 0.45s; }
+    .hero__content > :nth-child(4) { animation-delay: 0.6s; }
+    .hero__content > :nth-child(5) { animation-delay: 0.75s; }
+    .hero__content > :nth-child(6) { animation-delay: 0.9s; }
+    /* Towers step back slightly once the map arrives, so the pins read clearly */
+    .hero :global(.tower-sketch) {
+      animation: towers-settle 2s ease 3s forwards;
+    }
+  }
+  @keyframes towers-settle {
+    to {
+      opacity: 0.78;
+    }
+  }
+  @keyframes hero-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* Short desktop screens (e.g. a 1366×600 laptop window): tighter rhythm so the content
+     always finish above the Kothrud hub pin */
+  @media (min-width: 768px) and (max-height: 780px) {
+    .hero__content {
+      padding-top: 96px;
+    }
+    .hero__title {
+      font-size: clamp(2.2rem, 8vh, 4.75rem);
+    }
+    .hero__lead {
+      font-size: 1rem;
+      line-height: 1.55;
+      max-width: 640px !important;
+    }
+    .hero-btn {
+      min-height: 46px;
+    }
+  }
+  /* Very short laptop windows (≈600px tall): one more notch tighter so it all fits in one screen */
+  @media (min-width: 768px) and (max-height: 640px) {
+    .hero__content {
+      padding-top: 84px;
+    }
+    .hero__eyebrow {
+      margin-bottom: 10px;
+    }
+    .hero__title {
+      font-size: clamp(2rem, 7.4vh, 3rem);
+    }
+    .hero__lead {
+      margin-top: 10px;
+      font-size: 0.9375rem;
+    }
+    .hero__ctas {
+      margin-top: 16px;
+    }
+    .hero-btn {
+      min-height: 42px;
+    }
+  }
+  @media (min-width: 1180px) and (max-height: 780px) and (min-height: 541px) {
+    .hero__content {
+      padding-bottom: 104px;
+    }
+  }
+
+  /* ---------- Mobile: centred content, bottom-up veil ---------- */
+  @media (max-width: 767px) {
+    .hero__veil {
+      background: linear-gradient(
+        180deg,
+        rgba(251, 250, 247, 0.72) 0%,
+        rgba(251, 250, 247, 0.84) 30%,
+        rgba(251, 250, 247, 0.84) 62%,
+        rgba(251, 250, 247, 0.35) 82%,
+        rgba(251, 250, 247, 0) 100%
+      );
+    }
+    .hero__content {
+      padding: 104px 20px 96px;
+    }
+    .hero__eyebrow {
+      font-size: 0.6875rem;
+      letter-spacing: 0.2em;
+    }
+    .hero__rule {
+      display: none;
+    }
+    .hero__lead {
+      font-size: 1rem;
+      margin-top: 20px;
+    }
+    .hero__ctas {
+      margin-top: 28px;
+    }
+    .hero-btn {
+      flex: 1 1 100%;
+      max-width: 340px;
+    }
+  }
+</style>

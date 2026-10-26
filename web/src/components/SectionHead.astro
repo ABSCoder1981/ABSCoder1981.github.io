@@ -1,0 +1,19 @@
+---
+interface Props {
+  eyebrow?: string;
+  /** Main heading; wrap the muted half in `tone` */
+  title: string;
+  /** Optional second, muted part of the two-tone headline */
+  tone?: string;
+  lead?: string;
+  center?: boolean;
+  id?: string;
+}
+const { eyebrow, title, tone, lead, center = false, id } = Astro.props;
+---
+
+<div class:list={['section-head', { 'section-head--center': center }]}>
+  {eyebrow && <span class="eyebrow">{eyebrow}</span>}
+  <h2 class="display-xl" id={id}>{title}{tone && <> <span class="tone-mute">{tone}</span></>}</h2>
+  {lead && <p class="lead">{lead}</p>}
+</div>

@@ -1,0 +1,126 @@
+---
+import Icon from './Icon.astro';
+import { telHref, waHref } from '../lib/site';
+
+interface Props {
+  pageName: string;
+  waInterest: string;
+}
+const { pageName, waInterest } = Astro.props;
+const wa = waHref(waInterest, pageName);
+---
+
+<!-- Mobile: fixed Call | WhatsApp bar. Desktop: floating WhatsApp button. -->
+<nav class="mobile-bar" aria-label="Quick contact">
+  <a href={telHref} class="mobile-bar__btn mobile-bar__btn--call" data-cta="mobile-bar"><Icon name="phone" /> Call us</a>
+  <a href={wa} class="mobile-bar__btn mobile-bar__btn--wa" target="_blank" rel="noopener" data-cta="mobile-bar"><Icon name="whatsapp" /> WhatsApp</a>
+</nav>
+
+<a href={wa} class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp us" data-cta="floating">
+  <Icon name="whatsapp" size={28} />
+</a>
+
+<style>
+  .mobile-bar {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    /* Total height = 8 + 48 + 8 = 64px (--mobile-bar-h) + the safe-area inset; body padding reserves the same */
+    .mobile-bar {
+      position: fixed;
+      inset: auto 0 0 0;
+      z-index: 60;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px var(--gutter) calc(8px + env(safe-area-inset-bottom));
+      background: var(--canvas-raised);
+      border-top: 1px solid var(--hairline);
+      transition: transform 0.2s ease;
+    }
+    /* While typing in a form the keyboard is open: get out of the way of fields and the submit button */
+    :global(html.is-typing) .mobile-bar {
+      transform: translateY(110%);
+      visibility: hidden;
+    }
+  }
+  .mobile-bar__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    border-radius: var(--r-sm);
+    font-weight: var(--fw-medium);
+    text-decoration: none !important;
+  }
+  .mobile-bar__btn :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .mobile-bar__btn--call {
+    background: var(--canvas-raised);
+    color: var(--ink);
+    border: 1px solid var(--hairline-strong);
+  }
+  .mobile-bar__btn--wa {
+    background: var(--whatsapp);
+    color: #fff;
+  }
+
+  .wa-float {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--whatsapp);
+    color: #fff;
+    box-shadow: var(--shadow-float);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .wa-float:hover {
+    background: var(--whatsapp-press);
+  }
+  /* Step aside while an enquiry form is on screen (it has its own WhatsApp option) */
+  :global(html.form-in-view) .wa-float {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+  @media (max-width: 767px) {
+    .wa-float {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const isField = (el: EventTarget | null) =>
+    el instanceof HTMLElement && el.matches('input:not([type=radio]):not([type=checkbox]), textarea, select');
+
+  document.addEventListener('focusin', (e) => {
+    if (isField(e.target)) root.classList.add('is-typing');
+  });
+  document.addEventListener('focusout', () => {
+    // Wait a tick: focus may be moving straight to the next field
+    setTimeout(() => {
+      if (!isField(document.activeElement)) root.classList.remove('is-typing');
+    }, 50);
+  });
+
+  const forms = document.querySelectorAll('form');
+  if (forms.length && 'IntersectionObserver' in window) {
+    const visible = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      for (const en of entries) en.isIntersecting ? visible.add(en.target) : visible.delete(en.target);
+      root.classList.toggle('form-in-view', visible.size > 0);
+    });
+    forms.forEach((f) => io.observe(f));
+  }
+</script>

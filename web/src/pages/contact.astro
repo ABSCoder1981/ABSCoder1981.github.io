@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+
+const pageName = 'Contact page';
+const waInterest = 'buying, selling or renting a property';
+---
+
+<BaseLayout
+  title="Contact Ashiyana Real Estate · Kothrud, Pune"
+  description="Call or WhatsApp 074999 14181, or send an enquiry. Office at Karve Statue, Kothrud, Pune, open 9:30 am to 6:30 pm every day."
+  pageName={pageName}
+  waInterest={waInterest}
+  crumbs={[{ name: 'Contact', path: '/contact' }]}
+  finalCta={false}
+>
+  <section class="section contact-page">
+    <div class="container">
+      <ContactBlock
+        pageName={pageName}
+        waInterest={waInterest}
+        headingLevel="h1"
+        title="Contact us"
+        lead="WhatsApp is usually quickest. You can also call, email or send an enquiry, and a real person from our Kothrud office will get back to you."
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-page {
+    position: relative;
+    padding-top: var(--s-7);
+  }
+  .contact-page .container {
+    position: relative;
+    z-index: 1;
+  }
+</style>

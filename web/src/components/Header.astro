@@ -1,0 +1,275 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import MobileMenu from './react/MobileMenu';
+import { site, services, localities, telHref, waHref } from '../lib/site';
+import { img } from '../lib/images';
+
+interface Props {
+  pageName: string;
+  waInterest: string;
+}
+const { pageName, waInterest } = Astro.props;
+const wa = waHref(waInterest, pageName);
+const path = Astro.url.pathname;
+
+const serviceLinks = [
+  { href: '/services', label: 'All services' },
+  ...services.map((s) => ({ href: `/services/${s.slug}`, label: s.name })),
+];
+const localityLinks = localities.map((l) => ({ href: `/${l.slug}`, label: l.name }));
+const isServices = path.startsWith('/services');
+const isLocality = localities.some((l) => path === `/${l.slug}`);
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href="/">
+      <Image src={img('brand/logo.png')} alt="" width={80} height={80} loading="eager" class="brand__logo" />
+      <span class="brand__text">
+        <span class="brand__name">Ashiyana Real Estate</span>
+        <span class="brand__sub">Kothrud, Pune</span>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Main">
+      <ul role="list" class="nav__list">
+        <li class="nav__item has-menu">
+          <button class="nav__link" aria-expanded="false" aria-controls="menu-services" aria-current={isServices ? 'page' : undefined}>
+            Services <Icon name="chevron" size={16} />
+          </button>
+          <div class="menu" id="menu-services">
+            <ul role="list">
+              {serviceLinks.map((l) => <li><a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a></li>)}
+            </ul>
+          </div>
+        </li>
+        <li class="nav__item has-menu">
+          <button class="nav__link" aria-expanded="false" aria-controls="menu-localities" aria-current={isLocality ? 'page' : undefined}>
+            Localities <Icon name="chevron" size={16} />
+          </button>
+          <div class="menu" id="menu-localities">
+            <ul role="list">
+              {localityLinks.map((l) => <li><a href={l.href} aria-current={path === l.href ? 'page' : undefined}>{l.label}</a></li>)}
+            </ul>
+          </div>
+        </li>
+        <li class="nav__item"><a class="nav__link" href="/about" aria-current={path === '/about' ? 'page' : undefined}>About</a></li>
+        <li class="nav__item"><a class="nav__link" href="/contact" aria-current={path === '/contact' ? 'page' : undefined}>Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="header__cta">
+      <a class="header__phone num" href={telHref} data-cta="header">
+        <Icon name="phone" size={18} /> <span>{site.phone.display}</span>
+      </a>
+      <a class="btn btn--whatsapp btn--sm" href={wa} target="_blank" rel="noopener" data-cta="header"><Icon name="whatsapp" /> WhatsApp us</a>
+    </div>
+
+    <MobileMenu client:media="(max-width: 1023px)" services={serviceLinks} localities={localityLinks} telHref={telHref} waHref={wa} phoneDisplay={site.phone.display} />
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--canvas) 92%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--s-5);
+    min-height: var(--header-h);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    text-decoration: none !important;
+    min-height: 44px;
+    flex: none;
+  }
+  .brand__logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #fff;
+    padding: 2px;
+  }
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+  .brand__name {
+    font-size: 1rem;
+    font-weight: var(--fw-heading);
+    letter-spacing: -0.01em;
+  }
+  .brand__sub {
+    font-size: var(--fs-label);
+    color: var(--ink-mute);
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+  .nav__list {
+    display: flex;
+    gap: 2px;
+    margin: 0;
+  }
+  .nav__item {
+    position: relative;
+  }
+  .nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    background: none;
+    border-radius: var(--r-sm);
+    color: var(--ink-secondary);
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
+    cursor: pointer;
+    text-decoration: none !important;
+  }
+  .nav__link:hover {
+    color: var(--ink);
+    background: var(--canvas-soft);
+  }
+  /* Active page: ink colour plus an underline bar, so it isn't shown by colour alone */
+  .nav__link[aria-current='page'] {
+    color: var(--ink);
+    box-shadow: inset 0 -2px 0 var(--primary);
+    border-radius: 0;
+  }
+  .nav__link :global(svg) {
+    transition: transform 0.15s ease;
+  }
+  .menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 240px;
+    padding: 6px;
+    background: var(--canvas-raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-float);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  }
+  .menu ul {
+    margin: 0;
+  }
+  .menu a {
+    display: block;
+    padding: 10px 12px;
+    border-radius: var(--r-sm);
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    text-decoration: none;
+  }
+  .menu a:hover {
+    background: var(--canvas-soft);
+  }
+  .menu a[aria-current='page'] {
+    font-weight: var(--fw-heading);
+  }
+  .has-menu:hover .menu,
+  .has-menu:focus-within .menu,
+  .has-menu.is-open .menu {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  .has-menu:hover .nav__link :global(svg),
+  .has-menu.is-open .nav__link :global(svg) {
+    transform: rotate(180deg);
+  }
+
+  .header__cta {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    flex: none;
+  }
+  .header__phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: var(--r-sm);
+    color: var(--ink);
+    font-size: var(--fs-body-sm);
+    font-weight: var(--fw-medium);
+    text-decoration: none !important;
+  }
+  .header__phone:hover {
+    background: var(--canvas-soft);
+  }
+  .header__phone :global(svg) {
+    color: var(--ink-mute);
+  }
+
+  @media (max-width: 1180px) {
+    .header__phone span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+  }
+  @media (max-width: 1023px) {
+    .nav,
+    .header__cta {
+      display: none;
+    }
+    .header__inner {
+      justify-content: space-between;
+    }
+  }
+</style>
+
+<script>
+  // Desktop dropdowns: hover/focus open them via CSS; click toggles for touch and keyboard.
+  const closeAll = (except?: Element) =>
+    document.querySelectorAll('.has-menu.is-open').forEach((o) => {
+      if (o === except) return;
+      o.classList.remove('is-open');
+      o.querySelector('button')?.setAttribute('aria-expanded', 'false');
+    });
+  document.querySelectorAll<HTMLElement>('.has-menu').forEach((item) => {
+    const btn = item.querySelector('button')!;
+    btn.addEventListener('click', () => {
+      const open = !item.classList.contains('is-open');
+      closeAll(item);
+      item.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+    });
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        item.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+      }
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target as Element).closest('.has-menu')) closeAll();
+  });
+</script>

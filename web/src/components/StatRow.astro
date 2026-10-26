@@ -1,0 +1,53 @@
+---
+import { site } from '../lib/site';
+const stats = [
+  { value: site.stats.years, label: site.stats.yearsLabel },
+  { value: site.stats.clients, label: site.stats.clientsLabel },
+  { value: site.stats.developers, label: site.stats.developersLabel },
+];
+---
+
+<dl class="stats">
+  {
+    stats.map((s) => (
+      <div class="stat">
+        <dt class="stat__label">{s.label}</dt>
+        <dd class="stat__value num">{s.value}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-5) var(--s-7);
+  }
+  @media (max-width: 560px) {
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--s-4);
+    }
+    .stat__value {
+      font-size: 1.5rem !important;
+    }
+  }
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .stat__value {
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .stat__label {
+    font-size: var(--fs-caption);
+    color: var(--ink-mute);
+    margin-top: 4px;
+  }
+</style>

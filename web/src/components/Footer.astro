@@ -1,0 +1,136 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { site, services, localities, telHref } from '../lib/site';
+import { img } from '../lib/images';
+---
+
+<footer class="footer">
+  <div class="container footer__grid">
+    <div class="footer__brand">
+      <a class="footer__logo" href="/">
+        <Image src={img("brand/logo.png")} alt="" width={88} height={88} />
+        <span>{site.name}</span>
+      </a>
+      <p>A Kothrud family firm helping Pune buy, sell, rent and invest in property for {site.stats.years} years.</p>
+      <ul role="list" class="footer__contact">
+        <li><a href={telHref} data-cta="footer"><Icon name="phone" size={18} /> <span class="num">{site.phone.display}</span></a></li>
+        <li><a href={`mailto:${site.email}`}><Icon name="mail" size={18} /> {site.email}</a></li>
+        <li><a href={site.mapUrl} target="_blank" rel="noopener"><Icon name="pin" size={18} /> <span>{site.address.full}</span></a></li>
+        <li><span class="footer__hours"><Icon name="clock" size={18} /> {site.hours.display}</span></li>
+      </ul>
+    </div>
+
+    <nav aria-label="Services">
+      <h2 class="footer__h">Services</h2>
+      <ul role="list">
+        {services.map((s) => <li><a href={`/services/${s.slug}`}>{s.name}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav aria-label="Localities">
+      <h2 class="footer__h">Localities</h2>
+      <ul role="list">
+        {localities.map((l) => <li><a href={`/${l.slug}`}>{l.name}</a></li>)}
+      </ul>
+    </nav>
+
+    <nav aria-label="Company">
+      <h2 class="footer__h">Company</h2>
+      <ul role="list">
+        <li><a href="/about">About us</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/projects/sanaswadi-industrial-land">Sanaswadi industrial land</a></li>
+        <li><a href="/privacy">Privacy policy</a></li>
+        <li><a href="/terms">Terms</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="container footer__legal">
+    <p>{site.copyright}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--canvas-soft);
+    border-top: 1px solid var(--hairline);
+    color: var(--ink-mute);
+    font-size: var(--fs-body-sm);
+    padding-top: var(--s-8);
+  }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: var(--s-6);
+  }
+  @media (max-width: 1023px) {
+    .footer__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+  .footer__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    font-size: 1.125rem;
+    margin-bottom: var(--s-3);
+    text-decoration: none !important;
+  }
+  .footer__logo :global(img) {
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .footer__brand > p {
+    max-width: 40ch;
+  }
+  .footer__contact {
+    margin-top: var(--s-4);
+    display: grid;
+    gap: 2px;
+  }
+  .footer__contact a,
+  .footer__hours {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    padding-block: 10px;
+    color: var(--ink-secondary);
+  }
+  .footer__contact :global(svg) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--ink-mute);
+  }
+  .footer__h {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    margin-bottom: var(--s-3);
+  }
+  .footer nav ul {
+    margin: 0;
+  }
+  .footer nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    color: var(--ink-secondary);
+  }
+  .footer__legal {
+    margin-top: var(--s-7);
+    padding-block: var(--s-5);
+    border-top: 1px solid var(--hairline);
+    font-size: var(--fs-caption);
+  }
+</style>

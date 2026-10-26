@@ -1,0 +1,55 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+import { site } from '../lib/site';
+---
+
+<LegalLayout
+  title="Terms of Use · Ashiyana Real Estate"
+  description="The terms that apply when you use the Ashiyana Real Estate website, including how to read the property and price information on it."
+  h1="Terms of use"
+  path="/terms"
+  updated="21 October 2026"
+>
+  <p>By using {site.url.replace('https://', '')} you agree to these terms. If you don't agree, please don't use the site.</p>
+
+  <h2>Information on this site</h2>
+  <p>
+    The information on this website is general guidance about our services and the areas we work in. Price bands,
+    property types and distances are indicative, not offers or valuations. Prices, availability and terms change, so please
+    confirm current details with us before making any decision.
+  </p>
+  <p>
+    Featured properties, including the Sanaswadi industrial land, are subject to availability, final negotiation and your own
+    due diligence. Nothing on this site is a commitment to sell at a stated price.
+  </p>
+
+  <h2>No professional advice</h2>
+  <p>
+    We are property consultants, not lawyers, valuers registered with a bank, or financial advisers. Where a transaction needs a
+    legal opinion or a formal valuation, we will recommend that you get one from a qualified professional.
+  </p>
+
+  <h2>Developer names and logos</h2>
+  <p>
+    Developer names and logos shown on this site belong to their owners. They show developers we have worked with; they are
+    not an endorsement by those developers or an advertisement of any specific project.
+  </p>
+
+  <h2>Our fees</h2>
+  <p>Any fee for our services is agreed with you in writing before we start work on your transaction.</p>
+
+  <h2>Liability</h2>
+  <p>
+    We take care to keep this website accurate, but we can't guarantee it is complete or error-free. To the extent the law
+    allows, we are not liable for losses arising from reliance on information on this website.
+  </p>
+
+  <h2>Governing law</h2>
+  <p>These terms are governed by the laws of India, and the courts in Pune have jurisdiction.</p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions about these terms: <a href={`mailto:${site.email}`}>{site.email}</a> or
+    {' '}<a href={`tel:${site.phone.e164}`}>{site.phone.display}</a>.
+  </p>
+</LegalLayout>

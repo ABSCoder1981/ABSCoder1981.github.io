@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+import { site, telHref, waHref } from '../lib/site';
+
+interface Props {
+  pageName: string;
+  waInterest: string;
+  cta?: string;
+}
+const { pageName, waInterest, cta = 'hero' } = Astro.props;
+---
+
+<!-- One primary action (WhatsApp, the fastest channel) and one quieter one (call) -->
+<div class="btn-row">
+  <a class="btn btn--whatsapp" href={waHref(waInterest, pageName)} target="_blank" rel="noopener" data-cta={cta}><Icon name="whatsapp" /> WhatsApp us</a>
+  <a class="btn btn--ghost" href={telHref} data-cta={cta}><Icon name="phone" /> <span>or call <span class="num">{site.phone.display}</span></span></a>
+</div>

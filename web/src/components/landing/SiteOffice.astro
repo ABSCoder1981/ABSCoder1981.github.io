@@ -1,0 +1,518 @@
+---
+// Section 8 — "Site office + requirement sheet" (option B).
+// Left: live open/closed badge (9:30–18:30 IST, every day), the two office cards, quick channels.
+// Right: the enquiry form as an architect's requirement sheet (same fields, email and spam protection).
+import EnquiryForm from '../react/EnquiryForm';
+import Icon from '../Icon.astro';
+import { site, localityNames, telHref, waHref } from '../../lib/site';
+
+const wa = waHref('booking a requirement call', 'Landing page · talk to us');
+const offices = site.offices;
+---
+
+<section class="so" id="contact" aria-labelledby="so-h" data-so data-screen>
+  <div class="container">
+    <header class="so__head">
+      <h2 id="so-h" class="so__title">Step 1 <em>starts here.</em></h2>
+      <p class="so__lead">Tell us what you need and we'll call you back. Or drop in at one of our two offices.</p>
+    </header>
+
+    <div class="so__grid">
+      <!-- Left: site offices -->
+      <div class="offices">
+        <p class="so__k">Our site offices</p>
+        <p class="open" data-open-badge>
+          <span class="open__dot" aria-hidden="true"></span>
+          <span data-open-text>Open every day · 9:30 am – 6:30 pm</span>
+        </p>
+
+        <ul role="list" class="offices__list">
+          {
+            offices.map((o) => (
+              <li class:list={['office', { 'office--hq': o.id === 'kothrud' }]}>
+                <p class="office__name">
+                  {o.name}
+                  <span class="office__tag">{o.id === 'kothrud' ? 'Head office' : 'Branch office'}</span>
+                </p>
+                {o.address && <p class="office__addr">{o.address}</p>}
+                <p class="office__links">
+                  <a href={o.mapUrl} target="_blank" rel="noopener">
+                    <Icon name="pin" size={16} /> Directions ↗
+                  </a>
+                  {(o.phone || o.id === 'kothrud') && (
+                    <a href={o.phone ? `tel:${o.phone.e164}` : telHref} class="num" data-cta={`office-${o.id}`}>
+                      <Icon name="phone" size={16} /> {o.phone ? o.phone.display : site.phone.display}
+                    </a>
+                  )}
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="channels">
+          <a class="ch ch--wa" href={wa} target="_blank" rel="noopener" data-cta="talk-to-us">
+            <Icon name="whatsapp" size={20} /> <span>WhatsApp<small>Fastest reply</small></span>
+          </a>
+          <a class="ch" href={telHref} data-cta="talk-to-us">
+            <Icon name="phone" size={20} /> <span>Call<small class="num">{site.phone.display}</small></span>
+          </a>
+          <a class="ch" href={`mailto:${site.email}`}>
+            <Icon name="mail" size={20} /> <span>Email<small>Write to us</small></span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: requirement sheet -->
+      <div class="sheet">
+        <span class="sheet__corner sheet__corner--tl" aria-hidden="true"></span>
+        <span class="sheet__corner sheet__corner--br" aria-hidden="true"></span>
+        <p class="sheet__label" aria-hidden="true"><span>Requirement sheet</span><span>No. 01</span></p>
+        <EnquiryForm
+          client:visible
+          variant="sheet"
+          heading="Book your requirement call"
+          headingLevel="h3"
+          localities={localityNames}
+          telHref={telHref}
+          waHref={wa}
+          phoneDisplay={site.phone.display}
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .so {
+    position: relative;
+    padding-block: clamp(44px, 5vw, 72px);
+    background-color: #fbfaf7;
+    background-image:
+      linear-gradient(rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.05) 1px, transparent 1px),
+      linear-gradient(rgba(61, 74, 92, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.03) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    border-top: 1px solid rgba(13, 37, 61, 0.06);
+    color: #0d253d;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+  .so__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .so__num {
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .so__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .so__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+  .so__title em {
+    font-style: normal;
+    font-weight: 600;
+    color: #c8123f;
+  }
+  .so__lead {
+    margin: 16px 0 0;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    color: #344559;
+  }
+  .so__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr);
+    gap: clamp(32px, 5vw, 64px);
+    align-items: start;
+    margin-top: clamp(36px, 5vw, 56px);
+  }
+  .so__k {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+
+  /* open badge */
+  .open {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 0;
+    padding: 8px 14px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.1);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .open__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #98a6b8;
+  }
+  .open.is-open .open__dot {
+    background: #16834a;
+    box-shadow: 0 0 0 4px rgba(22, 131, 74, 0.18);
+  }
+  .open.is-closed .open__dot {
+    background: #c8123f;
+  }
+
+  /* offices */
+  .offices__list {
+    display: grid;
+    gap: 14px;
+    margin: 18px 0 0;
+  }
+  .office {
+    position: relative;
+    padding: 18px 20px 16px 22px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.1);
+    box-shadow: 0 10px 24px rgba(13, 37, 61, 0.05);
+  }
+  .office::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16px;
+    bottom: 16px;
+    width: 3px;
+    border-radius: 3px;
+    background: rgba(13, 37, 61, 0.15);
+  }
+  .office--hq::before {
+    background: #e8104c;
+  }
+  .office__name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 500;
+  }
+  .office__tag {
+    padding: 2px 10px;
+    border-radius: 9999px;
+    background: #fdecf0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .office__addr {
+    margin: 6px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: #344559;
+  }
+  .office__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin: 10px 0 0;
+  }
+  .office__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #b80f3a;
+  }
+
+  /* channels */
+  .channels {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .ch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 60px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.1);
+    color: #0d253d;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .ch:hover {
+    border-color: #c8123f;
+    transform: translateY(-2px);
+  }
+  .ch span {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+  .ch small {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #4e5d73;
+  }
+  .ch--wa {
+    background: #0f7a40;
+    border-color: #0f7a40;
+    color: #fff;
+  }
+  .ch--wa small {
+    color: #d7f0e1;
+  }
+
+  /* requirement sheet frame */
+  .sheet {
+    position: relative;
+    padding: 12px;
+    border: 1px solid rgba(13, 37, 61, 0.25);
+    background: #fff;
+    box-shadow: 0 24px 50px rgba(13, 37, 61, 0.1);
+  }
+  .sheet__corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: #e8104c;
+    border-style: solid;
+  }
+  .sheet__corner--tl {
+    top: -8px;
+    left: -8px;
+    border-width: 2px 0 0 2px;
+  }
+  .sheet__corner--br {
+    right: -8px;
+    bottom: -8px;
+    border-width: 0 2px 2px 0;
+  }
+  .sheet__label {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 10px;
+    padding: 6px 10px;
+    border: 1px solid rgba(13, 37, 61, 0.2);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+
+  /* form restyle inside the sheet */
+  .sheet :global(.ef--sheet) {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: clamp(16px, 2.4vw, 28px);
+    font-family: var(--font-sans);
+  }
+  .sheet :global(.ef--sheet .ef__h) {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  .sheet :global(.ef--sheet .ef__field > span),
+  .sheet :global(.ef--sheet legend) {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .sheet :global(.ef--sheet .ef__opt) {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+  .sheet :global(.ef--sheet input:not([type='radio'])),
+  .sheet :global(.ef--sheet select),
+  .sheet :global(.ef--sheet textarea) {
+    border-width: 0 0 1.5px;
+    border-radius: 0;
+    background: #fbfaf7;
+  }
+  .sheet :global(.ef__tiles) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .sheet :global(.ef__tiles .ef__pill > span) {
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 84px;
+    padding: 10px 6px;
+    border-radius: 12px;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-weight: 500;
+    text-align: center;
+  }
+  .sheet :global(.ef__tiles .ef__pill input:checked + span) {
+    background: #c8123f;
+    border-color: #c8123f;
+    box-shadow: 0 8px 18px rgba(200, 18, 63, 0.25);
+  }
+  .sheet :global(.ef--sheet .ef__submit) {
+    min-height: 54px;
+    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  /* "Received" stamp on success */
+  .sheet :global(.ef__stamp) {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 18px;
+    border: 3px double #c8123f;
+    border-radius: 8px;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #c8123f;
+    transform: rotate(-6deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .so__head,
+    .offices,
+    .sheet {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .sheet {
+      transition-delay: 0.15s;
+    }
+    .so.is-in .so__head,
+    .so.is-in .offices,
+    .so.is-in .sheet {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 999px) {
+    .so__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 520px) {
+    .channels {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .sheet :global(.ef__tiles) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ===== One-screen compaction ===== */
+
+  .so__lead { margin-top: 8px; }
+  .so__grid { margin-top: clamp(14px, 2.6vh, 36px); }
+  .offices__list { margin-top: 12px; gap: 10px; }
+  .office { padding: 12px 16px 10px 18px; }
+  .office__name { font-size: 1.125rem; }
+  .office__addr { font-size: 0.875rem; }
+  .office__links a { min-height: 32px; }
+  .channels { margin-top: 12px; }
+  .ch { min-height: 50px; }
+  .sheet { padding: 8px; }
+  .sheet :global(.ef--sheet) { padding: clamp(10px, 1.8vh, 22px) clamp(12px, 2vw, 24px); }
+  .sheet :global(.ef--sheet .ef__grid) { gap: 10px 14px; margin-top: 10px; }
+  .sheet :global(.ef__tiles .ef__pill > span) { min-height: clamp(52px, 8vh, 84px); }
+  .sheet :global(.ef--sheet textarea) { min-height: 52px; }
+  .sheet :global(.ef--sheet .ef__submit) { margin-top: 12px; min-height: 48px; }
+  .sheet :global(.ef--sheet .ef__fine) { margin-top: 6px; }
+  @media (max-width: 999px) {
+    .so__lead, .so__k, .open, .office__addr, .sheet__label, .channels { display: none; }
+    .sheet :global(.ef--sheet .ef__sub) { display: none; }
+    .so__title { font-size: 1.8rem; }
+    .so__grid { gap: 12px; }
+    .offices__list { grid-template-columns: 1fr 1fr; margin-top: 0; }
+    .office__name { font-size: 1rem; flex-wrap: wrap; gap: 4px 8px; }
+    .office__tag { font-size: 0.5625rem; }
+    .office__links { flex-direction: column; margin-top: 4px; gap: 0; }
+    .office__links a { font-size: 0.8125rem; }
+    .sheet :global(.ef--sheet .ef__grid) { grid-template-columns: 1fr 1fr; }
+    .sheet :global(.ef__tiles) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .sheet :global(.ef__tiles .ef__pill > span) { flex-direction: row; min-height: 44px; font-size: 0.875rem; }
+    .sheet :global(.ef--sheet .ef__h) { font-size: 1.125rem; }
+    .sheet :global(.ef--sheet input:not([type="radio"])), .sheet :global(.ef--sheet select) { min-height: 42px; }
+    .sheet :global(.ef--sheet textarea) { min-height: 42px; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-so]');
+  if (root) {
+    // Open now / closed, in Pune time (Asia/Kolkata), 9:30–18:30 every day
+    const badge = root.querySelector<HTMLElement>('[data-open-badge]')!;
+    const text = root.querySelector<HTMLElement>('[data-open-text]')!;
+    const update = () => {
+      const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date());
+      const h = Number(parts.find((p) => p.type === 'hour')?.value);
+      const m = Number(parts.find((p) => p.type === 'minute')?.value);
+      const mins = h * 60 + m;
+      const open = mins >= 9 * 60 + 30 && mins < 18 * 60 + 30;
+      badge.classList.toggle('is-open', open);
+      badge.classList.toggle('is-closed', !open);
+      text.textContent = open ? 'Open now · until 6:30 pm' : 'Closed now · opens 9:30 am';
+    };
+    update();
+    setInterval(update, 60_000);
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) root.classList.add('is-in');
+    else {
+      const io = new IntersectionObserver(
+        (es) => {
+          if (es.some((e) => e.isIntersecting)) {
+            root.classList.add('is-in');
+            io.disconnect();
+          }
+        },
+        { threshold: 0.1 },
+      );
+      io.observe(root);
+    }
+  }
+</script>

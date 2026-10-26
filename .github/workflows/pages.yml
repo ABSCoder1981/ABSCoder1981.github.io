@@ -1,0 +1,53 @@
+name: Test copy on GitHub Pages
+
+# Push to main → build the site and publish a test copy on GitHub Pages.
+# The copy is noindex (PUBLIC_NOINDEX=1) and has no enquiry API, so forms show the call/WhatsApp fallback.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build
+        working-directory: web
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io
+          PUBLIC_NOINDEX: '1'
+        run: |
+          npm ci
+          npm run build
+          touch dist/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

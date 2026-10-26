@@ -1,0 +1,153 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import StatRow from '../components/StatRow.astro';
+import LogoGrid from '../components/LogoGrid.astro';
+import TeamCard from '../components/TeamCard.astro';
+import PhotoWall from '../components/PhotoWall.astro';
+import OfficeMapCard from '../components/OfficeMapCard.astro';
+import { site } from '../lib/site';
+import { img } from '../lib/images';
+import people from '../data/people.json';
+
+const pageName = 'About page';
+const waInterest = 'talking to your team';
+const msg = people.founderMessage;
+---
+
+<BaseLayout
+  title="About Ashiyana Real Estate · 30+ Years in Pune"
+  description="A Kothrud family firm that has helped 10,000+ clients buy, sell, rent and invest in Pune property for 30+ years. Meet Sattar Sayyad and the team."
+  pageName={pageName}
+  waInterest={waInterest}
+  crumbs={[{ name: 'About', path: '/about' }]}
+>
+  <PageHero
+    eyebrow="About us"
+    title="A Kothrud family firm, trusted for three decades"
+    summary={`Ashiyana Real Estate has helped ${site.stats.clients} clients buy, sell, rent and invest in Pune property for ${site.stats.years} years, from our office at Karve Statue, Kothrud.`}
+    pageName={pageName}
+    waInterest={waInterest}
+    buttons={false}
+  >
+    <div class="hero-stats">
+      <StatRow />
+    </div>
+  </PageHero>
+
+  <!-- Founding story + leadership message -->
+  <section class="section section--cream" aria-labelledby="story-h">
+    <div class="container story">
+      <Picture
+        src={img('team/sattar-sayyad.png')}
+        alt="Sattar Sayyad, Founder and Managing Director"
+        formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+        width={480}
+        height={560}
+        widths={[320, 480]}
+        sizes="(max-width: 767px) 60vw, 360px"
+        fit="cover"
+        position="top"
+        class="story__img"
+      />
+      <div class="prose">
+        <span class="eyebrow">Our story</span>
+        <h2 id="story-h" class="display-lg">“{msg.quote}”</h2>
+        {msg.body.map((p) => <p>{p}</p>)}
+        <p>
+          The firm's roots in Pune property go back more than {site.stats.years.replace('+', '')} years. Under {msg.name}, with
+          {site.founder.experience} years in Pune real estate, Ashiyana has grown into a team that handles resale homes, new
+          projects, rentals, land and commercial property across west and central Pune.
+        </p>
+        <p class="sign"><strong>{msg.name}</strong><br /><span class="muted">{msg.role} · {msg.meta}</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="team-h">
+    <div class="container">
+      <SectionHead id="team-h" eyebrow="Our team" title="The people" tone="you’ll work with" />
+      <div class="grid grid-4">
+        {people.team.map((m) => <TeamCard member={m} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="partners-h">
+    <div class="container">
+      <SectionHead
+        id="partners-h"
+        eyebrow="Developer relationships"
+        title="Working relationships"
+        tone="built over decades"
+        lead="We have long-standing working relationships with many of Pune's leading developers, which helps our clients get clear answers on projects, documentation and pricing."
+      />
+      <LogoGrid />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="wall-h">
+    <div class="container">
+      <SectionHead id="wall-h" eyebrow="Wall of Happiness" title="Some of the families" tone="we’ve helped" />
+      <PhotoWall />
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="visit-h">
+    <div class="container visit">
+      <div>
+        <SectionHead id="visit-h" eyebrow="Visit us" title="Our office" tone="in Kothrud" lead={`Open ${site.hours.display}. Call ahead and we'll make sure the right person is there to meet you.`} />
+      </div>
+      <OfficeMapCard />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero-stats {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--s-6);
+  }
+  .story {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: var(--s-8);
+    align-items: start;
+  }
+  .story :global(.story__img) {
+    width: 100%;
+    aspect-ratio: 6 / 7;
+    object-fit: cover;
+    border-radius: var(--r-card-lg);
+  }
+  .story h2 {
+    margin-top: 0;
+  }
+  .sign {
+    margin-top: var(--s-5) !important;
+  }
+  .sign strong {
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .visit {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s-7);
+    align-items: center;
+  }
+  @media (max-width: 1023px) {
+    .story,
+    .visit {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-6);
+    }
+    .story :global(.story__img) {
+      max-width: 260px;
+    }
+  }
+</style>

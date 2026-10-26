@@ -1,0 +1,88 @@
+{
+  "founderMessage": {
+    "quote": "Real estate is more than transactions. It's about lasting relationships and helping families find the home they'll grow in.",
+    "body": [
+      "For over three decades our family has helped people in Pune buy, sell and rent property. Our approach hasn't changed: understand what each client really needs, tell them the truth about price and paperwork, and stay with them until the deal is done.",
+      "Many of the families we helped years ago now come back for their children's first homes, and that trust is what we work to earn every day."
+    ],
+    "name": "Sattar Sayyad",
+    "role": "Founder & Managing Director",
+    "meta": "26+ years in Pune real estate"
+  },
+  "team": [
+    {
+      "name": "Sattar Sayyad",
+      "role": "Founder & Managing Director",
+      "photo": "team/sattar-sayyad.png",
+      "bio": "Founder of Ashiyana Real Estate with over 26 years of experience, guiding the firm with deep market insight, integrity and long-term vision."
+    },
+    {
+      "name": "Chand Sayyad",
+      "role": "Chief Executive Officer",
+      "photo": "team/chand-sayyad.jpg",
+      "bio": "A core part of Ashiyana since its early years, overseeing daily operations and making sure every deal is executed consistently."
+    },
+    {
+      "name": "Tosif Sayyad",
+      "role": "Branch Manager, Kothrud",
+      "photo": "team/tosif-sayyad.jpg",
+      "bio": "Runs the Kothrud head office, coordinating the team, brokers and on-ground processes so everything moves smoothly."
+    },
+    {
+      "name": "Prashant",
+      "role": "Sales Team Leader",
+      "photo": "team/prashant.jpg",
+      "bio": "With over 15 years at Ashiyana, leads the sales team, manages daily appointments and keeps every client's search moving."
+    }
+  ],
+  "reviews": [
+    {
+      "name": "Rajesh Kulkarni",
+      "label": "Homeowner",
+      "area": "Kothrud",
+      "photo": "reviews/rajesh-kulkarni.jpg",
+      "quote": "Clear guidance, quick decisions and complete transparency. The team understood our requirement and handled everything smoothly."
+    },
+    {
+      "name": "Rajesh Patel",
+      "label": "Property investor",
+      "area": "Warje",
+      "photo": "reviews/rajesh-patel.jpg",
+      "quote": "Strong market knowledge and professional handling throughout the deal. We felt confident at every step of the process."
+    },
+    {
+      "name": "Priya Sharma",
+      "label": "First-time buyer",
+      "area": "Karve Nagar",
+      "photo": "reviews/priya-sharma.jpg",
+      "quote": "From site visits to final negotiation, everything was well managed and stress-free. A highly dependable team."
+    }
+  ],
+  "developers": [
+    { "name": "Lodha", "logo": "logos/lodha.png" },
+    { "name": "Godrej Properties", "logo": "logos/godrej.png" },
+    { "name": "Kolte Patil", "logo": "logos/koltepatil.png" },
+    { "name": "Panchshil", "logo": "logos/panchshil.png" },
+    { "name": "Paranjape Schemes", "logo": "logos/paranjapee.png" },
+    { "name": "Goel Ganga", "logo": "logos/goel_ganga.png" },
+    { "name": "Kumar Properties", "logo": "logos/kumarproperites.png" },
+    { "name": "Venkatesh Buildcon", "logo": "logos/venkatesh.png" },
+    { "name": "Majestique", "logo": "logos/majestique.png" },
+    { "name": "Gokhale Constructions", "logo": "logos/gokhale.png" },
+    { "name": "Mantra", "logo": "logos/mantra.png" },
+    { "name": "Saarrthi", "logo": "logos/saarrthi.png" }
+  ],
+  "wall": [
+    "wall/client-01.jpg",
+    "wall/client-02.jpg",
+    "wall/client-03.jpg",
+    "wall/client-04.jpg",
+    "wall/client-05.jpg",
+    "wall/client-06.jpg",
+    "wall/client-07.jpg",
+    "wall/client-08.jpg",
+    "wall/client-09.jpg",
+    "wall/client-10.jpg",
+    "wall/client-11.jpg"
+  ]
+}

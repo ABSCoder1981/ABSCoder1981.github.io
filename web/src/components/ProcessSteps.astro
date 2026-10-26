@@ -1,0 +1,90 @@
+---
+interface Props {
+  steps: { title: string; text: string }[];
+  /** "row": four columns across (service pages). "list": compact numbered list for a split layout. */
+  layout?: 'row' | 'list';
+}
+const { steps, layout = 'row' } = Astro.props;
+---
+
+<ol role="list" class:list={['steps', `steps--${layout}`]}>
+  {
+    steps.map((s, i) => (
+      <li class="step">
+        <span class="step__n num" aria-hidden="true">
+          {String(i + 1).padStart(2, '0')}
+        </span>
+        <div>
+          <h3 class="heading-md">{s.title}</h3>
+          <p>{s.text}</p>
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .steps {
+    margin: 0;
+  }
+  .step p {
+    margin-top: var(--s-1);
+    color: var(--ink-secondary);
+  }
+  .step__n {
+    font-size: var(--fs-caption);
+    font-weight: var(--fw-heading);
+    letter-spacing: 0.04em;
+    color: var(--ink-mute);
+  }
+
+  /* Row: four steps across, each under a rule */
+  .steps--row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    gap: var(--s-5);
+  }
+  .steps--row .step {
+    position: relative;
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--hairline-strong);
+  }
+  .steps--row .step::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 48px;
+    height: 2px;
+    background: var(--ink);
+  }
+  .steps--row .step__n {
+    display: block;
+    margin-bottom: var(--s-3);
+  }
+
+  /* List: compact numbered rows, number in a circle on the left */
+  .steps--list .step {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: var(--s-4);
+    padding: var(--s-5) 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .steps--list .step:last-child {
+    border-bottom: 1px solid var(--hairline);
+  }
+  .steps--list .step__n {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--hairline-strong);
+    background: var(--canvas-raised);
+    color: var(--ink);
+  }
+  .steps--list .heading-md {
+    font-size: var(--fs-card);
+  }
+</style>

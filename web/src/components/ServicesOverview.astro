@@ -1,0 +1,166 @@
+---
+import Icon from './Icon.astro';
+import { services } from '../lib/site';
+
+interface Props {
+  /** Where "Not sure where to start?" points: the page's form section */
+  ctaHref?: string;
+  headingLevel?: 'h2' | 'h3';
+}
+const { ctaHref = '#enquire', headingLevel: H = 'h3' } = Astro.props;
+
+// Buying and selling are most of the business (PRD goals 1 and 2): two editorial columns.
+// The other five follow as a compact list. No bordered cards.
+const featured = services.filter((s) => s.slug === 'buy' || s.slug === 'sell');
+const rest = services.filter((s) => s.slug !== 'buy' && s.slug !== 'sell');
+---
+
+<div class="svc">
+  <div class="svc__featured">
+    {
+      featured.map((s) => (
+        <article class="svc__feature">
+          <H class="display-lg">
+            <a href={`/services/${s.slug}`}>{s.name}</a>
+          </H>
+          <p class="svc__summary">{s.card}</p>
+          <ul role="list" class="svc__points">
+            {s.included.slice(0, 3).map((point) => (
+              <li>
+                <Icon name="check" size={18} /> <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+          <a class="text-link" href={`/services/${s.slug}`} aria-hidden="true" tabindex="-1">
+            {s.slug === 'buy' ? 'How we help buyers' : 'How we help sellers'} <Icon name="arrow" />
+          </a>
+        </article>
+      ))
+    }
+  </div>
+
+  <ul role="list" class="rows svc__list">
+    {
+      rest.map((s) => (
+        <li>
+          <a class="svc__row" href={`/services/${s.slug}`}>
+            <H class="heading-lg svc__name">{s.name}</H>
+            <p class="svc__text">{s.card}</p>
+            <span class="svc__go" aria-hidden="true">
+              <Icon name="arrow" size={20} />
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="svc__unsure">
+    Not sure which service you need? <a href={ctaHref}>Tell us what you’re trying to do</a> and we’ll point you the right way.
+  </p>
+</div>
+
+<style>
+  .svc__featured {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-8);
+  }
+  .svc__feature {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    padding-top: var(--s-5);
+    border-top: 2px solid var(--ink);
+  }
+  .svc__feature h3 a,
+  .svc__feature h2 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .svc__feature h3 a:hover,
+  .svc__feature h2 a:hover {
+    color: var(--link);
+  }
+  .svc__summary {
+    color: var(--ink-secondary);
+    font-size: var(--fs-body-lg);
+    max-width: 46ch;
+  }
+  .svc__points {
+    display: grid;
+    gap: var(--s-2);
+    margin: var(--s-2) 0 0;
+  }
+  .svc__points li {
+    display: flex;
+    gap: 10px;
+    color: var(--ink-secondary);
+  }
+  .svc__points :global(svg) {
+    flex: none;
+    margin-top: 4px;
+    color: var(--success);
+  }
+  .svc__feature .text-link {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+
+  .svc__list {
+    margin-top: var(--s-8);
+  }
+  .svc__row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr) 40px;
+    gap: var(--s-5);
+    align-items: center;
+    padding: var(--s-5) var(--s-2);
+    color: var(--ink);
+    text-decoration: none !important;
+    transition: background-color 0.15s ease;
+  }
+  .svc__row:hover {
+    background: var(--canvas-soft);
+  }
+  .svc__text {
+    color: var(--ink-secondary);
+  }
+  .svc__go {
+    justify-self: end;
+    color: var(--ink-mute);
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+  .svc__row:hover .svc__go {
+    color: var(--link);
+    transform: translateX(3px);
+  }
+  .svc__unsure {
+    margin-top: var(--s-5);
+    color: var(--ink-secondary);
+  }
+
+  @media (max-width: 767px) {
+    .svc__featured {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-7);
+    }
+    .svc__list {
+      margin-top: var(--s-7);
+    }
+    .svc__row {
+      grid-template-columns: minmax(0, 1fr) 24px;
+      gap: var(--s-1) var(--s-3);
+      padding: var(--s-4) 0;
+    }
+    .svc__text {
+      grid-column: 1;
+      grid-row: 2;
+      font-size: var(--fs-body-sm);
+    }
+    .svc__go {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+</style>

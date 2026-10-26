@@ -1,0 +1,259 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SectionHead from '../components/SectionHead.astro';
+import ReviewCard from '../components/ReviewCard.astro';
+import EnquirySection from '../components/EnquirySection.astro';
+import OfficeMapCard from '../components/OfficeMapCard.astro';
+import LocalityList from '../components/LocalityList.astro';
+import Icon from '../components/Icon.astro';
+import { localities, type Locality } from '../lib/site';
+import people from '../data/people.json';
+
+export function getStaticPaths() {
+  return localities.map((locality) => ({ params: { locality: locality.slug }, props: { locality } }));
+}
+
+interface Props {
+  locality: Locality;
+}
+const { locality } = Astro.props;
+const pageName = `${locality.name} page`;
+const waInterest = `property in ${locality.name}`;
+const review = locality.reviewArea ? people.reviews.find((r) => r.area === locality.reviewArea) : undefined;
+
+const help = [
+  { key: 'buy', icon: 'home', title: 'Buying', text: locality.help.buy, href: '/services/buy' },
+  { key: 'sell', icon: 'tag', title: 'Selling', text: locality.help.sell, href: '/services/sell' },
+  { key: 'rent', icon: 'key', title: 'Renting', text: locality.help.rent, href: '/services/rentals' },
+];
+---
+
+<BaseLayout
+  title={locality.title}
+  description={locality.description}
+  pageName={pageName}
+  waInterest={waInterest}
+  crumbs={[{ name: locality.name, path: `/${locality.slug}` }]}
+>
+  <!-- 1. Headline -->
+  <PageHero
+    eyebrow={`Localities · ${locality.name}`}
+    title={`Property consultants in ${locality.name}`}
+    summary={locality.description}
+    pageName={pageName}
+    waInterest={waInterest}
+  >
+    <!-- Neighbourhood at a glance: the useful facts first -->
+    <dl slot="aside" class="glance">
+      <div>
+        <dt>From our office</dt>
+        <dd>{locality.distance.replace(' from our Kothrud office', '').replace('Our office is in Kothrud, at Karve Statue', 'Our head office is here')}</dd>
+      </div>
+      <div>
+        <dt>Typical homes</dt>
+        <dd>{locality.propertyTypes.slice(0, 2).map((t) => t.type).join(' · ')}</dd>
+      </div>
+      <div>
+        <dt>Price range</dt>
+        <dd>{[...new Set(locality.propertyTypes.map((t) => t.band.split(',')[0]))].join(' → ')}</dd>
+      </div>
+      <div>
+        <dt>We help with</dt>
+        <dd>Buying, selling and renting</dd>
+      </div>
+    </dl>
+  </PageHero>
+
+  <!-- 2. About the area + 6. Office map with distance -->
+  <section class="section" aria-labelledby="about-h">
+    <div class="container two-col">
+      <div class="prose">
+        <h2 id="about-h" class="display-lg">About {locality.name}</h2>
+        {locality.about.map((p) => <p>{p}</p>)}
+      </div>
+      <aside aria-label="Our office">
+        <OfficeMapCard distance={locality.distance} />
+      </aside>
+    </div>
+  </section>
+
+  <!-- 3. What we help with here -->
+  <section class="section section--soft" aria-labelledby="help-h">
+    <div class="container split">
+      <SectionHead id="help-h" title="What we help with" tone={`in ${locality.name}.`} />
+      <ul role="list" class="rows help">
+        {
+          help.map((h) => (
+            <li>
+              <a href={h.href}>
+                <h3 class="heading-lg">{h.title}</h3>
+                <p>{h.text}</p>
+                <span class="help__go" aria-hidden="true">
+                  <Icon name="arrow" size={20} />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. Typical property types and price bands (no live figures) -->
+  <section class="section" aria-labelledby="types-h">
+    <div class="container two-col">
+      <div>
+        <SectionHead
+          id="types-h"
+          eyebrow="Property types"
+          title={`What you’ll find in ${locality.name}`}
+          lead="Typical homes and how they sit on price. Prices move with the building, floor and condition, so ask us for current numbers."
+        />
+      </div>
+      <table class="types">
+        <caption class="sr-only">Typical property types and price bands in {locality.name}</caption>
+        <thead>
+          <tr><th scope="col">Property type</th><th scope="col">Price band</th></tr>
+        </thead>
+        <tbody>
+          {locality.propertyTypes.map((t) => <tr><td>{t.type}</td><td>{t.band}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. Review from this area, if one exists -->
+  {
+    review && (
+      <section class="section section--soft" aria-labelledby="review-h">
+        <div class="container review-wrap">
+          <SectionHead id="review-h" eyebrow="Client review" title={`From a client in ${locality.name}`} />
+          <ReviewCard review={review} />
+        </div>
+      </section>
+    )
+  }
+
+  <!-- 7. Enquiry form, pre-set to this locality -->
+  <EnquirySection
+    title={`Buying, selling or renting in ${locality.name}?`}
+    lead="Tell us what you need and we'll call you back."
+    locality={locality.name}
+    pageName={pageName}
+    waInterest={waInterest}
+  />
+
+  <section class="section" aria-labelledby="nearby-h">
+    <div class="container">
+      <SectionHead id="nearby-h" title="Other areas" tone="we cover" />
+      <LocalityList exclude={locality.slug} />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .two-col {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: var(--s-8);
+    align-items: start;
+  }
+  @media (max-width: 1023px) {
+    .two-col {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-6);
+    }
+  }
+  .prose h2 {
+    margin-top: 0;
+  }
+  .glance {
+    display: grid;
+    margin: 0;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    background: var(--canvas-raised);
+  }
+  .glance div {
+    padding: var(--s-4) var(--s-5);
+  }
+  .glance div + div {
+    border-top: 1px solid var(--hairline);
+  }
+  .glance dt {
+    font-size: var(--fs-caption);
+    color: var(--ink-mute);
+  }
+  .glance dd {
+    margin-top: 2px;
+    font-weight: var(--fw-medium);
+    color: var(--ink);
+  }
+  .help a {
+    position: relative;
+    display: block;
+    padding: var(--s-5) var(--s-7) var(--s-5) 0;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .help p {
+    margin-top: var(--s-1);
+    color: var(--ink-secondary);
+  }
+  .help__go {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-mute);
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+  .help a:hover .heading-lg,
+  .help a:hover .help__go {
+    color: var(--link);
+  }
+  .help a:hover .help__go {
+    transform: translate(3px, -50%);
+  }
+  .types {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    overflow: hidden;
+    background: var(--canvas-raised);
+  }
+  .types th,
+  .types td {
+    padding: var(--s-4);
+    text-align: left;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .types th {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    background: var(--canvas-soft);
+  }
+  .types td:last-child {
+    color: var(--ink-secondary);
+  }
+  .types tr:last-child td {
+    border-bottom: 0;
+  }
+  .review-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: var(--s-7);
+    align-items: center;
+  }
+  @media (max-width: 1023px) {
+    .review-wrap {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+  }
+</style>

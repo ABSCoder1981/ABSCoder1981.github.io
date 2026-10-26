@@ -1,0 +1,420 @@
+---
+// Section 9 — "Title-block footer" (option B), /landing only.
+// The hero's three towers return as a faint skyline; below, the footer is an architect's title block:
+// both offices, link columns and social links.
+import { Image } from 'astro:assets';
+import { site, services, localities } from '../../lib/site';
+import { img } from '../../lib/images';
+
+const google = site.ratings.items.filter((r) => r.platform === 'Google');
+const year = new Date().getFullYear();
+
+// Simple line skyline echoing the hero: slim left tower, tall centre tower, part-built right tower + crane
+const floors = (x: number, w: number, top: number, bottom: number, step: number) => {
+  let d = `M${x} ${bottom}V${top}H${x + w}V${bottom}`;
+  for (let y = top + step; y < bottom; y += step) d += `M${x} ${y}H${x + w}`;
+  for (let c = x + w / 4; c < x + w - 1; c += w / 4) d += `M${c} ${top}V${bottom}`;
+  return d;
+};
+const sky =
+  floors(470, 70, 40, 160, 12) +
+  floors(560, 120, 8, 160, 10) + 'M600 8V-6H640V8M620 -6V-20' +
+  floors(700, 80, 70, 160, 11) + 'M700 70L700 48M740 70V44M780 70V52' +
+  'M820 160V20M828 160V20M690 20H860M820 28H690';
+const ICONS: Record<string, string> = {
+  Facebook: 'M14 8h3V4h-3c-2.8 0-4 1.8-4 4v2H7v4h3v8h4v-8h3l1-4h-4V8.5c0-.3.2-.5.5-.5z',
+  Instagram: 'M8 3h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8a5 5 0 0 1 5-5zm4 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm5.2-1.8a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  YouTube: 'M22 8.2c-.2-1.6-1-2.6-2.6-2.8C17 5 12 5 12 5s-5 0-7.4.4C3 5.6 2.2 6.6 2 8.2 1.8 9.6 1.8 12 1.8 12s0 2.4.2 3.8c.2 1.6 1 2.6 2.6 2.8C7 19 12 19 12 19s5 0 7.4-.4c1.6-.2 2.4-1.2 2.6-2.8.2-1.4.2-3.8.2-3.8s0-2.4-.2-3.8zM10 15V9l5 3z',
+  LinkedIn: 'M4.5 3.5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM3 9h3v12H3zm6 0h3v1.7c.5-.9 1.8-2 3.8-2 3.2 0 4.2 2 4.2 5V21h-3v-6.5c0-1.6-.4-2.8-2-2.8s-3 1.2-3 3V21H9z',
+};
+---
+
+<footer class="tf" aria-label="Footer">
+
+  <div class="container">
+    <div class="tf__sheet">
+
+      <div class="tf__cols">
+        <nav class="tf__col" aria-label="Offices">
+          <h2>Offices</h2>
+          {
+            site.offices.map((o) => (
+              <div class="tf__office">
+                <p class="tf__oname">
+                  {o.name} <span>{o.id === 'kothrud' ? 'HQ' : 'Branch'}</span>
+                </p>
+                {o.address && <p class="tf__addr">{o.address}</p>}
+                <p class="tf__olinks">
+                  <a href={`tel:${o.phone?.e164 ?? site.phone.e164}`} class="num" data-cta={`footer-${o.id}`}>
+                    {o.phone?.display ?? site.phone.display}
+                  </a>
+                  <a href={o.mapUrl} target="_blank" rel="noopener">
+                    Directions ↗
+                  </a>
+                </p>
+              </div>
+            ))
+          }
+          <p class="tf__hours">{site.hours.display}</p>
+        </nav>
+        <nav class="tf__col" aria-label="Services">
+          <h2>Services</h2>
+          <ul role="list">{services.map((s) => <li><a href={`/services/${s.slug}`}>{s.name}</a></li>)}</ul>
+        </nav>
+        <nav class="tf__col" aria-label="Localities">
+          <h2>Localities</h2>
+          <ul role="list">{localities.map((l) => <li><a href={`/${l.slug}`}>{l.name}</a></li>)}</ul>
+        </nav>
+        <nav class="tf__col" aria-label="Company">
+          <h2>Company</h2>
+          <ul role="list">
+            <li><a href="/about">About us</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/projects/sanaswadi-industrial-land">Sanaswadi industrial land</a></li>
+            <li><a href={`mailto:${site.email}`}>Email us</a></li>
+            <li><a href="/privacy">Privacy policy</a></li>
+            <li><a href="/terms">Terms</a></li>
+          </ul>
+    <div class="tf__strip">
+            <ul role="list" class="tf__social">
+              {
+                site.social.map((s) => (
+                  <li>
+                    <a href={s.url} target="_blank" rel="noopener" aria-label={`Ashiyana Real Estate on ${s.name}`}>
+                      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                        <path d={ICONS[s.name]} fill="currentColor" fill-rule="evenodd" />
+                      </svg>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <div class="tf__legal">
+        <p>© {year} {site.name}. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .tf {
+    position: relative;
+    padding: 0 0 clamp(28px, 4vw, 48px);
+    background: #1d0f16;
+    color: #ecd3da;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+  .tf__sky {
+    display: block;
+    width: 100%;
+    height: clamp(90px, 12vw, 170px);
+    background: #fbfaf7;
+  }
+  .tf__ground {
+    stroke: #1d0f16;
+    stroke-width: 2;
+  }
+  .tf__towers {
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+  .tf__sheet {
+    margin-top: clamp(32px, 4vw, 48px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .tf__brand {
+    display: grid;
+    grid-template-columns: auto;
+    gap: 12px 32px;
+    align-items: center;
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .tf__logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #fff;
+    text-decoration: none !important;
+  }
+  .tf__logo :global(img) {
+    width: 52px;
+    height: 52px;
+    padding: 4px;
+    border-radius: 10px;
+    background: #fff;
+  }
+  .tf__logo > span {
+    display: flex;
+    flex-direction: column;
+  }
+  .tf__num {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    color: #ff8aa8;
+  }
+  .tf__name {
+    font-size: 1.375rem;
+    font-weight: 500;
+  }
+  .tf__tag {
+    margin: 0;
+    font-size: clamp(1.25rem, 1rem + 0.8vw, 1.75rem);
+    font-weight: 400;
+    color: #fff;
+  }
+  .tf__about {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: #d9b9c2;
+  }
+  .tf__cols {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  }
+  .tf__col {
+    padding: 24px 28px;
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .tf__col:last-child {
+    border-right: 0;
+  }
+  .tf__col h2 {
+    margin: 0 0 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #ff8aa8;
+  }
+  .tf__col ul {
+    margin: 0;
+  }
+  .tf__col a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: #ecd3da;
+    text-decoration: none;
+  }
+  .tf__col a:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .tf__office + .tf__office {
+    margin-top: 14px;
+  }
+  .tf__oname {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    color: #fff;
+  }
+  .tf__oname span {
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 9999px;
+    background: #c8123f;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+  .tf__addr {
+    margin: 4px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #d9b9c2;
+  }
+  .tf__olinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 16px;
+    margin: 0;
+  }
+  .tf__hours {
+    margin: 14px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: #d9b9c2;
+  }
+  .tf__strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px 24px;
+    padding: 16px 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .tf__rates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 0;
+  }
+  .tf__rates a {
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    color: #ecd3da;
+    text-decoration: none;
+  }
+  .tf__rates a:hover {
+    color: #fff;
+  }
+  .tf__rates strong {
+    color: #fff;
+  }
+  .tf__star {
+    color: #f5a623;
+  }
+  .tf__social {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+  }
+  .tf__social a {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .tf__social a:hover {
+    background: #c8123f;
+    border-color: #c8123f;
+  }
+  .tf__legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 24px;
+    padding: 14px 28px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 0.8125rem;
+  }
+  .tf__legal p {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: #d9b9c2;
+  }
+  .tf__stamp {
+    display: flex;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  .tf__stamp span {
+    padding: 4px 12px;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .tf__stamp span + span {
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    background: #c8123f;
+  }
+
+  @media (max-width: 999px) {
+    .tf__brand {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .tf__cols {
+      grid-template-columns: 1fr 1fr;
+    }
+    .tf__col:nth-child(2n) {
+      border-right: 0;
+    }
+    .tf__col:nth-child(n + 3) {
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+    }
+  }
+  @media (max-width: 560px) {
+    .tf__cols {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .tf__col {
+      border-right: 0;
+    }
+    .tf__col + .tf__col {
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+    }
+    .tf__brand,
+    .tf__col,
+    .tf__strip,
+    .tf__legal {
+      padding-inline: 18px;
+    }
+  }
+  /* keep the mobile Call/WhatsApp bar from covering the last line */
+  @media (max-width: 767px) {
+    .tf {
+      padding-bottom: 24px;
+    }
+  }
+
+  /* ===== Review: open layout, no lines ===== */
+  .tf {
+    padding-top: clamp(32px, 4vw, 48px);
+    padding-bottom: 20px;
+  }
+  /* keep the copyright line above the mobile Call/WhatsApp bar */
+  @media (max-width: 767px) {
+    .tf {
+      padding-bottom: calc(64px + env(safe-area-inset-bottom) + 20px);
+    }
+  }
+  .tf__sheet {
+    margin-top: 0;
+    border: 0;
+  }
+  .tf__col,
+  .tf__col + .tf__col,
+  .tf__col:nth-child(n) {
+    border: 0 !important;
+  }
+  .tf__col {
+    padding-inline: 0 24px;
+  }
+  .tf__strip {
+    justify-content: flex-start;
+    padding: 0 0 8px;
+    border: 0;
+  }
+  .tf__legal {
+    padding-inline: 0;
+    border: 0;
+  }
+  @media (max-width: 560px) {
+    .tf__col,
+    .tf__strip,
+    .tf__legal {
+      padding-inline: 0;
+    }
+  }
+  /* social icons sit under the Company links */
+  .tf__col .tf__strip {
+    margin-top: 20px;
+    padding: 0;
+  }
+  .tf__social a:hover {
+    text-decoration: none;
+  }
+</style>

@@ -1,0 +1,243 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import EnquirySection from '../../components/EnquirySection.astro';
+import Icon from '../../components/Icon.astro';
+import { img } from '../../lib/images';
+import data from '../../data/sanaswadi.json';
+
+const pageName = 'Sanaswadi land page';
+const waInterest = 'the 4.5-acre Sanaswadi industrial land';
+const [lead, ...rest] = data.photos;
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  pageName={pageName}
+  waInterest={waInterest}
+  crumbs={[{ name: 'Sanaswadi industrial land', path: '/projects/sanaswadi-industrial-land' }]}
+  finalCtaText="Interested in the Sanaswadi plot? Let’s arrange a site visit."
+>
+  <!-- 1. Headline, key facts, buttons -->
+  <PageHero eyebrow="Featured project · Industrial land" title={data.h1} summary={data.summary} pageName={pageName} waInterest={waInterest}>
+    <dl slot="aside" class="facts card">
+      {
+        data.facts.map((f) => (
+          <div>
+            <dt>{f.label}</dt>
+            <dd class="num">{f.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </PageHero>
+
+  <!-- 2. Photo set: real plot photos only -->
+  <section class="section section--soft" aria-labelledby="photos-h">
+    <div class="container">
+      <SectionHead id="photos-h" eyebrow="Photos" title="The plot" tone="from above and on the ground" />
+      <div class="gallery">
+        <figure class="gallery__lead">
+          <Picture
+            src={img(lead.src)}
+            alt={lead.alt}
+            formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+            width={1200}
+            widths={[400, 600, 900, 1200]}
+            sizes="(max-width: 1023px) calc(100vw - 32px), 1200px"
+            loading="lazy"
+          />
+          <figcaption>{lead.caption}</figcaption>
+        </figure>
+        {
+          rest.map((p) => (
+            <figure>
+              <Picture
+                src={img(p.src)}
+                alt={p.alt}
+                formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+                width={800}
+                widths={[400, 600, 800]}
+                sizes="(max-width: 767px) calc(100vw - 32px), 400px"
+                loading="lazy"
+              />
+              <figcaption>{p.caption}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Location: measured distances in km -->
+  <section class="section" aria-labelledby="location-h">
+    <div class="container">
+      <SectionHead id="location-h" eyebrow="Location" title="Sanaswadi, east of Pune" tone="on the Pune–Nagar belt" lead="Distances are measured by road from the plot." />
+      <dl class="distances">
+        {
+          data.distances.map((d) => (
+            <div>
+              <dt>to {d.place}</dt>
+              <dd class="num">{d.verified && d.km ? `${d.km} km` : 'Ask us'}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- 4. Specifications -->
+  <section class="section section--soft" aria-labelledby="specs-h">
+    <div class="container split">
+      <SectionHead id="specs-h" eyebrow="Specifications" title="Key details" tone="at a glance." />
+      <dl class="specs">
+        {
+          data.specs.map((s) => (
+            <div>
+              <dt>{s.label}</dt>
+              <dd>
+                <span class="heading-lg">{s.value}</span>
+                <p>{s.text}</p>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- 5. Enquiry form, pre-set to "Invest in land" -->
+  <EnquirySection
+    title="Arrange a site visit or request documents"
+    lead="Share your details and we'll call you to arrange a visit or send the title papers for your due diligence."
+    intent="invest"
+    pageName={pageName}
+    waInterest={waInterest}
+    formHeading="Enquire about this plot"
+    requirementPlaceholder="e.g. Planning a warehouse; would like to see the title documents"
+  />
+</BaseLayout>
+
+<style>
+  .facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-5);
+    margin: 0;
+  }
+  .facts dt,
+  .specs dt {
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .facts dd {
+    font-size: 1.5rem;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    margin-top: 4px;
+  }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-4);
+  }
+  .gallery figure {
+    margin: 0;
+  }
+  .gallery__lead {
+    grid-column: 1 / -1;
+  }
+  .gallery :global(img) {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--r-card);
+  }
+  .gallery__lead :global(img) {
+    aspect-ratio: 16 / 9;
+  }
+  figcaption {
+    margin-top: var(--s-2);
+    font-size: var(--fs-caption);
+    color: var(--ink-mute);
+  }
+  @media (max-width: 767px) {
+    .gallery {
+      grid-template-columns: 1fr;
+    }
+  }
+  /* Distances: one strip of figures, no cards */
+  .distances {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    border-top: 2px solid var(--ink);
+  }
+  .distances div {
+    padding: var(--s-5) var(--s-5) var(--s-5) 0;
+  }
+  .distances div + div {
+    padding-left: var(--s-5);
+    border-left: 1px solid var(--hairline);
+  }
+  .distances dt {
+    order: 2;
+    color: var(--ink-secondary);
+  }
+  .distances div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+  }
+  .distances dd {
+    font-size: var(--fs-section);
+    font-weight: var(--fw-heading);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  @media (max-width: 767px) {
+    .distances {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .distances div:nth-child(odd) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .distances div:nth-child(n + 3) {
+      border-top: 1px solid var(--hairline);
+    }
+  }
+  /* Specifications: a definition list with rules */
+  .specs {
+    margin: 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .specs > div {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) minmax(0, 2.4fr);
+    gap: var(--s-5);
+    padding: var(--s-5) 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .specs dt {
+    color: var(--ink-mute);
+  }
+  .specs p {
+    margin-top: var(--s-1);
+    color: var(--ink-secondary);
+  }
+  @media (max-width: 600px) {
+    .specs > div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-1);
+    }
+  }
+</style>

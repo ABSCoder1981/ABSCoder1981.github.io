@@ -1,0 +1,118 @@
+---
+// Preload the Latin subset so the H1 (the LCP element) renders in Inter without a late swap
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import jostLatin from '@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import MobileBar from '../components/MobileBar.astro';
+import FinalCta from '../components/FinalCta.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import LandingNav from '../components/landing/LandingNav.astro';
+import LandingFooter from '../components/landing/LandingFooter.astro';
+import Screens from '../components/landing/Screens.astro';
+import SiteLook from '../components/landing/SiteLook.astro';
+import { site } from '../lib/site';
+import { businessSchema, breadcrumbSchema, type Crumb } from '../lib/schema';
+
+interface Props {
+  /** <title>, under 60 characters */
+  title: string;
+  /** meta description, under 155 characters */
+  description: string;
+  /** Used in the WhatsApp pre-fill: "(from: Sell page)" */
+  pageName: string;
+  /** Used in the WhatsApp pre-fill: "I'm interested in ___" */
+  waInterest?: string;
+  /** Breadcrumb trail for inner pages (Home is added automatically) */
+  crumbs?: Crumb[];
+  /** Extra JSON-LD blocks (FAQPage etc.) */
+  schema?: object[];
+  noindex?: boolean;
+  finalCta?: boolean;
+  finalCtaText?: string;
+  /** Old design (header, footer, final CTA band); only the current home page still uses it */
+  classic?: boolean;
+  /** Landing-look pages restyle the shared components; the landing page styles its own sections */
+  siteLook?: boolean;
+}
+
+const {
+  title,
+  description,
+  pageName,
+  waInterest = 'buying, selling or renting a property',
+  crumbs,
+  schema = [],
+  noindex = false,
+  finalCta = true,
+  finalCtaText,
+  classic = false,
+  siteLook = true,
+} = Astro.props;
+
+if (import.meta.env.DEV) {
+  if (title.length > 60) console.warn(`[seo] title over 60 chars (${title.length}): ${title}`);
+  if (description.length > 155) console.warn(`[seo] description over 155 chars (${description.length}): ${title}`);
+}
+
+// build.format 'file' makes the pathname end in .html; canonical URLs are the clean ones (/about, /)
+const canonical = new URL(Astro.url.pathname.replace(/(\/index)?\.html$/, '').replace(/\/$/, '') || '/', site.url).href;
+const allCrumbs: Crumb[] | undefined = crumbs ? [{ name: 'Home', path: '/' }, ...crumbs] : undefined;
+const jsonLd = [businessSchema(), ...(allCrumbs ? [breadcrumbSchema(allCrumbs)] : []), ...schema];
+const gaId = import.meta.env.PUBLIC_GA4_ID;
+// Test copies (e.g. GitHub Pages) build with PUBLIC_NOINDEX=1 so search engines never list them
+const blockIndex = noindex || import.meta.env.PUBLIC_NOINDEX === '1';
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {blockIndex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b1526" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${site.url}/og-image.png`} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {jsonLd.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
+
+    {gaId && <meta name="ga4-id" content={gaId} />}
+    {!classic && <link rel="preload" href={jostLatin} as="font" type="font/woff2" crossorigin />}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    {/* A page may supply its own header (e.g. the landing page's overlay navbar) */}
+    {Astro.slots.has('header') ? <slot name="header" /> : classic ? <Header pageName={pageName} waInterest={waInterest} /> : <LandingNav />}
+    <main id="main">
+      {allCrumbs && <Breadcrumbs crumbs={allCrumbs} />}
+      <slot />
+    </main>
+    {classic && finalCta && <FinalCta pageName={pageName} waInterest={waInterest} text={finalCtaText} />}
+    {Astro.slots.has('footer') ? <slot name="footer" /> : classic ? <Footer /> : <LandingFooter />}
+    {!classic && <Screens />}
+    {!classic && siteLook && <SiteLook />}
+    <MobileBar pageName={pageName} waInterest={waInterest} />
+    <script>
+      import '../scripts/analytics';
+    </script>
+  </body>
+</html>

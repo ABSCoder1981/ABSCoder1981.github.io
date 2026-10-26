@@ -1,0 +1,91 @@
+{
+  "title": "4.5-Acre Industrial Land in Sanaswadi, Pune · Ashiyana",
+  "description": "4.5-acre (1,95,000 sq ft) industrial plot in Sanaswadi near the Pune–Nagar highway. Clear title, demarcated, ₹14 Cr. Call or WhatsApp to visit.",
+  "h1": "4.5-acre industrial land in Sanaswadi",
+  "summary": "A large, demarcated industrial plot with clear title in the Sanaswadi manufacturing and logistics belt, east of Pune on the Pune–Nagar highway.",
+  "facts": [
+    {
+      "label": "Land size",
+      "value": "4.5 acres"
+    },
+    {
+      "label": "Plot area",
+      "value": "1,95,000 sq ft"
+    },
+    {
+      "label": "Ownership",
+      "value": "Clear title"
+    },
+    {
+      "label": "Asking price",
+      "value": "₹14 Cr"
+    }
+  ],
+  "photos": [
+    {
+      "src": "sanaswadi/ariel_view.png",
+      "alt": "Aerial view of the 4.5-acre Sanaswadi industrial plot and the surrounding industrial units",
+      "caption": "Aerial view"
+    },
+    {
+      "src": "sanaswadi/appledemarcation.png",
+      "alt": "Satellite image of the Sanaswadi plot with boundary measurements marked in feet",
+      "caption": "Demarcation with measured boundaries"
+    },
+    {
+      "src": "sanaswadi/connectivity.png",
+      "alt": "Aerial image showing the plot outlined in red and the 2.5 km road route to the Pune–Nagar highway",
+      "caption": "Road access to the Pune–Nagar highway"
+    },
+    {
+      "src": "sanaswadi/groundshot.png",
+      "alt": "Ground-level view of the open Sanaswadi plot from the access road",
+      "caption": "Ground view from the access road"
+    }
+  ],
+  "distances": [
+    {
+      "place": "Pune–Nagar highway",
+      "km": "2.5",
+      "verified": true,
+      "_source": "Route marked on the plot's aerial image; confirmed by Ashiyana (Oct 2026)"
+    },
+    {
+      "place": "Pune International Airport",
+      "km": null,
+      "verified": false
+    },
+    {
+      "place": "Pune railway station",
+      "km": null,
+      "verified": false
+    },
+    {
+      "place": "Pune city centre",
+      "km": null,
+      "verified": false
+    }
+  ],
+  "specs": [
+    {
+      "label": "Zoning",
+      "value": "Industrial",
+      "text": "Zoned for industrial use, suited to manufacturing, warehousing or logistics."
+    },
+    {
+      "label": "Development status",
+      "value": "Open, demarcated land",
+      "text": "Clear, usable land with defined boundaries, ready for your plans."
+    },
+    {
+      "label": "Power and water",
+      "value": "Available nearby",
+      "text": "The plot sits among operating industrial units with power and water connections. Load and connection details shared on request."
+    },
+    {
+      "label": "Documentation",
+      "value": "Clear title",
+      "text": "Title documents and demarcation are available for your lawyer's due diligence before any commitment."
+    }
+  ]
+}

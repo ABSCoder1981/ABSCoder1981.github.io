@@ -1,0 +1,51 @@
+---
+import { Picture } from 'astro:assets';
+import { img } from '../lib/images';
+
+interface Props {
+  member: { name: string; role: string; photo: string; bio: string };
+}
+const { member } = Astro.props;
+---
+
+<article class="team-card">
+  <Picture
+    src={img(member.photo)}
+    alt={`${member.name}, ${member.role}`}
+    formats={['avif', 'webp']}
+          fallbackFormat="jpg"
+    width={480}
+    height={560}
+    widths={[240, 360, 480]}
+    sizes="(max-width: 767px) 50vw, 280px"
+    fit="cover"
+    position="top"
+    loading="lazy"
+    class="team-card__img"
+  />
+  <h3 class="heading-md">{member.name}</h3>
+  <p class="team-card__role">{member.role}</p>
+  <p class="team-card__bio">{member.bio}</p>
+</article>
+
+<style>
+  .team-card :global(img) {
+    width: 100%;
+    aspect-ratio: 6 / 7;
+    object-fit: cover;
+    object-position: top;
+    border-radius: var(--r-card);
+    background: var(--canvas-soft);
+    margin-bottom: var(--s-4);
+  }
+  .team-card__role {
+    font-size: var(--fs-caption);
+    color: var(--link);
+    margin-top: 2px;
+  }
+  .team-card__bio {
+    margin-top: var(--s-2);
+    color: var(--ink-secondary);
+    font-size: var(--fs-body-sm);
+  }
+</style>

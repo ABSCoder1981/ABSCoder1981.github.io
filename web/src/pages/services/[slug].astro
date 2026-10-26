@@ -1,0 +1,172 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import ProcessSteps from '../../components/ProcessSteps.astro';
+import EnquirySection from '../../components/EnquirySection.astro';
+import FaqAccordion from '../../components/react/FaqAccordion';
+import Icon from '../../components/Icon.astro';
+import { services, type Service, type Intent } from '../../lib/site';
+import { faqSchema } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return services.map((service) => ({ params: { slug: service.slug }, props: { service } }));
+}
+
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+const pageName = `${service.name} page`;
+const others = services.filter((s) => s.slug !== service.slug);
+
+const placeholders: Record<string, string> = {
+  buy: 'e.g. 3 BHK, ready to move, under ₹3 Cr',
+  sell: 'e.g. 2 BHK in Kothrud, 950 sq ft, 3rd floor',
+  rent: 'e.g. Want to let out a furnished 2 BHK in Bavdhan',
+  invest: 'e.g. Industrial land near Pune, budget ₹10–15 Cr',
+};
+---
+
+<BaseLayout
+  title={service.title}
+  description={service.description}
+  pageName={pageName}
+  waInterest={service.waIntent}
+  crumbs={[
+    { name: 'Services', path: '/services' },
+    { name: service.name, path: `/services/${service.slug}` },
+  ]}
+  schema={[faqSchema(service.faqs)]}
+>
+  <!-- 1. Headline and summary -->
+  <PageHero eyebrow={service.name} title={service.h1} summary={service.summary} pageName={pageName} waInterest={service.waIntent}>
+    <div slot="aside" class="aside card">
+      <span class="icon-badge"><Icon name={service.icon} size={26} /></span>
+      <!-- 2. Who it's for -->
+      <h2 class="heading-lg">Who it’s for</h2>
+      <ul role="list" class="check-list">
+        {service.whoFor.map((w) => <li><Icon name="check" /> <span>{w}</span></li>)}
+      </ul>
+    </div>
+  </PageHero>
+
+  <!-- 3. What's included -->
+  <section class="section section--soft" aria-labelledby="included-h">
+    <div class="container">
+      <SectionHead id="included-h" eyebrow="What’s included" title="What we do" tone="for you" />
+      <ul role="list" class="included">
+        {
+          service.included.map((item) => (
+            <li>
+              <Icon name="check" />
+              <span>{item}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 4. How it works -->
+  <section class="section" aria-labelledby="how-h">
+    <div class="container">
+      <SectionHead id="how-h" eyebrow="How it works" title="Step by step" />
+      <ProcessSteps steps={service.steps} />
+    </div>
+  </section>
+
+  <!-- 5. Questions people ask (FAQPage schema) -->
+  <section class="section" aria-labelledby="faq-h">
+    <div class="container faq-wrap">
+      <SectionHead id="faq-h" eyebrow="Questions people ask" title="Common questions" />
+      <FaqAccordion client:visible faqs={service.faqs} />
+    </div>
+  </section>
+
+  <!-- 6. Enquiry form, pre-set to this service -->
+  <EnquirySection
+    title={`Ready to talk about ${service.waIntent.replace(/ \(.*\)/, '')}?`}
+    lead="Share a few details and we'll call you back."
+    intent={service.intent as Intent}
+    pageName={pageName}
+    waInterest={service.waIntent}
+    requirementPlaceholder={placeholders[service.intent]}
+  />
+
+  <section class="section" aria-labelledby="more-h">
+    <div class="container">
+      <SectionHead id="more-h" title="Other services" />
+      <ul role="list" class="rows others">
+        {
+          others.map((s) => (
+            <li>
+              <a href={`/services/${s.slug}`}>
+                <span class="heading-md">{s.name}</span>
+                <Icon name="arrow" size={18} />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .others {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    column-gap: var(--s-7);
+    border-top: 0;
+  }
+  .others li {
+    border-bottom: 1px solid var(--hairline);
+  }
+  .others a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .others a:hover {
+    color: var(--link);
+  }
+  .aside .heading-lg {
+    margin-bottom: var(--s-4);
+  }
+  .included {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+    column-gap: var(--s-7);
+    margin: 0;
+  }
+  .included li {
+    display: flex;
+    gap: var(--s-3);
+    align-items: flex-start;
+    padding: var(--s-4) 0;
+    border-top: 1px solid var(--hairline);
+    color: var(--ink);
+  }
+  .included :global(svg) {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    color: var(--success);
+  }
+  .faq-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--s-7);
+  }
+  @media (max-width: 1023px) {
+    .faq-wrap {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+  }
+</style>

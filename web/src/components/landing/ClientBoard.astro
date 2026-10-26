@@ -1,0 +1,697 @@
+---
+// Section 7 — "The Handover Board" (option B).
+// Real handover photos pinned like prints on a site-office board, with the two written reviews
+// (Priya Sharma, Rajesh Patel) pinned in among them. Rajesh Kulkarni's review stays in section 02.
+// Ratings strip: Google (Kothrud office) as the main badge, Justdial and magicpin as smaller chips.
+// "View all photos" / clicking a print opens a full-screen viewer (keyboard + swipe).
+import { Picture, getImage } from 'astro:assets';
+import { img } from '../../lib/images';
+import { site, waHref } from '../../lib/site';
+import people from '../../data/people.json';
+
+const reviews = people.reviews.filter((r) => r.name !== 'Rajesh Kulkarni');
+const photos = await Promise.all(
+  people.wall.map(async (p, i) => {
+    const full = await getImage({ src: img(p), width: 1400, format: 'webp' });
+    return { key: p, i, full: full.src, tilt: [-2.2, 1.6, -1, 2.4, -1.8, 1.2, -2.6, 1.8, -1.2, 2.2, -1.6][i % 11] };
+  }),
+);
+// Board order: photos with the two review notes pinned in among them
+type Item = { kind: 'photo'; p: (typeof photos)[number] } | { kind: 'note'; r: (typeof reviews)[number]; tilt: number };
+const items: Item[] = [];
+photos.forEach((p, i) => {
+  items.push({ kind: 'photo', p });
+  if (i === 1 && reviews[0]) items.push({ kind: 'note', r: reviews[0], tilt: 1.8 });
+  if (i === 6 && reviews[1]) items.push({ kind: 'note', r: reviews[1], tilt: -1.6 });
+});
+const ratings = site.ratings.items;
+const google = ratings.find((r) => r.primary)!;
+const others = ratings.filter((r) => !r.primary);
+const wa = waHref('sharing my experience with Ashiyana', 'Landing page · our clients');
+const stars = (r: number) => Math.round((r / 5) * 100);
+---
+
+<section class="cb" aria-labelledby="cb-h" data-cb data-screen>
+  <div class="container">
+    <div class="cb__top">
+      <header class="cb__head">
+        <h2 id="cb-h" class="cb__title">{site.stats.clients} keys handed over. <em>A few of the families.</em></h2>
+        <p class="cb__lead">Real handovers, real families, from our Kothrud office and beyond.</p>
+      </header>
+      <a class="grate" href={google.url} target="_blank" rel="noopener">
+        <span class="grate__g" aria-hidden="true">G</span>
+        <span class="grate__score num">{google.rating.toFixed(1)}</span>
+        <span class="grate__stars" style={`--pct:${stars(google.rating)}%`} aria-hidden="true">★★★★★</span>
+        <span class="grate__k">Rated on Google ↗</span>
+      </a>
+    </div>
+
+    <!-- The board -->
+    <div class="board">
+      <button type="button" class="board__nav board__nav--prev" data-board-prev aria-label="Previous photos">‹</button>
+      <button type="button" class="board__nav board__nav--next" data-board-next aria-label="Next photos">›</button>
+      <ul role="list" class="board__grid">
+        {
+          items.map((it, n) =>
+            it.kind === 'photo' ? (
+              <li class="pin-item" style={`--t:${it.p.tilt}deg;--n:${n}`}>
+                <button type="button" class="print" data-open={it.p.i} aria-label={`Open photo ${it.p.i + 1} of ${photos.length}`}>
+                  <span class="pinhead" aria-hidden="true" />
+                  <Picture
+                    src={img(it.p.key)}
+                    alt="Ashiyana Real Estate clients and team at a property handover"
+                    formats={['avif', 'webp']}
+                    fallbackFormat="jpg"
+                    width={520}
+                    widths={[300, 420, 520]}
+                    sizes="(max-width: 699px) 72vw, (max-width: 1099px) 30vw, 280px"
+                    loading="lazy"
+                    class="print__img"
+                  />
+                </button>
+              </li>
+            ) : (
+              <li class="pin-item pin-item--note" style={`--t:${it.tilt}deg;--n:${n}`}>
+                <figure class="cnote">
+                  <span class="pinhead" aria-hidden="true" />
+                  <p class="cnote__k">Client story · {it.r.area}</p>
+                  <blockquote>
+                    <p>“{it.r.quote}”</p>
+                  </blockquote>
+                  <figcaption>
+                    <strong>{it.r.name}</strong>
+                    <span>{it.r.label}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </div>
+
+    <div class="cb__btns">
+      <button type="button" class="cb__view" data-open="0">View all {photos.length} photos</button>
+      <a class="cb__share" href={wa} target="_blank" rel="noopener" data-cta="our-clients">Share your story on WhatsApp <span aria-hidden="true">→</span></a>
+    </div>
+  </div>
+
+  <!-- Full-screen viewer -->
+  <dialog class="viewer" aria-label="Client photos" data-viewer>
+    <button type="button" class="viewer__close" data-close aria-label="Close photos">✕</button>
+    <button type="button" class="viewer__nav viewer__nav--prev" data-prev aria-label="Previous photo">‹</button>
+    <figure class="viewer__fig">
+      <img alt="Ashiyana Real Estate clients and team at a property handover" data-viewer-img />
+      <figcaption><span data-viewer-count></span></figcaption>
+    </figure>
+    <button type="button" class="viewer__nav viewer__nav--next" data-next aria-label="Next photo">›</button>
+    <script type="application/json" data-viewer-srcs set:html={JSON.stringify(photos.map((p) => p.full))} />
+  </dialog>
+</section>
+
+<style>
+  .cb {
+    position: relative;
+    padding-block: clamp(44px, 5vw, 72px);
+    background-color: #fff;
+    background-image:
+      linear-gradient(rgba(61, 74, 92, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.045) 1px, transparent 1px);
+    background-size: 120px 120px;
+    border-top: 1px solid rgba(13, 37, 61, 0.06);
+    color: #0d253d;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+
+  /* ---------- Heading + ratings ---------- */
+  .cb__top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px 48px;
+    align-items: end;
+  }
+  .cb__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .cb__num {
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .cb__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .cb__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .cb__title em {
+    font-style: normal;
+    font-weight: 600;
+    color: #c8123f;
+  }
+  .grate {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    justify-self: end;
+    padding: 12px 20px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.1);
+    box-shadow: 0 12px 28px rgba(13, 37, 61, 0.08);
+    color: #0d253d;
+    text-decoration: none !important;
+    transition: transform 0.25s ease;
+  }
+  .grate:hover {
+    transform: translateY(-2px);
+  }
+  .grate__g {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid #e3e8ee;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    color: #4285f4;
+  }
+  .grate__score {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .grate__stars {
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #f5a623 var(--pct), #d9dee5 var(--pct));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .grate__k {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: #4e5d73;
+  }
+  .cb__lead {
+    margin: 16px 0 0;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    color: #344559;
+  }
+
+  .rates {
+    display: grid;
+    gap: 12px;
+    justify-items: end;
+  }
+  .rate--main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(13, 37, 61, 0.1);
+    box-shadow: 0 14px 34px rgba(13, 37, 61, 0.08);
+    color: #0d253d;
+    text-decoration: none !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .rate--main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(13, 37, 61, 0.12);
+  }
+  .rate__g {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid #e3e8ee;
+    font-family: var(--font-sans);
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #4285f4;
+  }
+  .rate__body {
+    display: grid;
+    gap: 2px;
+  }
+  .rate__score {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .rate__score small {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #4e5d73;
+  }
+  /* stars filled to the rating */
+  .rate__stars {
+    font-size: 1rem;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #f5a623 var(--pct), #d9dee5 var(--pct));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+  }
+  .rate__meta {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: #4e5d73;
+  }
+  .rate__chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0;
+  }
+  .rate__chip {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: #f6f2f3;
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: #344559;
+  }
+  .rate__chip strong {
+    color: #0d253d;
+  }
+
+  /* ---------- The board ---------- */
+  .board {
+    margin-top: clamp(36px, 5vw, 56px);
+    padding: clamp(24px, 3vw, 40px);
+    border-radius: 24px;
+    background:
+      radial-gradient(rgba(13, 37, 61, 0.09) 1px, transparent 1.4px) 0 0 / 14px 14px,
+      #f3ece2; /* cork-like board */
+    border: 1px solid rgba(13, 37, 61, 0.1);
+    box-shadow: inset 0 2px 12px rgba(13, 37, 61, 0.06);
+  }
+  .board__grid {
+    columns: 4 240px;
+    column-gap: clamp(18px, 2.4vw, 32px);
+    margin: 0;
+  }
+  .pin-item {
+    break-inside: avoid;
+    margin-bottom: clamp(22px, 2.6vw, 34px);
+    padding-top: 10px;
+  }
+  .print {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 10px 10px 30px;
+    border: 0;
+    background: #fff;
+    box-shadow: 0 10px 22px rgba(13, 37, 61, 0.14), 0 2px 4px rgba(13, 37, 61, 0.08);
+    transform: rotate(var(--t));
+    cursor: zoom-in;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .print :global(picture),
+  .print :global(.print__img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .print :global(.print__img) {
+    filter: saturate(0.8);
+    transition: filter 0.35s ease;
+  }
+  .print:hover,
+  .print:focus-visible {
+    transform: rotate(0deg) translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(13, 37, 61, 0.2);
+    z-index: 2;
+  }
+  .print:hover :global(.print__img),
+  .print:focus-visible :global(.print__img) {
+    filter: none;
+  }
+  .print:focus-visible {
+    outline: 2px solid #c8123f;
+    outline-offset: 4px;
+  }
+  .pinhead {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff5c86, #c8123f 60%, #8f0b2e);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+    z-index: 1;
+  }
+
+  /* review note pinned among the prints */
+  .cnote {
+    position: relative;
+    margin: 0;
+    padding: 24px 20px 20px;
+    background: #fffdf6;
+    border: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 10px 22px rgba(13, 37, 61, 0.12);
+    transform: rotate(var(--t));
+    transition: transform 0.35s ease;
+  }
+  .cnote:hover {
+    transform: rotate(0deg) translateY(-4px);
+  }
+  .cnote__k {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .cnote blockquote {
+    margin: 10px 0 0;
+    font-size: 1.125rem;
+    line-height: 1.45;
+    color: #0d253d;
+  }
+  .cnote figcaption {
+    display: flex;
+    flex-direction: column;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(13, 37, 61, 0.2);
+  }
+  .cnote strong {
+    font-weight: 600;
+  }
+  .cnote figcaption span {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: #4e5d73;
+  }
+
+  /* buttons */
+  .cb__btns {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px 20px;
+    margin-top: clamp(28px, 4vw, 40px);
+  }
+  .cb__view,
+  .cb__share {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 24px;
+    border-radius: 9999px;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.25s ease, color 0.25s ease;
+  }
+  .cb__view {
+    border: 0;
+    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(200, 18, 63, 0.26);
+  }
+  .cb__view:hover {
+    transform: translateY(-1px);
+  }
+  .cb__share {
+    border: 1px solid rgba(13, 37, 61, 0.25);
+    color: #0d253d;
+  }
+  .cb__share:hover {
+    background: #0d253d;
+    color: #fff;
+  }
+
+  /* ---------- Viewer ---------- */
+  .viewer {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(15, 8, 12, 0.94);
+    color: #fff;
+  }
+  .viewer[open] {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr) 64px;
+    align-items: center;
+  }
+  .viewer::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  .viewer__fig {
+    margin: 0;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+  }
+  .viewer__fig img {
+    max-width: 100%;
+    max-height: 82vh;
+    object-fit: contain;
+    border: 8px solid #fff;
+  }
+  .viewer__fig figcaption {
+    font-size: 0.875rem;
+    letter-spacing: 0.12em;
+    color: #ecd3da;
+  }
+  .viewer__close,
+  .viewer__nav {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .viewer__nav {
+    justify-self: center;
+  }
+  .viewer__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    font-size: 1.125rem;
+  }
+  .viewer__close:hover,
+  .viewer__nav:hover {
+    background: #c8123f;
+    border-color: #c8123f;
+  }
+
+  /* ---------- Motion: prints settle onto the board ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .cb__top,
+    .board {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .pin-item {
+      opacity: 0;
+      transform: translateY(-16px);
+      transition: opacity 0.6s ease calc(0.2s + var(--n) * 0.06s), transform 0.7s cubic-bezier(0.2, 1.3, 0.4, 1) calc(0.2s + var(--n) * 0.06s);
+    }
+    .cb.is-in .cb__top,
+    .cb.is-in .board,
+    .cb.is-in .pin-item {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 899px) {
+    .cb__top {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rates {
+      justify-items: start;
+    }
+    .rate__chips {
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 699px) {
+    /* phones: a swipeable stack of prints and notes */
+    .board {
+      padding: 22px 0 18px;
+      border-radius: 18px;
+    }
+    .board__grid {
+      columns: auto;
+      display: flex;
+      align-items: flex-start; /* each print keeps its own height */
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 8px 20px 14px;
+    }
+    .pin-item {
+      flex: 0 0 74%;
+      margin: 0;
+      scroll-snap-align: center;
+    }
+    .viewer[open] {
+      grid-template-columns: 0 minmax(0, 1fr) 0;
+    }
+    .viewer__nav {
+      position: absolute;
+      bottom: 24px;
+    }
+    .viewer__nav--prev {
+      left: calc(50% - 64px);
+    }
+    .viewer__nav--next {
+      left: calc(50% + 16px);
+    }
+  }
+
+  /* ===== One-screen compaction ===== */
+
+  /* the board becomes one sliding row */
+  .board { position: relative; margin-top: clamp(14px, 2.6vh, 36px); padding: clamp(14px, 2.4vh, 28px) 0; }
+  .board__grid {
+    columns: auto;
+    display: flex;
+    align-items: center;
+    gap: clamp(16px, 2vw, 28px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 56px;
+    padding: 14px 56px 10px;
+    scrollbar-width: none;
+  }
+  .board__grid::-webkit-scrollbar { display: none; }
+  .pin-item { flex: 0 0 clamp(200px, 21vw, 280px); margin: 0; scroll-snap-align: start; }
+  .print :global(.print__img) { aspect-ratio: 4 / 3; max-height: calc(100svh - 430px); object-fit: cover; }
+  .cnote blockquote { font-size: 1rem; }
+  .cb__btns { margin-top: clamp(12px, 2.4vh, 32px); }
+  .board__nav {
+    position: absolute; top: 50%; z-index: 3; display: grid; place-items: center;
+    width: 44px; height: 44px; margin-top: -22px; border-radius: 50%;
+    border: 1px solid rgba(13, 37, 61, 0.15); background: #fff; box-shadow: 0 8px 18px rgba(13, 37, 61, 0.14);
+    font-size: 1.375rem; line-height: 1; color: #0d253d; cursor: pointer;
+  }
+  .board__nav:hover { background: #c8123f; border-color: #c8123f; color: #fff; }
+  .board__nav--prev { left: 8px; }
+  .board__nav--next { right: 8px; }
+  @media (max-width: 699px) {
+    .cb__lead, .cb__share { display: none; }
+    .cb__title { font-size: 1.8rem; }
+    .cb__top { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .grate { justify-self: start; padding: 8px 14px; }
+    .board__grid { padding-inline: 20px; scroll-padding-inline: 20px; }
+    .pin-item { flex-basis: 72%; }
+    .print :global(.print__img) { max-height: 32svh; }
+    .board__nav { display: none; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-cb]');
+  if (root) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !('IntersectionObserver' in window)) root.classList.add('is-in');
+    else {
+      const io = new IntersectionObserver(
+        (es) => {
+          if (es.some((e) => e.isIntersecting)) {
+            root.classList.add('is-in');
+            io.disconnect();
+          }
+        },
+        { threshold: 0.12 },
+      );
+      io.observe(root);
+    }
+
+    // Board arrows: slide the row by most of its width
+    const row = root.querySelector<HTMLElement>(".board__grid")!;
+    const slide = (dir: number) => row.scrollBy({ left: dir * row.clientWidth * 0.8, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    root.querySelector("[data-board-prev]")!.addEventListener("click", () => slide(-1));
+    root.querySelector("[data-board-next]")!.addEventListener("click", () => slide(1));
+
+    // Full-screen viewer
+    const dlg = root.querySelector<HTMLDialogElement>('[data-viewer]')!;
+    const imgEl = dlg.querySelector<HTMLImageElement>('[data-viewer-img]')!;
+    const count = dlg.querySelector<HTMLElement>('[data-viewer-count]')!;
+    const srcs: string[] = JSON.parse(dlg.querySelector('[data-viewer-srcs]')!.textContent || '[]');
+    let cur = 0;
+    let opener: HTMLElement | null = null;
+    const show = (i: number) => {
+      cur = (i + srcs.length) % srcs.length;
+      imgEl.src = srcs[cur];
+      count.textContent = `Photo ${cur + 1} of ${srcs.length}`;
+    };
+    root.querySelectorAll<HTMLElement>('[data-open]').forEach((b) =>
+      b.addEventListener('click', () => {
+        opener = b;
+        show(Number(b.dataset.open));
+        dlg.showModal();
+      }),
+    );
+    dlg.querySelector('[data-prev]')!.addEventListener('click', () => show(cur - 1));
+    dlg.querySelector('[data-next]')!.addEventListener('click', () => show(cur + 1));
+    dlg.querySelector('[data-close]')!.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg) dlg.close(); // click on the dark backdrop
+    });
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') show(cur + 1);
+      else if (e.key === 'ArrowLeft') show(cur - 1);
+    });
+    dlg.addEventListener('close', () => opener?.focus());
+    // swipe
+    let x0: number | null = null;
+    dlg.addEventListener('pointerdown', (e) => (x0 = e.clientX));
+    dlg.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0;
+      if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+  }
+</script>

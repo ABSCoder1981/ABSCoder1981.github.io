@@ -1,0 +1,65 @@
+---
+import EnquiryForm from './react/EnquiryForm';
+import Icon from './Icon.astro';
+import { site, localityNames, telHref, waHref, type Intent } from '../lib/site';
+
+interface Props {
+  title: string;
+  lead?: string;
+  intent?: Intent;
+  locality?: string;
+  pageName: string;
+  waInterest: string;
+  formHeading?: string;
+  requirementPlaceholder?: string;
+}
+const { title, lead, intent, locality, pageName, waInterest, formHeading, requirementPlaceholder } = Astro.props;
+const wa = waHref(waInterest, pageName);
+---
+
+<section class="section section--soft enquiry" id="enquire" aria-labelledby="enquire-h">
+  <div class="container enquiry__grid">
+    <div>
+      <span class="eyebrow">Call-back</span>
+      <h2 class="display-xl" id="enquire-h">{title}</h2>
+      {lead && <p class="lead">{lead}</p>}
+      <ul role="list" class="check-list enquiry__points">
+        <li><Icon name="check" /> <span>We call you back between 9:30 am and 6:30 pm, any day of the week</span></li>
+        <li><Icon name="check" /> <span>No obligation and nothing to pay for the first conversation</span></li>
+        <li><Icon name="check" /> <span>Prefer to talk now? Call <a class="num" href={telHref} data-cta="enquiry">{site.phone.display}</a> or <a href={wa} target="_blank" rel="noopener" data-cta="enquiry">WhatsApp us</a></span></li>
+      </ul>
+    </div>
+    <EnquiryForm
+      client:visible
+      intent={intent}
+      locality={locality}
+      localities={localityNames}
+      telHref={telHref}
+      waHref={wa}
+      phoneDisplay={site.phone.display}
+      heading={formHeading}
+      requirementPlaceholder={requirementPlaceholder}
+    />
+  </div>
+</section>
+
+<style>
+  .enquiry__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: var(--s-8);
+    align-items: start;
+  }
+  .enquiry .lead {
+    margin-top: var(--s-4);
+  }
+  .enquiry__points {
+    margin-top: var(--s-6);
+  }
+  @media (max-width: 1023px) {
+    .enquiry__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-6);
+    }
+  }
+</style>

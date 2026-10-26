@@ -1,0 +1,131 @@
+---
+import Icon from './Icon.astro';
+import { localities } from '../lib/site';
+
+interface Props {
+  /** Slug to leave out (the current locality page) */
+  exclude?: string;
+  headingLevel?: 'h2' | 'h3';
+  /** 1 column inside a split layout, 2 when full width */
+  columns?: 1 | 2;
+}
+const { exclude, headingLevel: H = 'h3', columns = 2 } = Astro.props;
+const list = localities.filter((l) => l.slug !== exclude);
+---
+
+<!-- Each locality with useful neighbourhood information: what it's like, typical homes, distance from our office -->
+<ul role="list" class:list={['locs', { 'locs--one': columns === 1 }]}>
+  {
+    list.map((l) => (
+      <li>
+        <a class="loc" href={`/${l.slug}`}>
+          <span class="loc__top">
+            <H class="heading-lg">{l.name}</H>
+            {l.slug === 'kothrud' && <span class="loc__tag">Head office</span>}
+          </span>
+          <p class="loc__text">{l.card}</p>
+          <dl class="loc__facts">
+            <div>
+              <dt>Typical homes</dt>
+              <dd>{l.propertyTypes.slice(0, 2).map((t) => t.type).join(' · ')}</dd>
+            </div>
+            <div>
+              <dt>From our office</dt>
+              <dd>{l.distance.replace(' from our Kothrud office', '').replace('Our office is in Kothrud, at Karve Statue', 'Right here')}</dd>
+            </div>
+          </dl>
+          <span class="loc__go" aria-hidden="true">
+            <Icon name="arrow" size={20} />
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .locs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--s-7);
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hairline);
+  }
+  .locs--one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .locs li {
+    border-bottom: 1px solid var(--hairline);
+  }
+  .loc {
+    position: relative;
+    display: grid;
+    gap: var(--s-2);
+    padding: var(--s-5) var(--s-7) var(--s-5) 0;
+    color: var(--ink);
+    text-decoration: none !important;
+  }
+  .loc__top {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .loc__tag {
+    font-size: var(--fs-label);
+    font-weight: var(--fw-medium);
+    color: var(--ink-secondary);
+    padding: 2px 8px;
+    border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-pill);
+  }
+  .loc__text {
+    color: var(--ink-secondary);
+  }
+  .loc__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-6);
+    margin: 0;
+    font-size: var(--fs-caption);
+  }
+  .loc__facts div {
+    display: flex;
+    gap: 6px;
+  }
+  .loc__facts dt {
+    color: var(--ink-mute);
+  }
+  .loc__facts dt::after {
+    content: ':';
+  }
+  .loc__facts dd {
+    color: var(--ink);
+  }
+  .loc__go {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-mute);
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+  .loc:hover .heading-lg {
+    color: var(--link);
+  }
+  .loc:hover .loc__go {
+    color: var(--link);
+    transform: translate(3px, -50%);
+  }
+  @media (max-width: 767px) {
+    .locs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .loc {
+      padding-right: var(--s-6);
+    }
+    .loc__facts {
+      flex-direction: column;
+    }
+  }
+</style>

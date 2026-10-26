@@ -1,0 +1,34 @@
+# /etc/systemd/system/ashiyana-api.service
+# Enquiry endpoint behind Nginx at /api/enquiry. Logs: journalctl -u ashiyana-api -f
+[Unit]
+Description=Ashiyana website enquiry API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ashiyana-api
+Group=ashiyana-api
+WorkingDirectory=/opt/ashiyana-api
+EnvironmentFile=/etc/ashiyana-api.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node src/server.js
+Restart=on-failure
+RestartSec=3
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/ashiyana-api
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

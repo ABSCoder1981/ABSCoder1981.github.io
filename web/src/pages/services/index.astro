@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import ServicesOverview from '../../components/ServicesOverview.astro';
+import ProcessSteps from '../../components/ProcessSteps.astro';
+import EnquirySection from '../../components/EnquirySection.astro';
+import { services } from '../../lib/site';
+import home from '../../data/home.json';
+
+const pageName = 'Services page';
+const waInterest = 'your property services';
+---
+
+<BaseLayout
+  title="Real Estate Services in Kothrud, Pune · Ashiyana"
+  description="Buying, selling, rentals, valuation, investment, legal help and property management in Kothrud and west Pune, from one experienced local team."
+  pageName={pageName}
+  waInterest={waInterest}
+  crumbs={[{ name: 'Services', path: '/services' }]}
+>
+  <PageHero
+    eyebrow="Services"
+    title="One team for buying, selling, renting and investing"
+    summary="Whether you're buying your first flat, selling a family home or investing in land, you deal with one experienced team from the first call to registration."
+    pageName={pageName}
+    waInterest={waInterest}
+  />
+
+  <section class="section" aria-labelledby="all-h">
+    <div class="container">
+      <h2 id="all-h" class="sr-only">All services</h2>
+      <ServicesOverview ctaHref="#enquire" />
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="process-h">
+    <div class="container">
+      <SectionHead id="process-h" eyebrow="How we work" title="Four steps," tone="one team throughout" />
+      <ProcessSteps steps={home.process} />
+    </div>
+  </section>
+
+  <EnquirySection
+    title="Not sure which service you need?"
+    lead="Tell us what you're trying to do and we'll point you in the right direction."
+    pageName={pageName}
+    waInterest={waInterest}
+  />
+</BaseLayout>

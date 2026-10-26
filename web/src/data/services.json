@@ -1,0 +1,262 @@
+[
+  {
+    "slug": "buy",
+    "name": "Buy a home",
+    "icon": "home",
+    "intent": "buy",
+    "waIntent": "buying a home",
+    "title": "Buy a Resale Flat in Kothrud, Pune · Ashiyana",
+    "description": "Tell us your budget and area. We shortlist resale flats and new projects in west Pune, arrange visits, negotiate and see you through registration.",
+    "h1": "Buy a home in Pune, without the guesswork",
+    "summary": "Share what you need once: area, budget, size and timeline. We shortlist only the homes that fit, visit them with you, negotiate the price and coordinate the paperwork until the keys are in your hand.",
+    "card": "Resale flats and new projects shortlisted to your budget, visited with you and negotiated to a fair price.",
+    "whoFor": [
+      "First-time buyers who want someone experienced on their side",
+      "Families upgrading to a bigger home in Kothrud and nearby areas",
+      "NRIs and out-of-town buyers who can't spend weeks on site visits",
+      "Buyers who have seen enough portals and want a real shortlist"
+    ],
+    "included": [
+      "A requirement call to pin down area, budget, size and must-haves",
+      "A shortlist of resale and new-project options that actually fit",
+      "Site visits arranged and attended with you",
+      "Price guidance from recent deals in the same society or lane",
+      "Negotiation with the seller or developer on your behalf",
+      "Coordination of agreement, loan paperwork and registration"
+    ],
+    "steps": [
+      { "title": "Requirement call", "text": "A 10-minute call to understand area, budget, size and timeline." },
+      { "title": "Shortlist and visits", "text": "We send a short list that fits and visit the best options with you." },
+      { "title": "Negotiation", "text": "We negotiate price and terms, and check the documents before you commit." },
+      { "title": "Agreement and registration", "text": "We coordinate the agreement, loan paperwork and registration date." }
+    ],
+    "faqs": [
+      { "q": "Do I have to pay anything to start?", "a": "No. The requirement call and the shortlist cost nothing. Our fee is agreed with you in writing before you commit to a property." },
+      { "q": "Which areas do you cover?", "a": "Mainly west and central Pune: Kothrud, Karvenagar, Warje, Erandwane, Prabhat Road and Bavdhan. Tell us your area and we'll say honestly whether we can help." },
+      { "q": "Do you only deal in resale flats?", "a": "Resale is our core, but we also help with new projects through our developer relationships, and with bungalows, row houses and plots." },
+      { "q": "Will you check the property documents?", "a": "Yes. We review the title chain, society documents and approvals before you pay a token, and bring in a lawyer for anything that needs a legal opinion." }
+    ]
+  },
+  {
+    "slug": "sell",
+    "name": "Sell a property",
+    "icon": "tag",
+    "intent": "sell",
+    "waIntent": "selling a property",
+    "title": "Sell Your Flat in Kothrud, Pune · Ashiyana",
+    "description": "Sell your flat, bungalow or land in west Pune at a fair price. Honest valuation, genuine buyers, negotiation and paperwork handled end to end.",
+    "h1": "Sell your property at a fair price, with less hassle",
+    "summary": "We start with an honest price based on recent deals near you, then bring serious, pre-qualified buyers to your door. We handle viewings, negotiation and the paperwork, so you deal with one team from first call to registration.",
+    "card": "An honest price, genuine buyers and every viewing, negotiation and document handled for you.",
+    "whoFor": [
+      "Owners selling a flat, bungalow or row house in west Pune",
+      "Families moving up who need to sell and buy in step",
+      "NRIs and owners living away from Pune",
+      "Owners whose property has sat on portals without a serious offer"
+    ],
+    "included": [
+      "A realistic asking price based on recent nearby deals",
+      "Marketing to our buyer base and broker network",
+      "Pre-qualified buyers only, so viewings aren't wasted",
+      "Viewings arranged around your schedule",
+      "Negotiation on price, payment terms and possession date",
+      "Agreement, society NOC and registration coordinated"
+    ],
+    "steps": [
+      { "title": "Valuation call", "text": "We look at your property and recent deals nearby and agree an asking price." },
+      { "title": "Buyer matching", "text": "We match it with active buyers and arrange viewings only with serious ones." },
+      { "title": "Negotiation", "text": "We negotiate price and terms and keep you informed on every offer." },
+      { "title": "Paperwork and registration", "text": "We coordinate the agreement, NOCs and registration through to payment." }
+    ],
+    "faqs": [
+      { "q": "How do you decide the asking price?", "a": "From recent sale prices in the same building, society or lane, adjusted for floor, condition and parking. You get the reasoning, not just a number." },
+      { "q": "What does it cost to sell through you?", "a": "Our fee is agreed with you in writing before we start marketing, so there are no surprises at closing." },
+      { "q": "Do you put my property on the internet?", "a": "Only if you want us to. Many sellers prefer we approach our existing buyers and broker network first, quietly." },
+      { "q": "Can you help me rent it out instead?", "a": "Yes. If the market doesn't suit a sale right now, we can find you a tenant and revisit the sale later." }
+    ]
+  },
+  {
+    "slug": "rentals",
+    "name": "Rentals",
+    "icon": "key",
+    "intent": "rent",
+    "waIntent": "renting or letting out a property",
+    "title": "Flats for Rent and Tenant Search in Kothrud · Ashiyana",
+    "description": "Landlords get verified tenants and a clean leave-and-licence agreement. Tenants get homes that match their needs in Kothrud and west Pune.",
+    "h1": "Rentals for landlords and tenants in west Pune",
+    "summary": "For landlords, we find verified tenants and set up a clean leave-and-licence agreement. For tenants, we shortlist homes that match your budget, family size and commute, and handle the handover.",
+    "card": "Verified tenants for landlords, the right home for tenants, and a clean leave-and-licence agreement.",
+    "whoFor": [
+      "Landlords who want reliable, verified tenants",
+      "Families and professionals looking for a rental in west Pune",
+      "Companies housing employees near Kothrud and Bavdhan",
+      "Owners living outside Pune who need someone local"
+    ],
+    "included": [
+      "Rent advice based on similar homes nearby",
+      "Tenant screening and police verification support",
+      "Site visits arranged for both sides",
+      "Leave-and-licence agreement drafted and registered",
+      "Inventory check and handover of keys",
+      "Renewal reminders before the agreement ends"
+    ],
+    "steps": [
+      { "title": "Tell us your need", "text": "Landlords share the property; tenants share budget, area and size." },
+      { "title": "Match and visit", "text": "We match landlords and tenants and arrange visits." },
+      { "title": "Agree terms", "text": "We help agree rent, deposit, lock-in and possession date." },
+      { "title": "Agreement and handover", "text": "We get the leave-and-licence agreement registered and hand over the keys." }
+    ],
+    "faqs": [
+      { "q": "Do you register the rental agreement?", "a": "Yes. We coordinate a registered leave-and-licence agreement, which is required in Maharashtra, and help with police verification." },
+      { "q": "How long does it take to find a tenant?", "a": "It depends on the area, rent and furnishing. A well-priced home in Kothrud usually moves quickly; we'll tell you upfront if the asking rent is out of line." },
+      { "q": "Can you manage the property after it's rented?", "a": "Yes, through our property management service: rent follow-up, repairs and renewals." }
+    ]
+  },
+  {
+    "slug": "valuation",
+    "name": "Property valuation",
+    "icon": "gauge",
+    "intent": "sell",
+    "waIntent": "a property valuation",
+    "title": "Property Valuation in Kothrud and Pune · Ashiyana",
+    "description": "Know what your flat, bungalow or land is really worth before you sell, buy, rent or plan. A clear valuation based on recent local deals.",
+    "h1": "Know what your property is really worth",
+    "summary": "Before you sell, buy, rent out or plan your finances, get a clear, reasoned estimate of your property's market value from a team that has watched west Pune prices for three decades.",
+    "card": "A clear, reasoned market value based on recent deals near you, before you sell, buy or plan.",
+    "whoFor": [
+      "Owners thinking of selling who want a realistic number first",
+      "Buyers who want a second opinion on an asking price",
+      "Families dividing or planning inherited property",
+      "Owners planning redevelopment or a loan against property"
+    ],
+    "included": [
+      "A visit to understand the property, floor, view and condition",
+      "Comparison with recent sales in the same society or lane",
+      "A price range with the reasoning behind it",
+      "Expected rent, if you're considering letting it out",
+      "Advice on what would raise the value before a sale"
+    ],
+    "steps": [
+      { "title": "Share details", "text": "Tell us the property, location and why you need a valuation." },
+      { "title": "Visit", "text": "We visit, or review photos and documents if you're away." },
+      { "title": "Market comparison", "text": "We compare recent nearby deals and current demand." },
+      { "title": "Your valuation", "text": "We walk you through the range and what drives it." }
+    ],
+    "faqs": [
+      { "q": "Is this a bank or government valuation?", "a": "No. This is a market valuation: what a buyer is likely to pay today. Banks and stamp duty use their own valuers and the ready reckoner rate." },
+      { "q": "Do I have to sell through you afterwards?", "a": "No. Many owners use our valuation simply to plan. If you do decide to sell, we're happy to help." },
+      { "q": "Can you value land and commercial property?", "a": "Yes, including plots, shops, offices and industrial land, though land often needs more document review first." }
+    ]
+  },
+  {
+    "slug": "investment",
+    "name": "Investment consulting",
+    "icon": "trending",
+    "intent": "invest",
+    "waIntent": "property investment (land or commercial)",
+    "title": "Land and Property Investment Consulting, Pune · Ashiyana",
+    "description": "Advice on land, commercial and residential investment in and around Pune: location, due diligence, pricing and exit. Talk to an experienced team.",
+    "h1": "Invest in land and property with clear eyes",
+    "summary": "Land, commercial and residential investments can do very well around Pune, or tie up capital for years. We help you pick the location, check the title and approvals, price the deal sensibly and plan the exit before you commit.",
+    "card": "Land, commercial and residential investments, chosen and checked with you before you commit capital.",
+    "whoFor": [
+      "Investors looking at land or industrial plots around Pune",
+      "Businesses buying commercial or industrial space for their own use",
+      "Families putting savings into a second home or rental flat",
+      "NRIs who want a trusted local partner for due diligence"
+    ],
+    "included": [
+      "A conversation about your budget, horizon and risk appetite",
+      "Location advice based on infrastructure and demand",
+      "Title, zoning and approval checks with our legal partners",
+      "Price benchmarking and negotiation",
+      "Site visits, including to outlying land parcels",
+      "A plan for rental income or exit"
+    ],
+    "steps": [
+      { "title": "Investment brief", "text": "We understand your budget, timeline and expected returns." },
+      { "title": "Options and due diligence", "text": "We shortlist opportunities and check title, zoning and approvals." },
+      { "title": "Negotiation", "text": "We benchmark the price and negotiate terms." },
+      { "title": "Closing", "text": "We coordinate documentation and registration, and stay on for the exit." }
+    ],
+    "faqs": [
+      { "q": "Do you handle land deals?", "a": "Yes. Agricultural, non-agricultural and industrial land, with extra care on title, 7/12 extracts, zoning and access roads." },
+      { "q": "Do you have land available right now?", "a": "We currently represent a 4.5-acre industrial plot in Sanaswadi. Other opportunities change often, so tell us what you're looking for." },
+      { "q": "Can you guarantee returns?", "a": "No one honestly can. We'll show you what has happened to prices nearby and what drives demand, so you can decide with real information." }
+    ]
+  },
+  {
+    "slug": "legal",
+    "name": "Legal assistance",
+    "icon": "file",
+    "intent": "buy",
+    "waIntent": "legal and documentation help",
+    "title": "Property Documentation and Legal Help, Pune · Ashiyana",
+    "description": "Title checks, agreements, society NOCs, stamp duty and registration, coordinated with experienced property lawyers in Pune.",
+    "h1": "Property paperwork, handled properly",
+    "summary": "Most property problems start with a document nobody checked. We coordinate due diligence, agreements, NOCs, stamp duty and registration with experienced property lawyers, so your transaction is clean from day one.",
+    "card": "Title checks, agreements, NOCs, stamp duty and registration, coordinated with experienced lawyers.",
+    "whoFor": [
+      "Buyers who want the title checked before paying a token",
+      "Sellers who need their papers in order before listing",
+      "Families transferring or dividing property",
+      "Anyone whose transaction has stalled on paperwork"
+    ],
+    "included": [
+      "Title chain and ownership review",
+      "Society share certificate, NOC and maintenance checks",
+      "Agreement for sale drafting and review",
+      "Stamp duty and registration fee estimates",
+      "Registration appointment and document coordination",
+      "Mutation and society transfer after registration"
+    ],
+    "steps": [
+      { "title": "Share the documents", "text": "Send us what you have; we'll list what's missing." },
+      { "title": "Review", "text": "We and our legal partners review title, approvals and society papers." },
+      { "title": "Agreement", "text": "We coordinate drafting and review of the agreement." },
+      { "title": "Registration", "text": "We book the appointment and see the registration through." }
+    ],
+    "faqs": [
+      { "q": "Are you lawyers?", "a": "No. We're property consultants who work with experienced property lawyers. Legal opinions come from them; we coordinate everything around it." },
+      { "q": "Can you help if I'm not buying or selling through you?", "a": "Yes. Tell us what you need and we'll let you know how we can help." },
+      { "q": "What documents should I check before buying a resale flat?", "a": "At a minimum: the previous sale agreements, the society share certificate, the occupancy certificate, the latest maintenance and tax receipts, and an NOC from the society. We'll give you the full list for your property." }
+    ]
+  },
+  {
+    "slug": "property-management",
+    "name": "Property management",
+    "icon": "wrench",
+    "intent": "rent",
+    "waIntent": "property management",
+    "title": "Property Management in Kothrud, Pune · Ashiyana",
+    "description": "Rent follow-up, repairs, tenant support and renewals for owners in Pune and NRIs abroad. One local team looking after your property.",
+    "h1": "Your property, looked after while you're away",
+    "summary": "For owners living outside Pune or simply short on time, we look after your property: tenants, rent follow-up, repairs, society matters and renewals, with one local team as your point of contact.",
+    "card": "Tenants, rent follow-up, repairs and renewals handled by one local team while you're away.",
+    "whoFor": [
+      "NRIs and owners living outside Pune",
+      "Owners with more than one rental property",
+      "Elderly owners who want someone reliable nearby",
+      "Owners between tenants who need the home kept ready"
+    ],
+    "included": [
+      "Finding and onboarding tenants",
+      "Rent and deposit follow-up",
+      "Repairs and maintenance coordination",
+      "Society, utility and tax payment reminders",
+      "Periodic property checks",
+      "Agreement renewals and move-out handover"
+    ],
+    "steps": [
+      { "title": "Property review", "text": "We visit the property and agree what you want managed." },
+      { "title": "Set-up", "text": "We document the condition, contacts and dues." },
+      { "title": "Ongoing care", "text": "We handle tenants, repairs and reminders, and keep you updated." },
+      { "title": "Renewal or exit", "text": "We manage renewals, move-outs and handover." }
+    ],
+    "faqs": [
+      { "q": "Do you manage properties outside Kothrud?", "a": "We focus on west and central Pune, where our team can visit quickly. Ask us about your location." },
+      { "q": "How will I stay updated?", "a": "On WhatsApp or email, whichever you prefer, with photos for repairs and visits." },
+      { "q": "Can you manage a property that's empty right now?", "a": "Yes. We can keep it checked and ready, and find a tenant when you're ready to let it out." }
+    ]
+  }
+]

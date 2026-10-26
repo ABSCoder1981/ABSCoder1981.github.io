@@ -1,0 +1,685 @@
+---
+// Section 3 — "Blueprint Service Floors" (option B).
+// The seven services are the seven floors of a building under construction.
+//   Left:  sticky line-sketch tower; the floor of the selected service lights up crimson
+//          and the crane hook travels to it.
+//   Right: the services as stacked "floor" rows. Hover/focus/tap opens a row
+//          (summary, three points, link to the service page). Buy is open by default.
+// Scroll-in: floors draw in one by one. Reduced motion: no drawing or travel, same content.
+import { services, site, waHref } from '../../lib/site';
+
+const n = services.length; // 7
+// ---- Sketch geometry (viewBox 440 × 640) ----
+const X0 = 70; // front face left
+const FW = 220; // front face width
+const SIDE = 70; // receding side face width
+const RISE = 26; // side face slope (perspective)
+const TOP = 130; // top of the top floor
+const FH = 58; // floor height
+const GROUND = TOP + n * FH; // 536
+const floorTop = (i: number) => TOP + i * FH; // i = 0 is the top floor (service 1)
+const hookY = (i: number) => floorTop(i) + FH / 2; // hook target, centre of floor
+
+// Short labels on the drawing (full names are in the list beside it)
+const short: Record<string, string> = { buy: 'Buy', sell: 'Sell', rentals: 'Rentals', valuation: 'Valuation', investment: 'Investment', legal: 'Legal', 'property-management': 'Management' };
+const floors = services.map((s, i) => {
+  const y = floorTop(i);
+  const yb = y + FH;
+  const x1 = X0 + FW;
+  // front face + windows
+  let windows = '';
+  for (let k = 1; k < 6; k++) {
+    const x = X0 + (FW * k) / 6;
+    windows += `M${x} ${y + 12}V${yb - 10}`;
+  }
+  windows += `M${X0 + 8} ${y + 12}H${x1 - 8}M${X0 + 8} ${yb - 10}H${x1 - 8}`;
+  // side face (receding up-right)
+  const side = `M${x1} ${y}L${x1 + SIDE} ${y - RISE}L${x1 + SIDE} ${yb - RISE}L${x1} ${yb}`;
+  let sideLines = '';
+  for (let k = 1; k < 3; k++) {
+    const x = x1 + (SIDE * k) / 3;
+    const dy = (RISE * k) / 3;
+    sideLines += `M${x} ${y - dy + 10}V${yb - dy - 8}`;
+  }
+  return {
+    i,
+    num: String(i + 1).padStart(2, '0'),
+    name: short[s.slug] ?? s.name,
+    frame: `M${X0} ${y}H${x1}V${yb}H${X0}Z`,
+    windows,
+    side,
+    sideLines,
+    labelY: y + FH / 2 + 7,
+  };
+});
+const roof = `M${X0} ${TOP}L${X0 + SIDE} ${TOP - RISE}H${X0 + FW + SIDE}L${X0 + FW} ${TOP}`;
+const podium = `M${X0 - 20} ${GROUND}H${X0 + FW + 20}V${GROUND + 30}H${X0 - 20}Z M${X0 + FW + 20} ${GROUND}L${X0 + FW + SIDE + 20} ${GROUND - RISE}V${GROUND + 30 - RISE}L${X0 + FW + 20} ${GROUND + 30}`;
+const MAST = 400;
+const JIB = 52;
+let crane = `M${MAST} 630V${JIB}M${MAST + 12} 630V${JIB}`;
+for (let y = 620, s = 0; y > JIB + 12; y -= 18, s ^= 1) crane += s ? `M${MAST} ${y}L${MAST + 12} ${y - 18}` : `M${MAST + 12} ${y}L${MAST} ${y - 18}`;
+crane += `M120 ${JIB}H436M120 ${JIB + 10}H${MAST}`;
+for (let x = 120; x < 396; x += 20) crane += `M${x} ${JIB + 10}L${x + 10} ${JIB}L${x + 20} ${JIB + 10}`;
+crane += `M${MAST + 6} ${JIB}V${JIB - 30}L150 ${JIB}M${MAST + 6} ${JIB - 30}L436 ${JIB}`;
+const HOOK_X = 280; // right of the longest floor label, so the rope never crosses text
+
+const wa = waHref('your property services', 'Landing page · services');
+---
+
+<section class="floors" aria-labelledby="floors-h" data-floors data-screen style={`--hook-y:${hookY(0) - JIB}px`}>
+  <div class="container floors__inner">
+
+    <div class="floors__grid">
+      <header class="floors__head">
+        <h2 id="floors-h" class="floors__title">Everything you need <em>to buy, sell or invest.</em></h2>
+        <p class="floors__lead">Seven services, one team. Pick a floor to see how we help.</p>
+      </header>
+      <!-- Left: the building -->
+      <div class="floors__art" aria-hidden="true">
+        <svg viewBox="42 14 404 624" focusable="false">
+          <defs>
+            <clipPath id="floors-rope"><rect x="0" y={JIB + 10} width="440" height="640" /></clipPath>
+          </defs>
+          <path class="f-guide" d={`M0 ${GROUND + 30}H440`} />
+          <path class="f-ln f-roof" d={roof} pathLength="1" />
+          {
+            floors.map((f) => (
+              <g class="f-floor" data-floor-art={f.i} style={`--i:${n - 1 - f.i}`}>
+                <path class="f-fill" d={f.frame} />
+                <path class="f-ln" d={f.frame} pathLength="1" />
+                <path class="f-ln f-thin" d={f.windows} pathLength="1" />
+                <path class="f-ln" d={f.side} pathLength="1" />
+                <path class="f-ln f-thin" d={f.sideLines} pathLength="1" />
+                <text class="f-label" x={X0 + 10} y={f.labelY}>
+                  {f.num} · {f.name}
+                </text>
+              </g>
+            ))
+          }
+          <path class="f-ln f-podium" d={podium} pathLength="1" />
+          <path class="f-ln f-crane" d={crane} pathLength="1" />
+          <g clip-path="url(#floors-rope)">
+            <g class="f-hook">
+              <path d={`M${HOOK_X} ${JIB - 700}V${JIB}`} class="f-rope" />
+              <path d={`M${HOOK_X - 12} ${JIB - 8}h24v8h-24z M${HOOK_X - 7} ${JIB}l7 12 7-12`} class="f-hook-body" />
+            </g>
+          </g>
+          <rect x={HOOK_X - 14} y={JIB} width="28" height="10" class="f-trolley" />
+        </svg>
+      </div>
+
+      <!-- Right: service floors -->
+      <ol role="list" class="floors__list">
+        {
+          services.map((s, i) => (
+            <li class:list={['floor', { 'is-open': i === 0 }]} data-floor={i} data-hook={hookY(i) - JIB}>
+              <h3 class="floor__h">
+                <button type="button" class="floor__btn" aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`floor-panel-${s.slug}`}>
+                  <span class="floor__num">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="floor__name">{s.name}</span>
+                  <span class="floor__plus" aria-hidden="true" />
+                </button>
+              </h3>
+              <div class="floor__panel" id={`floor-panel-${s.slug}`}>
+                <div class="floor__body">
+                  <p class="floor__summary">{s.card}</p>
+                  <ul role="list" class="floor__points">
+                    {s.included.slice(0, 3).map((p) => (
+                      <li>{p}</li>
+                    ))}
+                  </ul>
+                  <a class="floor__link" href={`/services/${s.slug}`}>
+                    How we help with {s.name.toLowerCase()} <span aria-hidden="true">→</span>
+                  </a>
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <div class="floors__unsure">
+      <p>Not sure which service you need?</p>
+      <a class="floors__cta" href="#contact">Tell us what you’re trying to do <span aria-hidden="true">→</span></a>
+      <a class="floors__wa" href={wa} target="_blank" rel="noopener" data-cta="services">or WhatsApp <span class="num">{site.phone.display}</span></a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .floors {
+    position: relative;
+    padding-block: clamp(44px, 5vw, 72px);
+    background-color: #fff;
+    background-image:
+      linear-gradient(rgba(61, 74, 92, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(61, 74, 92, 0.045) 1px, transparent 1px);
+    background-size: 120px 120px;
+    border-top: 1px solid rgba(13, 37, 61, 0.06);
+    color: #0d253d;
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+  }
+
+  /* ---------- Heading (matches section 2) ---------- */
+  .floors__head {
+    max-width: 760px;
+  }
+  .floors__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #b80f3a;
+  }
+  .floors__num {
+    font-weight: 600;
+    color: #0d253d;
+  }
+  .floors__rule {
+    width: 40px;
+    height: 1px;
+    background: currentColor;
+  }
+  .floors__title {
+    margin: 0;
+    font-size: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .floors__title em {
+    font-style: normal;
+    font-weight: 600;
+    color: #c8123f;
+  }
+  .floors__lead {
+    margin: 16px 0 0;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    color: #344559;
+  }
+
+  .floors__grid {
+    display: grid;
+    grid-template-areas: 'head list' 'art list';
+    grid-template-rows: auto 1fr;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+    gap: clamp(32px, 5vw, 72px);
+    align-items: start;
+  }
+  .floors__head {
+    grid-area: head;
+  }
+  .floors__art {
+    grid-area: art;
+    align-self: start;
+  }
+  .floors__grid > ol {
+    grid-area: list;
+  }
+
+  /* ---------- The building sketch ---------- */
+  .floors__art {
+    position: sticky;
+    top: 110px;
+  }
+  .floors__art svg {
+    display: block;
+    width: 100%;
+    max-width: 440px;
+    height: auto;
+    margin-inline: auto;
+    overflow: visible;
+  }
+  .f-ln {
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.35s ease;
+  }
+  .f-thin {
+    stroke-width: 0.8;
+    opacity: 0.6;
+  }
+  .f-guide {
+    stroke: #3d4a5c;
+    stroke-dasharray: 5 6;
+    opacity: 0.35;
+  }
+  .f-crane {
+    stroke: #c8123f;
+    stroke-width: 0.9;
+    opacity: 0.55;
+  }
+  .f-fill {
+    fill: #e8104c;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .f-label {
+    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 5px;
+    stroke-linejoin: round;
+    text-transform: uppercase;
+    fill: #4e5d73;
+    transition: fill 0.35s ease;
+  }
+  .f-floor.is-active .f-fill {
+    opacity: 0.1;
+  }
+  .f-floor.is-active .f-ln {
+    stroke: #c8123f;
+  }
+  .f-floor.is-active .f-label {
+    fill: #b80f3a;
+    font-weight: 600;
+  }
+  .f-rope {
+    stroke: #c8123f;
+    stroke-width: 1;
+  }
+  .f-hook-body {
+    fill: none;
+    stroke: #c8123f;
+    stroke-width: 1.4;
+  }
+  .f-trolley {
+    fill: #fff;
+    stroke: #c8123f;
+    stroke-width: 1.2;
+  }
+  .f-hook {
+    transform: translateY(var(--hook-y));
+    transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1);
+  }
+
+  /* ---------- Floor rows ---------- */
+  .floors__list {
+    margin: 0;
+    border-top: 1px solid rgba(13, 37, 61, 0.12);
+  }
+  .floor {
+    position: relative;
+    border-bottom: 1px solid rgba(13, 37, 61, 0.12);
+    transition: background-color 0.3s ease;
+  }
+  .floor::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -1px;
+    bottom: -1px;
+    width: 3px;
+    background: #e8104c;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.35s ease;
+  }
+  .floor.is-open {
+    background: linear-gradient(90deg, rgba(232, 16, 76, 0.05), rgba(232, 16, 76, 0) 70%);
+  }
+  .floor.is-open::before {
+    transform: scaleY(1);
+  }
+  .floor__h {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  .floor__btn {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 100%;
+    min-height: 64px;
+    padding: 0 18px;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .floor__num {
+    flex: none;
+    width: 36px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #4e5d73;
+    transition: color 0.3s ease;
+  }
+  .floor__name {
+    flex: 1;
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.4rem);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    transition: color 0.3s ease;
+  }
+  .floor.is-open .floor__num,
+  .floor.is-open .floor__name,
+  .floor__btn:hover .floor__name {
+    color: #c8123f;
+  }
+  .floor__btn:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #c8123f;
+    border-radius: 6px;
+  }
+  /* plus → minus */
+  .floor__plus {
+    position: relative;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(13, 37, 61, 0.2);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .floor__plus::before,
+  .floor__plus::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 11px;
+    height: 1.5px;
+    margin: -0.75px 0 0 -5.5px;
+    background: #0d253d;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+  }
+  .floor__plus::after {
+    transform: rotate(90deg);
+  }
+  .floor.is-open .floor__plus {
+    background: #c8123f;
+    border-color: #c8123f;
+  }
+  .floor.is-open .floor__plus::before,
+  .floor.is-open .floor__plus::after {
+    background: #fff;
+  }
+  .floor.is-open .floor__plus::after {
+    transform: rotate(0deg);
+  }
+
+  /* smooth open/close (grid 0fr → 1fr) */
+  .floor__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.45s ease;
+  }
+  .floor.is-open .floor__panel {
+    grid-template-rows: 1fr;
+  }
+  .floor__body {
+    overflow: hidden;
+    padding-inline: 72px 24px;
+    visibility: hidden;
+    transition: visibility 0s linear 0.45s;
+  }
+  .floor.is-open .floor__body {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+  .floor__summary {
+    margin: 0;
+    padding-top: 2px;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #344559;
+  }
+  .floor__points {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: #0d253d;
+  }
+  .floor__points li {
+    position: relative;
+    padding-left: 22px;
+  }
+  .floor__points li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 0.45em;
+    width: 9px;
+    height: 5px;
+    border-left: 2px solid #c8123f;
+    border-bottom: 2px solid #c8123f;
+    transform: rotate(-45deg);
+  }
+  .floor__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    margin: 10px 0 18px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #b80f3a;
+    text-decoration: none !important;
+  }
+  .floor__link span {
+    transition: transform 0.25s ease;
+  }
+  .floor__link:hover span {
+    transform: translateX(4px);
+  }
+
+  /* ---------- Not sure ---------- */
+  .floors__unsure {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 18px;
+    margin-top: clamp(36px, 5vw, 56px);
+    padding: 20px 24px;
+    border-radius: 16px;
+    border: 1px dashed rgba(200, 18, 63, 0.4);
+    background: rgba(253, 236, 240, 0.45);
+  }
+  .floors__unsure p {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+  .floors__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 9999px;
+    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none !important;
+    box-shadow: 0 8px 20px rgba(200, 18, 63, 0.25);
+    transition: transform 0.2s ease;
+  }
+  .floors__cta:hover {
+    transform: translateY(-1px);
+  }
+  .floors__wa {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: #344559;
+  }
+
+  /* ---------- Scroll-in: floors draw in bottom-up ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .floors__art .f-ln {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.1s ease calc(var(--i, 0) * 0.16s), stroke 0.35s ease;
+    }
+    .floors__art .f-roof {
+      --i: 7;
+    }
+    .floors__art .f-crane {
+      transition-delay: 1.3s;
+    }
+    .floors__art .f-label,
+    .floors__art .f-hook,
+    .floors__art .f-trolley {
+      opacity: 0;
+    }
+    .floors__art .f-label {
+      transition: opacity 0.6s ease calc(0.4s + var(--i, 0) * 0.16s), fill 0.35s ease;
+    }
+    .floors__art .f-hook {
+      transition: opacity 0.6s ease 1.8s, transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1);
+    }
+    .floors__art .f-trolley {
+      transition: opacity 0.6s ease 1.8s;
+    }
+    .floors.is-in .floors__art .f-ln {
+      stroke-dashoffset: 0;
+    }
+    .floors.is-in .floors__art .f-label,
+    .floors.is-in .floors__art .f-hook,
+    .floors.is-in .floors__art .f-trolley {
+      opacity: 1;
+    }
+    .floors__head,
+    .floors__list,
+    .floors__unsure {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .floors__list {
+      transition-delay: 0.25s;
+    }
+    .floors__unsure {
+      transition-delay: 0.45s;
+    }
+    .floors.is-in .floors__head,
+    .floors.is-in .floors__list,
+    .floors.is-in .floors__unsure {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .f-hook,
+    .floor__panel {
+      transition: none;
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 899px) {
+    .floors__grid {
+      grid-template-areas: 'head' 'art' 'list';
+      grid-template-rows: auto;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    /* the building becomes a compact header graphic */
+    .floors__art {
+      position: static;
+      max-width: 260px;
+      margin-inline: auto;
+    }
+  }
+  @media (max-width: 560px) {
+    .floors__art {
+      max-width: 220px;
+    }
+    .floor__btn {
+      gap: 12px;
+      padding: 0 10px;
+    }
+    .floor__num {
+      width: 28px;
+    }
+    .floor__body {
+      padding-inline: 50px 12px;
+    }
+    .floors__unsure {
+      padding: 18px;
+    }
+  }
+
+  /* ===== One-screen compaction ===== */
+
+  .floors__art svg { max-height: calc(100svh - 210px); width: auto; max-width: 100%; }
+  .floor__btn { min-height: clamp(44px, 6.6vh, 64px); }
+  .floors__unsure { margin-top: clamp(12px, 2.4vh, 32px); padding: 12px 20px; }
+  @media (max-width: 899px) {
+    .floors__art, .floors__lead, .floor__points, .floors__unsure p, .floors__wa { display: none; }
+    .floors__title { font-size: 1.8rem; }
+    .floor__summary { font-size: 0.9375rem; }
+    .floor__link { margin: 4px 0 10px; }
+    .floors__unsure { justify-content: center; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-floors]');
+  if (root) {
+    const rows = [...root.querySelectorAll<HTMLElement>('[data-floor]')];
+    const arts = [...root.querySelectorAll<SVGGElement>('[data-floor-art]')];
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let current = 0;
+
+    const open = (i: number) => {
+      if (i === current && rows[i].classList.contains('is-open')) return;
+      current = i;
+      rows.forEach((row, k) => {
+        const on = k === i;
+        row.classList.toggle('is-open', on);
+        row.querySelector('button')!.setAttribute('aria-expanded', String(on));
+      });
+      arts.forEach((g, k) => g.classList.toggle('is-active', k === i));
+      root.style.setProperty('--hook-y', `${rows[i].dataset.hook}px`);
+    };
+
+    arts[0]?.classList.add('is-active');
+    rows.forEach((row, i) => {
+      row.querySelector('button')!.addEventListener('click', () => open(i));
+      // Desktop: hovering a floor opens it (small delay so passing the mouse over doesn't flicker)
+      if (canHover) {
+        let t: number | undefined;
+        row.addEventListener('mouseenter', () => (t = window.setTimeout(() => open(i), 140)));
+        row.addEventListener('mouseleave', () => window.clearTimeout(t));
+      }
+    });
+
+    // Scroll-in: floors draw in once
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            root.classList.add('is-in');
+            io.disconnect();
+          }
+        },
+        { threshold: 0.15 },
+      );
+      io.observe(root);
+    } else root.classList.add('is-in');
+  }
+</script>

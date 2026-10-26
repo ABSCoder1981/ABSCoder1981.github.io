@@ -1,0 +1,31 @@
+---
+// Soft gradient wash behind the home hero (the PRD's "blurred gradient mesh", kept subtle).
+// Drawn with layered radial gradients instead of CSS-blurred blobs: same look, near-zero
+// rendering cost (filter: blur on large elements was ~0.5 s of style/layout on mobile).
+---
+
+<div class="mesh" aria-hidden="true"></div>
+
+<style>
+  .mesh {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(42% 60% at 8% 0%, rgba(253, 236, 240, 0.85), transparent 70%),
+      radial-gradient(36% 55% at 45% -10%, rgba(255, 214, 224, 0.5), transparent 70%),
+      radial-gradient(40% 60% at 80% -5%, rgba(232, 16, 76, 0.1), transparent 70%),
+      radial-gradient(30% 50% at 102% 10%, rgba(250, 196, 210, 0.4), transparent 70%);
+    /* gradients fade to transparent on their own, so no mask layer is needed */
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .mesh {
+      opacity: 0.25;
+    }
+  }
+  :global(:root[data-theme='dark']) .mesh {
+    opacity: 0.25;
+  }
+</style>
