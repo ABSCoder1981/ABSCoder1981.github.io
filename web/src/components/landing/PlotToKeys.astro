@@ -21,7 +21,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
 
     <div class="ptk__grid">
       <header class="ptk__head">
-        <h2 id="ptk-h" class="ptk__title">Property in Pune is hard. <em>We build it, step by step.</em></h2>
+        <h2 id="ptk-h" class="ptk__title">How Ashiyana <em>Works</em></h2>
         <p class="ptk__lead">Four steps from your first call to the keys in your hand, with one team throughout. Each step removes a problem buyers and sellers tell us about.</p>
       </header>
       <!-- The home, building up as you scroll -->
@@ -682,6 +682,12 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     .ptk__art { grid-template-columns: 110px minmax(0, 1fr); }
     .step__problem { display: none; }
     .ptk__cta { justify-content: center; }
+  }
+  /* Dark bar: text left, button centre, call right (as in the services box) */
+  @media (min-width: 900px) {
+    .ptk__btns {
+      display: contents;
+    }
   }
 </style>
 
