@@ -57,10 +57,10 @@ const ICONS: Record<string, string> = {
           }
           <p class="tf__hours">{site.hours.display}</p>
         </nav>
-        <nav class="tf__col" aria-label="Services">
+        <div class="tf__col">
           <h2>Services</h2>
-          <ul role="list">{services.map((s) => <li><a href={`/services/${s.slug}`}>{s.name}</a></li>)}</ul>
-        </nav>
+          <ul role="list">{services.map((s) => <li class="tf__item">{s.name}</li>)}</ul>
+        </div>
         <nav class="tf__col" aria-label="Localities">
           <h2>Localities</h2>
           <ul role="list">{localities.map((l) => <li><a href={`/${l.slug}`}>{l.name}</a></li>)}</ul>
@@ -71,7 +71,6 @@ const ICONS: Record<string, string> = {
             <li><a href="/about">About us</a></li>
             <li><a href="/careers">Careers</a></li>
             <li><a href="/contact">Contact</a></li>
-            <li><a href="/projects/sanaswadi-industrial-land">Sanaswadi industrial land</a></li>
             <li><a href={`mailto:${site.email}`}>Email us</a></li>
             <li><a href="/privacy">Privacy policy</a></li>
             <li><a href="/terms">Terms</a></li>
@@ -198,6 +197,15 @@ const ICONS: Record<string, string> = {
   }
   .tf__col ul {
     margin: 0;
+  }
+  /* plain text items (Services) look like the links beside them */
+  .tf__item {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: #ecd3da;
   }
   .tf__col a {
     display: inline-flex;
