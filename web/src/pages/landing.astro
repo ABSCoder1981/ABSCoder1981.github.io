@@ -285,7 +285,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
   .hero__title {
     width: fit-content; /* box = the words, so map pins beside it stay clickable */
     margin: 0;
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-head);
     font-size: clamp(2.6rem, min(1.5rem + 4vw, 9vh), 4.75rem); /* also scales with screen height */
     font-weight: 400;
     line-height: 1.04;
@@ -341,6 +341,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
   }
 
   .hero__ctas {
+    width: fit-content; /* box = the buttons only, so the Warje and Karvenagar pins beside it stay hoverable */
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -356,7 +357,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
     min-height: 52px;
     padding: 0 30px;
     border-radius: 9999px;
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.16em;
@@ -418,7 +419,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
     margin-top: clamp(18px, 3vh, 28px);
   }
   .hero__areas-k {
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.6875rem;
     font-weight: 500;
     letter-spacing: 0.24em;
@@ -566,7 +567,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
       );
     }
     .hero__content {
-      padding: 92px 20px calc(var(--bar-h, 64px) + 16px);
+      padding: 100px 20px calc(var(--bar-h, 64px) + 16px);
     }
     .hero__title {
       font-size: clamp(2rem, 9.5vw, 2.6rem);

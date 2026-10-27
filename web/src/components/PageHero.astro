@@ -1,6 +1,6 @@
 ---
 // Inner-page hero in the landing look: one screen of drawing paper with the animated tower sketch
-// behind a soft veil, a crimson-ruled eyebrow, a Jost headline and the landing page's two pill buttons.
+// behind a soft veil, a crimson-ruled eyebrow, a Eurostile headline and the landing page's two pill buttons.
 import TowerSketch from './landing/TowerSketch.astro';
 import { site, telHref, waHref } from '../lib/site';
 
@@ -105,7 +105,7 @@ const { eyebrow, title, summary, pageName, waInterest, buttons = true } = Astro.
     align-items: center;
     gap: 14px;
     margin: 0 0 18px;
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: 0.24em;
@@ -121,7 +121,7 @@ const { eyebrow, title, summary, pageName, waInterest, buttons = true } = Astro.
   }
   .page-hero__title {
     margin: 0;
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-head);
     font-size: clamp(2.2rem, 1.3rem + 3.2vw, 4rem);
     font-weight: 400;
     line-height: 1.06;
@@ -153,7 +153,7 @@ const { eyebrow, title, summary, pageName, waInterest, buttons = true } = Astro.
     min-height: 52px;
     padding: 0 30px;
     border-radius: 9999px;
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.16em;
@@ -194,7 +194,7 @@ const { eyebrow, title, summary, pageName, waInterest, buttons = true } = Astro.
     backdrop-filter: blur(4px);
   }
   .page-hero__aside :global(dt) {
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.75rem !important;
     letter-spacing: 0.16em;
     text-transform: uppercase;

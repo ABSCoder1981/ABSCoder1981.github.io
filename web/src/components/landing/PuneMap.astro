@@ -120,25 +120,25 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
   <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
     <g class="route route--office" data-route="baner">
       <path class="route__line" d={branchRoute.d} pathLength="1" />
-      <g class="route__run">
-        {[0, 1, 2].map((k) => (
-          <path class="route__arrow" d="M-11 -7L4 0L-11 7Z">
-            <animateMotion dur="1.5s" begin={`${k * 0.5}s`} repeatCount="indefinite" rotate="auto" path={branchRoute.d} />
-          </path>
-        ))}
-      </g>
+      <mask id="trail-baner" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
+        <path class="route__reveal" d={branchRoute.d} pathLength="1" />
+      </mask>
+      <path class="route__trail" d={branchRoute.d} pathLength="1" mask="url(#trail-baner)" />
+      <circle class="route__lead" r="12">
+        <animateMotion dur="1.3s" begin="indefinite" fill="freeze" path={branchRoute.d} calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.45 0 0.25 1" />
+      </circle>
     </g>
     {
       areas.map((a) => (
         <g class="route" data-route={a.slug} style={`--i:${a.i}`}>
           <path class="route__line" d={a.d} pathLength="1" />
-          <g class="route__run">
-            {[0, 1, 2].map((k) => (
-              <path class="route__arrow" d="M-11 -7L4 0L-11 7Z">
-                <animateMotion dur="1.5s" begin={`${k * 0.5}s`} repeatCount="indefinite" rotate="auto" path={a.d} />
-              </path>
-            ))}
-          </g>
+          <mask id={`trail-${a.slug}`} maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000">
+            <path class="route__reveal" d={a.d} pathLength="1" />
+          </mask>
+          <path class="route__trail" d={a.d} pathLength="1" mask={`url(#trail-${a.slug})`} />
+          <circle class="route__lead" r="12">
+            <animateMotion dur="1.3s" begin="indefinite" fill="freeze" path={a.d} calcMode="spline" keyPoints="0;1" keyTimes="0;1" keySplines="0.45 0 0.25 1" />
+          </circle>
           <circle class="route__dot" r="4">
             <animateMotion dur={`${7 + a.i * 0.8}s`} begin={`${5 + a.i * 0.6}s`} repeatCount="indefinite" path={a.d} />
           </circle>
@@ -246,7 +246,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     opacity: 0.07;
   }
   .mb-label {
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 15px;
     font-style: italic;
     letter-spacing: 0.08em;
@@ -268,7 +268,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     opacity: 0.7;
   }
   .mb-north text {
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 14px;
     font-weight: 600;
     fill: currentColor;
@@ -309,7 +309,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     border-radius: 9999px;
     background: rgba(255, 255, 255, 0.78);
     border: 1px solid rgba(13, 37, 61, 0.08);
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.6875rem;
     font-weight: 500;
     letter-spacing: 0.2em;
@@ -373,7 +373,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     text-align: right;
   }
   .pin__chip strong {
-    font-family: 'Jost Variable', 'Jost', var(--font-sans);
+    font-family: var(--font-sans);
     font-size: 0.9375rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -398,31 +398,46 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #c8123f;
   }
 
-  /* Hover / focus on a pin: its route lights up and arrows run from the Kothrud office to it */
-  .route__arrow {
-    fill: #e8104c;
-    opacity: 0;
-    transition: opacity 0.25s ease;
+  /* Hover / focus on a pin: a dot leaves the Kothrud office and travels to the area,
+     the route drawing itself behind it as a chain of dots that stays connected */
+  .route__reveal {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 14;
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 1;
   }
-  .route.is-hot .route__arrow {
+  .route.is-hot .route__reveal {
+    animation: trail-reveal 1.3s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+  }
+  .route__trail {
+    fill: none;
+    stroke: #e8104c;
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 0 0.018;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .route__lead {
+    fill: #e8104c;
+    stroke: #fff;
+    stroke-width: 2.5;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(232, 16, 76, 0.55));
+  }
+  .route.is-hot :is(.route__trail, .route__lead) {
     opacity: 1;
   }
   .route.is-hot .route__line {
-    opacity: 1;
-    stroke-width: 2.6;
-    animation: route-run 0.9s linear infinite !important;
+    opacity: 0.2;
   }
   .route.is-hot .route__dot {
     opacity: 0 !important;
   }
-  @keyframes route-run {
-    from {
-      stroke-dasharray: 0.012 0.008;
-      stroke-dashoffset: 0;
-    }
+  @keyframes trail-reveal {
     to {
-      stroke-dasharray: 0.012 0.008;
-      stroke-dashoffset: -0.02;
+      stroke-dashoffset: 0;
     }
   }
 
@@ -547,13 +562,20 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
 </style>
 
 <script>
-  // Hovering or focusing a pin lights up its route from the Kothrud office
+  // Hovering or focusing a pin sends a dot from the Kothrud office along its route
   const routes = new Map([...document.querySelectorAll<SVGGElement>('[data-route]')].map((g) => [g.dataset.route, g]));
   for (const pin of document.querySelectorAll<HTMLElement>('[data-pin]')) {
     const g = routes.get(pin.dataset.pin);
     if (!g) continue;
-    const on = () => g.classList.add('is-hot');
-    const off = () => g.classList.remove('is-hot');
+    const travel = g.querySelector<SVGAnimationElement>('.route__lead animateMotion');
+    const on = () => {
+      g.classList.add('is-hot');
+      travel?.beginElement(); // the dot sets off from the Kothrud office each time
+    };
+    const off = () => {
+      g.classList.remove('is-hot');
+      travel?.endElement();
+    };
     pin.addEventListener('pointerenter', on);
     pin.addEventListener('pointerleave', off);
     pin.addEventListener('focus', on);

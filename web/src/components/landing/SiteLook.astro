@@ -1,6 +1,6 @@
 ---
 // The landing page's visual language applied to the shared inner-page components:
-// drawing-paper sections with a faint drafting grid, Jost headings with a crimson second half,
+// drawing-paper sections with a faint drafting grid, Eurostile headings with a crimson second half,
 // crimson-ruled eyebrows, pill buttons and white "plaque" cards. Rendered only on landing-look pages.
 ---
 
@@ -10,7 +10,7 @@
     --paper-soft: #f6f3ee;
     --grid-line: rgba(61, 74, 92, 0.05);
     --grid-fine: rgba(61, 74, 92, 0.03);
-    --font-display: 'Jost Variable', 'Jost', var(--font-sans);
+    --font-display: var(--font-sans);
   }
   body {
     background: var(--paper);
@@ -45,7 +45,7 @@
 
   /* ---------- Type ---------- */
   :is(.display-xxl, .page-title, .display-xl, .display-lg, .display-md, .heading-lg, .heading-md) {
-    font-family: var(--font-display);
+    font-family: var(--font-head);
   }
   :is(.display-xxl, .page-title, .display-xl) {
     font-weight: 400;
@@ -181,7 +181,7 @@
   }
   main > .crumbs {
     position: absolute !important;
-    top: 84px;
+    top: 98px;
     left: 0;
     right: 0;
     z-index: 4;
@@ -190,14 +190,14 @@
     letter-spacing: 0.04em;
   }
   main > .crumbs + :is(section, article) {
-    padding-top: calc(var(--nav-h) + 60px) !important;
+    padding-top: calc(var(--nav-h) + 76px) !important;
   }
   @media (max-width: 767px) {
     main > .crumbs {
-      top: 88px;
+      top: 96px;
     }
     main > .crumbs + :is(section, article) {
-      padding-top: calc(var(--nav-h) + 66px) !important;
+      padding-top: calc(var(--nav-h) + 74px) !important;
     }
   }
 
@@ -206,7 +206,7 @@
     max-width: 780px;
   }
   .prose h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-head);
     font-weight: 500;
     color: #0d253d;
   }

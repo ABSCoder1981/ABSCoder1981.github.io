@@ -1,7 +1,7 @@
 ---
-// Preload the Latin subset so the H1 (the LCP element) renders in Inter without a late swap
-import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
-import jostLatin from '@fontsource-variable/jost/files/jost-latin-wght-normal.woff2?url';
+// Preload the two brand fonts (SF Pro Display text, Eurostile headings) so the H1 renders without a late swap
+import sfRegular from '../styles/sf-pro-display/SFPRODISPLAYREGULAR.OTF?url';
+import eurostile from '../styles/eurostile/eurostile.TTF?url';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -70,7 +70,8 @@ const blockIndex = noindex || import.meta.env.PUBLIC_NOINDEX === '1';
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sfRegular} as="font" type="font/otf" crossorigin />
+    <link rel="preload" href={eurostile} as="font" type="font/ttf" crossorigin />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -95,7 +96,6 @@ const blockIndex = noindex || import.meta.env.PUBLIC_NOINDEX === '1';
     {jsonLd.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
 
     {gaId && <meta name="ga4-id" content={gaId} />}
-    {!classic && <link rel="preload" href={jostLatin} as="font" type="font/woff2" crossorigin />}
     <slot name="head" />
   </head>
   <body>

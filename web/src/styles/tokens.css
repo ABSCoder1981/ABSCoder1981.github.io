@@ -36,8 +36,9 @@
   --hairline-input: #a9b4c2;
   --chip: #ffffff;              /* developer logos sit on white in both themes */
 
-  /* Type — Inter Variable; headings 600, body 400 */
-  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Type — SF Pro Display for text, Eurostile for headings and the menu */
+  --font-sans: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-head: 'Eurostile', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
   --fw-body: 400;
   --fw-medium: 500;
   --fw-heading: 600;
