@@ -640,6 +640,16 @@ const wa = waHref('your property services', 'Landing page · services');
   .floors__art .f-floor:hover:not(.is-active) .f-fill {
     opacity: 0.05;
   }
+  /* "Our Services" sits centred on top of the building */
+  @media (min-width: 900px) {
+    .floors__grid {
+      row-gap: clamp(4px, 1.2vh, 14px);
+    }
+    .floors__head {
+      justify-self: center;
+      text-align: center;
+    }
+  }
 </style>
 
 <script>
@@ -663,6 +673,24 @@ const wa = waHref('your property services', 'Landing page · services');
     };
 
     arts[0]?.classList.add('is-active');
+    // Centre 'Our Services' on the building body (the crane makes the drawing itself off-centre)
+    const head = root.querySelector<HTMLElement>('.floors__head');
+    const body = root.querySelector<SVGGElement>('[data-floor-art="0"]');
+    const alignHead = () => {
+      if (!head || !body || window.innerWidth < 900) {
+        if (head) head.style.translate = '';
+        return;
+      }
+      head.style.translate = '';
+      const h = head.getBoundingClientRect();
+      const bb = body.getBoundingClientRect();
+      const zoom = parseFloat(getComputedStyle(root.querySelector('.container')!).zoom || '1') || 1;
+      head.style.translate = `${(bb.left + bb.width / 2 - (h.left + h.width / 2)) / zoom}px 0`;
+    };
+    alignHead();
+    window.addEventListener('resize', () => window.setTimeout(alignHead, 200));
+    window.addEventListener('load', () => window.setTimeout(alignHead, 200));
+    document.fonts?.ready.then(alignHead);
     // The building works the other way too: hovering or clicking a floor opens that service on the right
     arts.forEach((g, i) => {
       g.addEventListener('click', () => open(i));
