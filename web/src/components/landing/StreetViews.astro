@@ -1,13 +1,9 @@
 ---
 // Section 5 — "Where we work" (option C).
-// Part 1: Street views. Six tabs, one per locality. Each shows a line-sketch street elevation of the
-//         kind of homes typical of that area (generic building types, no real buildings) beside the
-//         facts we already publish: description, typical homes, price range scale, distance from office.
-// Part 2: Sanaswadi "site plan". The real aerial photo in a blueprint frame with callouts + key facts.
-import { Picture } from 'astro:assets';
-import { localities, telHref, waHref } from '../../lib/site';
-import { img } from '../../lib/images';
-import sanaswadi from '../../data/sanaswadi.json';
+// Street views: six tabs, one per locality. Each shows a line-sketch street elevation of the
+// kind of homes typical of that area (generic building types, no real buildings) beside the
+// facts we already publish: description, typical homes, price range scale, distance from office.
+import { localities } from '../../lib/site';
 
 // ---------------- Street elevation generator (viewBox 600 × 320) ----------------
 const GY = 286; // ground line
@@ -136,12 +132,9 @@ const areas = localities.map((l) => {
     range: lo === hi ? scaleNames[lo - 1] : `${scaleNames[lo - 1]} to ${scaleNames[hi - 1]}`,
     distance: l.slug === 'kothrud' ? 'Our head office is here' : l.distance.replace(' from our Kothrud office', ''),
     scene: scenes[l.slug],
-    wa: waHref(`property in ${l.name}`, 'Landing page · where we work'),
   };
 });
 
-const hwy = sanaswadi.distances.find((d) => d.verified)!;
-const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page · where we work');
 ---
 
 <section class="lx" aria-labelledby="lx-h" data-lx data-screen>
@@ -169,9 +162,6 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
           </button>
         ))
       }
-      <button type="button" role="tab" class="lx__tab" id="lx-tab-sanaswadi" aria-controls="lx-panel-sanaswadi" aria-selected="false" tabindex="-1">
-        Sanaswadi <span class="lx__hq">Land</span>
-      </button>
     </div>
 
     {
@@ -230,68 +220,11 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
                 <dd>{a.distance}</dd>
               </div>
             </dl>
-            <div class="lx__btns">
-              <a class="lx__go" href={`/${a.slug}`}>
-                Explore {a.name} <span aria-hidden="true">→</span>
-              </a>
-              <a class="lx__ask" href={a.wa} target="_blank" rel="noopener" data-cta="where-we-work">
-                Ask about {a.name}
-              </a>
-            </div>
           </div>
         </div>
       ))
     }
 
-    <!-- Part 2: Sanaswadi site plan (7th tab) -->
-    <article class="plot lx__panel--plot" role="tabpanel" id="lx-panel-sanaswadi" aria-labelledby="lx-tab-sanaswadi" hidden>
-      <div class="plot__frame">
-        <Picture
-          src={img('sanaswadi/ariel_view.png')}
-          alt="Aerial view of the 4.5-acre Sanaswadi industrial plot, outlined in red, among operating industrial units"
-          formats={['avif', 'webp']}
-          fallbackFormat="jpg"
-          width={900}
-          widths={[480, 720, 900]}
-          sizes="(max-width: 899px) calc(100vw - 32px), 640px"
-          loading="lazy"
-          class="plot__img"
-        />
-        <!-- blueprint overlay -->
-        <svg class="plot__overlay" viewBox="0 0 100 75" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-          <path class="bp" d="M3 3h8M3 3v8M97 3h-8M97 3v8M3 72h8M3 72v-8M97 72h-8M97 72v-8" />
-          <path class="bp bp--dim" d="M18 68H52M18 65.5v5M52 65.5v5" />
-        </svg>
-        <span class="plot__dim">4.5 acres · 1,95,000 sq ft</span>
-        <span class="plot__north" aria-hidden="true"><span>N</span></span>
-        <span class="plot__hwy">{hwy.km} km to <span class="plot__hwy-long">the {hwy.place}</span><span class="plot__hwy-short">highway</span> <span aria-hidden="true">→</span></span>
-      </div>
-
-      <div class="plot__body">
-        <p class="plot__k">Featured project · Industrial land</p>
-        <h3 id="plot-h" class="plot__title">4.5 acres in Sanaswadi</h3>
-        <p class="plot__text">{sanaswadi.summary}</p>
-        <dl class="plot__facts">
-          {
-            sanaswadi.facts.map((f) => (
-              <div>
-                <dt>{f.label}</dt>
-                <dd class="num">{f.value}</dd>
-              </div>
-            ))
-          }
-          <div>
-            <dt>Highway</dt>
-            <dd class="num">{hwy.km} km</dd>
-          </div>
-        </dl>
-        <div class="plot__btns">
-          <a class="lx__go" href="/projects/sanaswadi-industrial-land">View plot details <span aria-hidden="true">→</span></a>
-          <a class="plot__enq" href={waPlot} target="_blank" rel="noopener" data-cta="sanaswadi-landing">Enquire on WhatsApp</a>
-        </div>
-        <p class="plot__call">or call <a href={telHref} class="num" data-cta="sanaswadi-landing">074999 14181</a></p>
-      </div>
-    </article>
   </div>
 </section>
 
@@ -601,98 +534,8 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
   .lx__range {
     vertical-align: middle;
   }
-  .lx__btns,
-  .plot__btns {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px 16px;
-    margin-top: 22px;
-  }
-  .lx__go {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 46px;
-    padding: 0 22px;
-    border-radius: 9999px;
-    background: linear-gradient(110deg, #e8104c 0%, #c8123f 50%, #9e0c33 100%);
-    color: #fff;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none !important;
-    box-shadow: 0 8px 20px rgba(200, 18, 63, 0.25);
-    transition: transform 0.2s ease;
-  }
-  .lx__go:hover {
-    transform: translateY(-1px);
-  }
-  .lx__ask,
-  .plot__enq {
-    display: inline-flex;
-    align-items: center;
-    min-height: 46px;
-    padding: 0 20px;
-    border-radius: 9999px;
-    border: 1px solid rgba(13, 37, 61, 0.25);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #0d253d;
-    text-decoration: none !important;
-    transition: background-color 0.25s ease, color 0.25s ease;
-  }
-  .lx__ask:hover,
-  .plot__enq:hover {
-    background: #0d253d;
-    color: #fff;
-  }
 
   /* ---------- Sanaswadi site plan ---------- */
-  .plot[hidden] {
-    display: none;
-  }
-  .plot__frame {
-    max-height: calc(100svh - 330px);
-  }
-  .plot {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: clamp(24px, 4vw, 56px);
-    align-items: center;
-    margin-top: 16px;
-    padding: clamp(16px, 2.4vw, 28px);
-    border-radius: 22px;
-    background: #1d0f16;
-    color: #f6e8ec;
-  }
-  .plot__frame {
-    position: relative;
-    overflow: hidden;
-    border-radius: 14px;
-    aspect-ratio: 4 / 3;
-    background: #2a1a21;
-    outline: 1px solid rgba(255, 255, 255, 0.18);
-    outline-offset: 6px;
-  }
-  .plot__frame :global(picture),
-  .plot__frame :global(.plot__img) {
-    width: 100%;
-    height: 100%;
-  }
-  .plot__frame :global(.plot__img) {
-    object-fit: cover;
-  }
-  .plot__overlay {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
   .bp {
     fill: none;
     stroke: #fff;
@@ -703,121 +546,7 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
   .bp--dim {
     stroke: #fff;
   }
-  .plot__dim,
-  .plot__hwy {
-    position: absolute;
-    padding: 6px 12px;
-    border-radius: 9999px;
-    background: rgba(29, 15, 22, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: #fff;
-    white-space: nowrap;
-  }
-  .plot__dim {
-    left: 18%;
-    bottom: 12%;
-  }
-  .plot__hwy {
-    right: 4%;
-    top: 6%;
-    background: #c8123f;
-    border-color: #c8123f;
-  }
-  .plot__hwy-short {
-    display: none;
-  }
-  .plot__north {
-    position: absolute;
-    left: 5%;
-    top: 7%;
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1.5px solid #fff;
-    background: rgba(29, 15, 22, 0.55);
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #fff;
-  }
-  .plot__north::before {
-    content: '';
-    position: absolute;
-    top: -9px;
-    left: 50%;
-    margin-left: -5px;
-    border: 5px solid transparent;
-    border-bottom: 8px solid #e8104c;
-    border-top: 0;
-  }
 
-  .plot__k {
-    margin: 0;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #ff8aa8;
-  }
-  .plot__title {
-    margin: 10px 0 0;
-    font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.4rem);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: #fff;
-  }
-  .plot__text {
-    margin: 10px 0 0;
-    font-family: var(--font-sans);
-    font-size: 0.9375rem;
-    line-height: 1.65;
-    color: #ecd3da;
-  }
-  .plot__facts {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 20px;
-    margin: 20px 0 0;
-    padding-top: 18px;
-    border-top: 1px dashed rgba(255, 255, 255, 0.2);
-  }
-  .plot__facts dt {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #d9a9b6;
-  }
-  .plot__facts dd {
-    margin: 4px 0 0;
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: #fff;
-  }
-  .plot__facts > div:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-  .plot__enq {
-    border-color: rgba(255, 255, 255, 0.4);
-    color: #fff;
-  }
-  .plot__enq:hover {
-    background: #fff;
-    color: #1d0f16;
-  }
-  .plot__call {
-    margin: 14px 0 0;
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    color: #ecd3da;
-  }
-  .plot__call a {
-    color: #fff;
-  }
 
   /* entrance */
   @media all {
@@ -837,9 +566,6 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
   /* ---------- Responsive ---------- */
   @media (max-width: 899px) {
     .lx__panel,
-    .plot {
-      grid-template-columns: minmax(0, 1fr);
-    }
     .lx__tabs {
       width: auto;
     }
@@ -848,15 +574,6 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
     .lx__dl > div {
       grid-template-columns: minmax(0, 1fr);
       gap: 4px;
-    }
-    .plot__dim {
-      left: 6%;
-    }
-    .plot__hwy-long {
-      display: none;
-    }
-    .plot__hwy-short {
-      display: inline;
     }
   }
 
@@ -873,12 +590,16 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
     .lx__about { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .lx__homes li:nth-child(n + 3) { display: none; }
     .lx__dl { gap: 8px; margin-top: 10px; padding-top: 10px; }
-    .lx__btns, .plot__btns { margin-top: 12px; }
-    .lx__go, .lx__ask, .plot__enq { min-height: 42px; padding: 0 16px; }
-    .plot__text, .plot__call { display: none; }
-    .plot__frame { max-height: 26svh; }
-    .plot__facts { margin-top: 10px; padding-top: 10px; gap: 8px 14px; }
-    .plot__facts dd { font-size: 1.0625rem; }
+  }
+  /* Heading and tab bar centred */
+  .lx__head {
+    margin-inline: auto;
+    text-align: center;
+  }
+  .lx__tabs {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
   }
 </style>
 
@@ -922,10 +643,8 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
     });
 
     // Entrance + first draw-in when the section scrolls into view
-    const plot = root.querySelector<HTMLElement>('.plot');
     if (!('IntersectionObserver' in window)) {
       root.classList.add('is-in');
-      plot?.classList.add('is-in');
       panels[0].classList.add('is-drawn');
     } else {
       const io = new IntersectionObserver(
@@ -942,7 +661,6 @@ const waPlot = waHref('the 4.5-acre Sanaswadi industrial land', 'Landing page ·
         { threshold: 0.12 },
       );
       io.observe(root);
-      if (plot) io.observe(plot);
     }
   }
 </script>
