@@ -399,7 +399,7 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
   }
 
   /* Hover / focus on a pin: a dot leaves the Kothrud office and travels to the area,
-     the route drawing itself behind it as a chain of dots that stays connected */
+     the route drawing itself behind it as a continuous line that stays connected */
   .route__reveal {
     fill: none;
     stroke: #fff;
@@ -410,12 +410,12 @@ for (const [cx, cy] of [[330, 470], [470, 190], [1180, 380], [1270, 560], [1120,
   .route.is-hot .route__reveal {
     animation: trail-reveal 1.3s cubic-bezier(0.45, 0, 0.25, 1) forwards;
   }
+  /* a continuous line, like the Kothrud–Baner route, drawn behind the travelling dot */
   .route__trail {
     fill: none;
-    stroke: #e8104c;
-    stroke-width: 5;
+    stroke: #c8123f;
+    stroke-width: 2.6;
     stroke-linecap: round;
-    stroke-dasharray: 0 0.018;
     opacity: 0;
     transition: opacity 0.2s ease;
   }

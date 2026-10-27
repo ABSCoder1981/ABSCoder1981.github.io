@@ -1,12 +1,12 @@
 ---
 // One screen per section, shared by every page in the landing look: each section is one viewport
-// tall, content is scaled down slightly to fit (never below 75%), and the wheel pages section by section.
+// tall and its content is scaled down slightly to fit (never below 75%); the page scrolls freely and smoothly.
 ---
 
 <style is:global>
   /* ---------- One screen per section (all devices) ----------
      Each section is exactly one viewport tall, its content starts under the fixed navbar,
-     and scrolling snaps section by section. The fit script below scales a section's content
+     and the page scrolls freely (smoothly, see below). The fit script scales a section's content
      down slightly (never below 75%) if it is still a little too tall for a given screen. */
   :root {
     --nav-h: 68px;
@@ -18,16 +18,7 @@
     }
   }
   html.screens {
-    scroll-snap-type: y mandatory;
     scroll-padding-top: 0;
-  }
-  html.screens .hero,
-  html.screens :is([data-screen], main > section:not(.hero), main > article) {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  html.screens footer.tf {
-    scroll-snap-align: end;
   }
   :is([data-screen], main > section:not(.hero), main > article) {
     box-sizing: border-box;
@@ -113,112 +104,54 @@
   document.addEventListener('click', () => window.setTimeout(fitAll, 520));
   document.addEventListener('ashiyana:refit', queue);
 
-  // Wheel and keyboard paging: one wheel notch / trackpad swipe / key press = one section, with a soft
-  // eased glide (touch keeps the browser's own snapping, which already glides).
+  // Smooth scrolling: the page scrolls freely (no section snapping) and mouse-wheel / trackpad input
+  // glides to its target with easing, like premium sites. Touch, keyboard and the scrollbar stay native;
+  // inner scroll areas (lists, sideways rows, dialogs) keep their own scrolling. Off for reduced motion.
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const GLIDE_MS = 900;
-  const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2); // ease-in-out cubic
-  let gliding = 0;
-  const glideTo = (target: number) => {
-    if (reducedMotion) {
-      window.scrollTo(0, target);
-      return;
-    }
-    const from = window.scrollY;
-    const dist = target - from;
-    const t0 = performance.now();
-    const id = ++gliding;
-    root.style.scrollSnapType = 'none'; // snapping would fight the frame-by-frame glide
-    root.style.scrollBehavior = 'auto';
-    const step = (now: number) => {
-      if (id !== gliding) return;
-      const t = Math.min(1, (now - t0) / GLIDE_MS);
-      window.scrollTo(0, from + dist * ease(t));
-      if (t < 1) requestAnimationFrame(step);
-      else {
-        root.style.scrollSnapType = '';
-        root.style.scrollBehavior = '';
+  if (!reducedMotion && window.matchMedia('(pointer: fine)').matches) {
+    const EASE = 0.09; // share of the remaining distance covered per frame (lower = smoother, longer glide)
+    let target = window.scrollY;
+    let current = window.scrollY;
+    let running = false;
+    const maxY = () => document.documentElement.scrollHeight - window.innerHeight;
+    const scrollsItself = (el: Element | null, dy: number) => {
+      for (; el && el !== document.body && el !== root; el = el.parentElement) {
+        if (el.matches('dialog, .nav__mobile')) return true;
+        const oy = getComputedStyle(el).overflowY;
+        if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
+          if ((dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) || (dy < 0 && el.scrollTop > 0)) return true;
+        }
       }
+      return false;
     };
-    requestAnimationFrame(step);
-  };
-  const stops = () =>
-    [document.querySelector('.hero'), ...document.querySelectorAll('[data-screen]'), document.querySelector('footer.tf')].filter(
-      Boolean,
-    ) as HTMLElement[];
-  let locked = false;
-  let lastWheel = 0;
-  let unlockAt = 0;
-  const tryUnlock = () => {
-    // stay locked until the move has finished AND the trackpad's momentum has died down
-    if (performance.now() >= unlockAt && performance.now() - lastWheel > 220) locked = false;
-    else window.setTimeout(tryUnlock, 60);
-  };
-  window.addEventListener(
-    'wheel',
-    (e) => {
-      if (e.ctrlKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // pinch-zoom or sideways scroll
-      if ((e.target as Element).closest?.('.nav__mobile, dialog')) return;
-      const y = window.scrollY;
-      const vh = window.innerHeight;
-      const dir = Math.sign(e.deltaY);
-      // a section that had to grow taller than the screen scrolls normally inside itself
-      const here = stops().find((s) => {
-        const top = s.getBoundingClientRect().top + y;
-        return top <= y + 2 && top + s.offsetHeight > y + 2;
-      });
-      if (here && here.offsetHeight > vh + 2) {
-        const top = here.getBoundingClientRect().top + y;
-        const bottom = top + here.offsetHeight;
-        if ((dir > 0 && y + vh < bottom - 2) || (dir < 0 && y > top + 2)) return;
-      }
-      e.preventDefault();
-      lastWheel = performance.now();
-      if (locked) return;
-      const tops = stops().map((s) => Math.round(s.getBoundingClientRect().top + y));
-      const max = document.documentElement.scrollHeight - vh;
-      let target = dir > 0 ? tops.find((t) => t > y + 4) : [...tops].reverse().find((t) => t < y - 4);
-      if (target === undefined) return;
-      target = Math.min(target, max);
-      locked = true;
-      unlockAt = performance.now() + (reducedMotion ? 150 : GLIDE_MS + 50);
-      glideTo(target);
-      tryUnlock();
-    },
-    { passive: false },
-  );
-
-  // Keyboard: Page Up/Down, arrows and Space move one section with the same glide
-  window.addEventListener('keydown', (e) => {
-    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
-    const el = e.target as HTMLElement;
-    if (el.closest?.('input, textarea, select, [contenteditable], dialog, .nav__mobile, [role="tablist"], .board__grid')) return;
-    const down = ['PageDown', 'ArrowDown'].includes(e.key) || (e.key === ' ' && !e.shiftKey);
-    const up = ['PageUp', 'ArrowUp'].includes(e.key) || (e.key === ' ' && e.shiftKey);
-    if (!down && !up) return;
-    const y = window.scrollY;
-    const vh = window.innerHeight;
-    // inside a section taller than the screen, let the keys scroll it normally
-    const here = stops().find((s) => {
-      const top = s.getBoundingClientRect().top + y;
-      return top <= y + 2 && top + s.offsetHeight > y + 2;
-    });
-    if (here && here.offsetHeight > vh + 2) {
-      const top = here.getBoundingClientRect().top + y;
-      if ((down && y + vh < top + here.offsetHeight - 2) || (up && y > top + 2)) return;
-    }
-    e.preventDefault();
-    if (locked) return;
-    const tops = stops().map((s) => Math.round(s.getBoundingClientRect().top + y));
-    const max = document.documentElement.scrollHeight - vh;
-    const target = down ? tops.find((t) => t > y + 4) : [...tops].reverse().find((t) => t < y - 4);
-    if (target === undefined) return;
-    locked = true;
-    lastWheel = 0;
-    unlockAt = performance.now() + (reducedMotion ? 150 : GLIDE_MS + 50);
-    glideTo(Math.min(target, max));
-    tryUnlock();
-  });
+    const tick = () => {
+      current += (target - current) * EASE;
+      if (Math.abs(target - current) < 0.5) current = target;
+      window.scrollTo({ top: current, behavior: 'instant' as ScrollBehavior });
+      if (current !== target) requestAnimationFrame(tick);
+      else running = false;
+    };
+    window.addEventListener(
+      'wheel',
+      (e) => {
+        if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // pinch-zoom or sideways scroll
+        if (scrollsItself(e.target as Element, e.deltaY)) return;
+        e.preventDefault();
+        const step = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+        if (!running) target = current = window.scrollY;
+        target = Math.max(0, Math.min(maxY(), target + step));
+        if (!running) {
+          running = true;
+          requestAnimationFrame(tick);
+        }
+      },
+      { passive: false },
+    );
+    // keyboard, scrollbar or link jumps: follow them so the next wheel glide starts from there
+    window.addEventListener('scroll', () => {
+      if (!running) target = current = window.scrollY;
+    }, { passive: true });
+  }
 </script>
 
 
