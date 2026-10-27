@@ -6,7 +6,7 @@
 // (this absorbs the old "Property in Pune is hard" section).
 // Reduced motion: the finished home is shown and all steps are equally visible.
 import home from '../../data/home.json';
-import { site, telHref, waHref } from '../../lib/site';
+import { waHref } from '../../lib/site';
 
 const byName = Object.fromEntries(home.problems.map((p) => [p.problem, p]));
 // Which problem each step solves
@@ -116,7 +116,6 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
       <p><strong>Ready for step 1?</strong> A 10-minute requirement call is all it takes to start.</p>
       <div class="ptk__btns">
         <a class="ptk__btn" href={wa} target="_blank" rel="noopener" data-cta="how-we-work">Start with step 1 <span aria-hidden="true">→</span></a>
-        <a class="ptk__call" href={telHref} data-cta="how-we-work">or call <span class="num">{site.phone.display}</span></a>
       </div>
     </div>
   </div>
@@ -597,10 +596,6 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
   .ptk__btn:hover {
     transform: translateY(-1px);
   }
-  .ptk__call {
-    font-family: var(--font-sans);
-    color: #f6e8ec;
-  }
 
   /* ---------- Entrance ---------- */
   @media all {
@@ -677,7 +672,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
 
   .ptk__lead { margin-top: 10px; }
   @media (max-width: 899px) {
-    .ptk__lead, .ptk__cta p, .ptk__call { display: none; }
+    .ptk__lead, .ptk__cta p { display: none; }
     .ptk__title { font-size: 1.8rem; }
     .ptk__art { grid-template-columns: 110px minmax(0, 1fr); }
     .step__problem { display: none; }
@@ -708,6 +703,22 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     .step__solves {
       display: none;
     }
+  }
+  /* Heading centred across the section, above the drawing and the steps */
+  @media (min-width: 900px) {
+    .ptk__grid {
+      grid-template-areas: 'head head' 'art list';
+      grid-template-rows: auto 1fr;
+      row-gap: clamp(12px, 2.4vh, 28px);
+    }
+    .ptk__head {
+      justify-self: center;
+      text-align: center;
+    }
+  }
+  /* Dark bar: text at the left, button at the right */
+  .ptk__cta {
+    justify-content: space-between;
   }
 </style>
 
