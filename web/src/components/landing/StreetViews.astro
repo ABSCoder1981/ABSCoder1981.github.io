@@ -146,6 +146,7 @@ const areas = localities.map((l) => {
 
     <!-- Part 1: street views -->
     <div class="lx__tabs" role="tablist" aria-label="Neighbourhoods">
+      <span class="lx__pill" aria-hidden="true"></span>
       {
         areas.map((a, i) => (
           <button
@@ -327,9 +328,52 @@ const areas = localities.map((l) => {
     color: #c8123f;
   }
   .lx__tab[aria-selected='true'] {
-    background: #fff;
     color: #c8123f;
+  }
+  /* The white highlight is one pill that slides to the selected tab */
+  .lx__tabs {
+    position: relative;
+  }
+  .lx__tab {
+    position: relative;
+    z-index: 1;
+    transition: color 0.35s ease;
+  }
+  .lx__pill {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    height: 44px;
+    width: 0;
+    border-radius: 9999px;
+    background: #fff;
     box-shadow: 0 6px 16px rgba(13, 37, 61, 0.1);
+    pointer-events: none;
+    transition:
+      transform 0.55s cubic-bezier(0.65, 0, 0.35, 1),
+      width 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .lx__pill.no-anim {
+    transition: none;
+  }
+  /* The new area's panel slides in from the side you moved towards */
+  .lx__panel.slide-next {
+    animation: lx-slide-next 0.6s cubic-bezier(0.22, 0.7, 0.2, 1) both;
+  }
+  .lx__panel.slide-prev {
+    animation: lx-slide-prev 0.6s cubic-bezier(0.22, 0.7, 0.2, 1) both;
+  }
+  @keyframes lx-slide-next {
+    from {
+      opacity: 0;
+      transform: translateX(48px);
+    }
+  }
+  @keyframes lx-slide-prev {
+    from {
+      opacity: 0;
+      transform: translateX(-48px);
+    }
   }
   .lx__tab:focus-visible {
     outline: none;
@@ -610,7 +654,28 @@ const areas = localities.map((l) => {
     const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')!)!);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // move the highlight pill under tab i (instantly on first paint and on resize)
+    const pill = root.querySelector<HTMLElement>('.lx__pill');
+    let current = Math.max(0, tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true'));
+    const placePill = (i: number, animate = true) => {
+      if (!pill) return;
+      pill.classList.toggle('no-anim', !animate);
+      pill.style.width = `${tabs[i].offsetWidth}px`;
+      pill.style.transform = `translateX(${tabs[i].offsetLeft}px)`;
+    };
+    placePill(current, false);
+    document.fonts?.ready.then(() => placePill(current, false));
+    window.addEventListener('resize', () => placePill(current, false));
+
     const select = (i: number, focus = false) => {
+      if (i !== current) {
+        const dir = i > current ? 'slide-next' : 'slide-prev';
+        panels[i].classList.remove('slide-next', 'slide-prev');
+        void panels[i].offsetWidth; // restart the slide if the same panel is shown again
+        panels[i].classList.add(dir);
+      }
+      current = i;
+      placePill(i);
       tabs.forEach((t, k) => {
         const on = k === i;
         t.setAttribute('aria-selected', String(on));
