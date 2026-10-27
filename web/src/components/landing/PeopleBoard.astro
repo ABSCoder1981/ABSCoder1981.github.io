@@ -125,7 +125,7 @@ const wa = waHref('talking to your team', 'Landing page · our people');
                 <span class="pillar__name">{p.title}</span>
               </button>
               <p class="pillar__text" id={`pillar-${i}`} data-pillar-text={i} hidden={i !== 0}>
-                <strong>{p.title}.</strong> {p.text}
+                {p.text}
               </p>
             </div>
           ))
@@ -729,6 +729,43 @@ const wa = waHref('talking to your team', 'Landing page · our people');
     .pillars__row { margin-top: 0; }
     .pillar { flex-basis: 64%; padding: 12px 14px; }
     .pillar__text, .pillar__text[hidden] { font-size: 0.875rem; }
+  }
+
+  /* Pillars: the hovered / selected pillar fills with the dark wine colour */
+  .pillar__btn:hover .pillar__shaft,
+  .pillar__btn[aria-expanded='true'] .pillar__shaft {
+    border-color: #1d0f16;
+    background-color: #1d0f16;
+  }
+  @media (min-width: 900px) {
+    /* the reason under the foundation: one line, the pillar name is not repeated */
+    .pillars__reason {
+      max-width: 100%;
+      min-height: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Founder photo: as tall as the message beside it (bottom lines up with the signature) */
+    .founder {
+      align-items: stretch;
+    }
+    .frame--lg {
+      display: flex;
+      flex-direction: column;
+    }
+    .frame--lg :global(picture) {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 140px;
+    }
+    .frame--lg :global(.photo) {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      max-height: none;
+      aspect-ratio: auto;
+    }
   }
 </style>
 
