@@ -91,7 +91,6 @@ const wa = waHref('talking to your team', 'Landing page · our people');
               <div class="mcard__who">
                 <h3 class="mcard__name">{m.name}</h3>
                 <p class="mcard__role">{m.role.replace(', Kothrud', '')}</p>
-                <p class="mcard__focus">{m.note}</p>
               </div>
               <p class="mcard__bio">{m.bio}</p>
             </li>
@@ -388,25 +387,6 @@ const wa = waHref('talking to your team', 'Landing page · our people');
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: #b80f3a;
-  }
-  .mcard__focus {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin: 8px 0 0;
-    padding: 3px 10px;
-    border-radius: 9999px;
-    background: #fdecf0;
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: #344559;
-  }
-  .mcard__focus::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #e8104c;
   }
   .mcard__bio {
     margin: 12px 0 0;
@@ -746,7 +726,6 @@ const wa = waHref('talking to your team', 'Landing page · our people');
     .mcard .frame :global(.photo) { max-height: 20svh; }
     .mcard__name { font-size: 1rem; }
     .mcard__role { font-size: 0.625rem; letter-spacing: 0.1em; }
-    .mcard__focus { display: none; }
     .pillars__row { margin-top: 0; }
     .pillar { flex-basis: 64%; padding: 12px 14px; }
     .pillar__text, .pillar__text[hidden] { font-size: 0.875rem; }
