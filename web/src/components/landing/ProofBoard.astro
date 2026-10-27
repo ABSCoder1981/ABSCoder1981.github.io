@@ -358,6 +358,7 @@ const story = people.reviews[0];
     background: #fff;
     border: 1px solid rgba(13, 37, 61, 0.08);
     box-shadow: 0 6px 16px rgba(13, 37, 61, 0.05);
+    overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   .plaque::after {
@@ -372,9 +373,12 @@ const story = people.reviews[0];
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
+  /* the logo always fits inside its tile, whatever the tile height (tiles shrink on short screens) */
   .plaque :global(img) {
-    max-height: 50px;
+    max-height: min(50px, 100%);
     max-width: 100%;
+    min-width: 0;
+    min-height: 0;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -558,7 +562,7 @@ const story = people.reviews[0];
   .proof__cards, .proof__grid { margin-top: clamp(16px, 3.5vh, 44px); }
   .pcard { padding: clamp(14px, 2.4vh, 28px) 22px clamp(12px, 2vh, 24px); }
   .partners { padding: 16px 0 12px; }
-  .plaque { height: clamp(56px, 8vh, 84px); }
+  .plaque { height: clamp(56px, 8vh, 84px); padding-block: clamp(7px, 1.4vh, 12px); }
   @media (max-width: 699px) {
     .proof__title { font-size: 1.9rem; }
     .proof__lead, .pcard__note, .marquee__row--rev { display: none; }
