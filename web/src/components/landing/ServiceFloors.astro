@@ -71,7 +71,7 @@ const wa = waHref('your property services', 'Landing page · services');
 
     <div class="floors__grid">
       <header class="floors__head">
-        <h2 id="floors-h" class="floors__title">Everything you need <em>to buy, sell or invest.</em></h2>
+        <h2 id="floors-h" class="floors__title">Our <em>Services</em></h2>
         <p class="floors__lead">Seven services, one team. Pick a floor to see how we help.</p>
       </header>
       <!-- Left: the building -->
@@ -490,6 +490,7 @@ const wa = waHref('your property services', 'Landing page · services');
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between; /* question left, button centre, WhatsApp right */
     gap: 14px 18px;
     margin-top: clamp(36px, 5vw, 56px);
     padding: 20px 24px;
@@ -629,6 +630,16 @@ const wa = waHref('your property services', 'Landing page · services');
     .floor__link { margin: 4px 0 10px; }
     .floors__unsure { justify-content: center; }
   }
+  /* floors of the building are hoverable, in sync with the list */
+  .floors__art .f-floor {
+    cursor: pointer;
+  }
+  .floors__art .f-floor .f-fill {
+    pointer-events: all;
+  }
+  .floors__art .f-floor:hover:not(.is-active) .f-fill {
+    opacity: 0.05;
+  }
 </style>
 
 <script>
@@ -652,6 +663,15 @@ const wa = waHref('your property services', 'Landing page · services');
     };
 
     arts[0]?.classList.add('is-active');
+    // The building works the other way too: hovering or clicking a floor opens that service on the right
+    arts.forEach((g, i) => {
+      g.addEventListener('click', () => open(i));
+      if (canHover) {
+        let t: number | undefined;
+        g.addEventListener('mouseenter', () => (t = window.setTimeout(() => open(i), 140)));
+        g.addEventListener('mouseleave', () => window.clearTimeout(t));
+      }
+    });
     rows.forEach((row, i) => {
       row.querySelector('button')!.addEventListener('click', () => open(i));
       // Desktop: hovering a floor opens it (small delay so passing the mouse over doesn't flicker)
