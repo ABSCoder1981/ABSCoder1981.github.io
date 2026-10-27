@@ -117,7 +117,7 @@ if (SUBMIT) {
 
   // locality pre-set on a locality page
   await page.goto(`${BASE}/warje`, { waitUntil: 'networkidle' });
-  const loc = await page.locator('form.ef select[name="locality"]').first().inputValue();
+  const loc = await page.locator('form.ef [name="locality"]').first().inputValue();
   if (loc !== 'Warje') problems.push(`form: locality not pre-set on /warje (got "${loc}")`);
 
   // --- failure path: API unreachable → phone + WhatsApp shown ---

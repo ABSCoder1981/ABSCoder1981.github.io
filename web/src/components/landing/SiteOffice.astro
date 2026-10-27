@@ -193,19 +193,6 @@ const offices = site.offices;
     border: 1px solid rgba(13, 37, 61, 0.1);
     box-shadow: 0 10px 24px rgba(13, 37, 61, 0.05);
   }
-  .office::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 16px;
-    bottom: 16px;
-    width: 3px;
-    border-radius: 3px;
-    background: rgba(13, 37, 61, 0.15);
-  }
-  .office--hq::before {
-    background: #e8104c;
-  }
   .office__name {
     display: flex;
     align-items: center;
@@ -284,12 +271,12 @@ const offices = site.offices;
     color: #4e5d73;
   }
   .ch--wa {
-    background: #0f7a40;
-    border-color: #0f7a40;
+    background: #25d366; /* WhatsApp brand green, as on the floating button */
+    border-color: #25d366;
     color: #fff;
   }
   .ch--wa small {
-    color: #d7f0e1;
+    color: #f2fff7;
   }
 
   /* requirement sheet frame */
@@ -478,6 +465,23 @@ const offices = site.offices;
     .sheet :global(.ef--sheet .ef__h) { font-size: 1.125rem; }
     .sheet :global(.ef--sheet input:not([type="radio"])), .sheet :global(.ef--sheet select) { min-height: 42px; }
     .sheet :global(.ef--sheet textarea) { min-height: 42px; }
+  }
+
+  /* Locality picker in the sheet style; the requirement box matches its height so the row lines up */
+  .sheet :global(.ef--sheet .lp__btn) {
+    min-height: 46px;
+    border-width: 0 0 1.5px;
+    border-radius: 0;
+    background: #fbfaf7;
+  }
+  .sheet :global(.ef--sheet .lp.is-open .lp__btn),
+  .sheet :global(.ef--sheet .lp__btn:focus-visible) {
+    box-shadow: 0 2px 0 0 var(--primary);
+  }
+  .sheet :global(.ef--sheet textarea) {
+    height: 46px;
+    min-height: 46px !important;
+    resize: none;
   }
 </style>
 

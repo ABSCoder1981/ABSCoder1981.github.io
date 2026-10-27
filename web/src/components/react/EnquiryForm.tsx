@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import Icon from './Icon';
+import LocalityPicker from './LocalityPicker';
 import './EnquiryForm.css';
 
 type Intent = 'buy' | 'sell' | 'rent' | 'invest';
@@ -248,20 +249,12 @@ export default function EnquiryForm({
 
         {!sheet && intentField}
 
-        <label className="ef__field">
-          <span>
+        <div className="ef__field">
+          <span id={`${uid}-loc`}>
             Locality <span className="ef__opt">(optional)</span>
           </span>
-          <select name="locality" defaultValue={presetLocality}>
-            <option value="">Any / not sure</option>
-            {localities.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-            <option value="Other">Other area</option>
-          </select>
-        </label>
+          <LocalityPicker name="locality" localities={localities} defaultValue={presetLocality} labelId={`${uid}-loc`} />
+        </div>
 
         <label className="ef__field ef__full">
           <span>
