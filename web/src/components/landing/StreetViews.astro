@@ -645,6 +645,15 @@ const areas = localities.map((l) => {
     max-width: 100%;
     margin-inline: auto;
   }
+  /* Phones: taller tap target, so the one-screen scaling can shrink this section and still keep it 44px+ */
+  @media (max-width: 767px) {
+    .lx__tab {
+      min-height: 50px;
+    }
+    .lx__pill {
+      height: 50px;
+    }
+  }
 </style>
 
 <script>

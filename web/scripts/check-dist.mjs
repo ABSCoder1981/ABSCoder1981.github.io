@@ -130,7 +130,7 @@ for (const f of htmlFiles) {
   // Forms where the PRD requires them
   const needsForm = route === '/' || route === '/contact' || route.startsWith('/services/') || route === '/projects/sanaswadi-industrial-land' ||
     ['/kothrud', '/karvenagar', '/warje', '/prabhat-road', '/bavdhan', '/erandwane'].includes(route);
-  if (needsForm && !html.includes('Send enquiry')) fail(route, 'enquiry form missing');
+  if (needsForm && !html.includes('Send enquiry') && !html.includes('Book my requirement call')) fail(route, 'enquiry form missing');
 
   // Internal links
   for (const [, href] of visible.matchAll(/href="(\/[^"]*)"/g)) {

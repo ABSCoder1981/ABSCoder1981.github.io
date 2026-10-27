@@ -767,6 +767,13 @@ const wa = waHref('talking to your team', 'Landing page · our people');
       aspect-ratio: auto;
     }
   }
+  /* Phones: taller tap target, so the one-screen scaling can shrink this section and still keep it 44px+ */
+  @media (max-width: 767px) {
+    .pillar__btn {
+      min-height: 52px;
+      justify-content: center;
+    }
+  }
 </style>
 
 <script>

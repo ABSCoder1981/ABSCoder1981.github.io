@@ -650,6 +650,12 @@ const wa = waHref('your property services', 'Landing page · services');
       text-align: center;
     }
   }
+  /* Phones: taller tap target, so the one-screen scaling can shrink this section and still keep it 44px+ */
+  @media (max-width: 767px) {
+    .floor__btn {
+      min-height: 52px;
+    }
+  }
 </style>
 
 <script>

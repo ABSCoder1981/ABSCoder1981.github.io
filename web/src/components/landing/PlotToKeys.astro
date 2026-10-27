@@ -689,6 +689,26 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
       display: contents;
     }
   }
+  /* Phones: taller tap target, so the one-screen scaling can shrink this section and still keep it 44px+ */
+  @media (max-width: 767px) {
+    .step__btn {
+      display: flex;
+      align-items: center;
+      min-height: 52px;
+    }
+  }
+  /* Phones: tighter steps so the section stays one screen with 44px+ step buttons */
+  @media (max-width: 767px) {
+    .ptk__steps {
+      gap: 6px;
+    }
+    .step:not(:last-child)::after {
+      bottom: -6px;
+    }
+    .step__solves {
+      display: none;
+    }
+  }
 </style>
 
 <script>

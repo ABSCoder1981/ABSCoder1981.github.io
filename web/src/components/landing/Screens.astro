@@ -71,9 +71,16 @@
       const cs = getComputedStyle(sec);
       const avail = sec.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
       const need = box.scrollHeight;
-      // on phones, forms and button rows keep full-size (44px+) tap targets: such a section grows instead
-      const keep = window.innerWidth < 768 && !!box.querySelector('form, .btn-row');
-      const z = need > avail && !keep ? Math.max(MIN, avail / need) : 1;
+      // On phones every button keeps a 44px+ tap target: a section is never scaled below the point where
+      // its smallest button would drop under 44px (forms not at all); if it still doesn't fit, it grows instead.
+      let tapMin = 0;
+      if (window.innerWidth < 768) {
+        if (box.querySelector('form, .btn-row')) tapMin = 1;
+        for (const el of box.querySelectorAll<HTMLElement>('a.btn, button, input, select')) {
+          if (el.offsetParent !== null && el.offsetHeight > 0) tapMin = Math.max(tapMin, Math.min(1, 44.5 / el.offsetHeight)); // a hair over 44 survives the rounding below
+        }
+      }
+      const z = need > avail ? Math.max(MIN, avail / need, tapMin) : 1;
       box.style.zoom = String(Math.floor(z * 1000) / 1000);
       // still too tall even at the minimum: let this one section grow rather than cut content
       sec.classList.toggle('is-overfull', need * z > avail + 2);
