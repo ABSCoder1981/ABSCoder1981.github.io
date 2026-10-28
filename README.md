@@ -52,7 +52,27 @@ Pointed at staging, `npm run e2e -- --no-submit` checks the live pages without s
 
 ## Deploy
 
-**One-time VPS setup** (Ubuntu 22.04/24.04). Copy the repo's `deploy/` and `api/.env.example` to the server, then:
+**Current setup: the shared VPS (139.84.147.129).** The VPS also runs the CRM, careers and EasyWork, so it uses
+`deploy/setup-shared-vps.sh`, which leaves their firewall, system Node, nginx sites and `/var/www/ashiyana` untouched.
+The site lives in `/var/www/ashiyana-website/` (release folders plus `staging` / `production` symlinks). The
+enquiry API runs from `/opt/ashiyana-api` on its own Node 22 (`/opt/ashiyana-node22`).
+
+The careers portal (source: `ashiyana-crm/careers`, never copied here) is built with `CAREERS_BASE=/careers/` into
+each release and served at `/careers` (`deploy/nginx/snippets/ashiyana-careers.conf`).
+
+From Git Bash on the office PC (SSH key `~/.ssh/ashiyana_vps`):
+
+```bash
+# once, as root on the VPS, from /root/ashiyana-website-deploy/deploy:
+bash setup-shared-vps.sh base        # folders, Node 22 for the API, API service, nginx snippets
+bash setup-shared-vps.sh staging     # certificate + nginx site for staging.ashiyanarealestate.in
+# every deploy, from this PC:
+bash deploy/deploy.sh staging        # or: production
+```
+
+Until SMTP is filled in `/etc/ashiyana-api.env` (and `NODE_ENV=production` set there), enquiries are only logged.
+
+**Dedicated-server setup (reference)** (Ubuntu 22.04/24.04). Copy the repo's `deploy/` and `api/.env.example` to the server, then:
 
 ```bash
 sudo DEPLOY_PUBKEY="ssh-ed25519 AAAA… github-actions" bash deploy/setup-vps.sh base

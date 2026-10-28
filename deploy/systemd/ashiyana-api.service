@@ -11,8 +11,9 @@ User=ashiyana-api
 Group=ashiyana-api
 WorkingDirectory=/opt/ashiyana-api
 EnvironmentFile=/etc/ashiyana-api.env
-Environment=NODE_ENV=production
-ExecStart=/usr/bin/node src/server.js
+# NODE_ENV comes from the env file: production (SMTP required) or staging (enquiries only logged)
+# Its own Node 22 (the VPS's system Node serves other apps and stays as it is)
+ExecStart=/opt/ashiyana-node22/bin/node src/server.js
 Restart=on-failure
 RestartSec=3
 
