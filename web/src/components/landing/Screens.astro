@@ -58,6 +58,7 @@
       const box = sec.querySelector<HTMLElement>(':scope > .container');
       if (!box) continue;
       box.style.zoom = '1';
+      box.style.setProperty('--fit-zoom', '1');
       sec.classList.remove('is-overfull'); // measure against one screen, not a previously grown section
       const cs = getComputedStyle(sec);
       const avail = sec.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
@@ -71,10 +72,20 @@
           if (el.offsetParent !== null && el.offsetHeight > 0) tapMin = Math.max(tapMin, Math.min(1, 44.5 / el.offsetHeight)); // a hair over 44 survives the rounding below
         }
       }
-      const z = need > avail ? Math.max(MIN, avail / need, tapMin) : 1;
-      box.style.zoom = String(Math.floor(z * 1000) / 1000);
+      let z = need > avail ? Math.max(MIN, avail / need, tapMin) : 1;
+      // Section headings are counter-scaled (same size in every section), which makes the content a little
+      // taller again: re-measure and settle the scale in a couple of passes.
+      let h = need;
+      for (let pass = 0; pass < 3; pass++) {
+        z = Math.floor(z * 1000) / 1000;
+        box.style.zoom = String(z);
+        box.style.setProperty('--fit-zoom', String(z));
+        h = box.scrollHeight;
+        if (h * z <= avail + 1 || z <= Math.max(MIN, tapMin)) break;
+        z = Math.max(MIN, tapMin, avail / h);
+      }
       // still too tall even at the minimum: let this one section grow rather than cut content
-      sec.classList.toggle('is-overfull', need * z > avail + 2);
+      sec.classList.toggle('is-overfull', h * z > avail + 2);
     }
   };
   let t: number | undefined;

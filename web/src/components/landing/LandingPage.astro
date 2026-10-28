@@ -607,3 +607,26 @@ const words = ['home', 'buyer', 'land', 'investment'];
     }
   }
 </style>
+
+<style is:global>
+  /* Section headings: one size everywhere (the fit script sets --fit-zoom, the headings undo it) */
+  :root {
+    --sec-h: clamp(2rem, 1.3rem + 2.6vw, 3.25rem);
+  }
+  @media (max-height: 820px) {
+    :root {
+      --sec-h: clamp(1.6rem, 4.6vh, 2.4rem);
+    }
+  }
+  @media (max-width: 767px) {
+    :root {
+      --sec-h: 1.8rem;
+    }
+  }
+  [data-screen] :is(.proof__title, .floors__title, .ptk__title, .lx__title, .pb__title, .cb__title, .so__title) {
+    font-size: calc(var(--sec-h) / var(--fit-zoom, 1)) !important;
+    font-weight: 400 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.015em !important;
+  }
+</style>
