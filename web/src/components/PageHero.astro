@@ -262,4 +262,36 @@ const { eyebrow, title, summary, pageName, waInterest, buttons = true } = Astro.
       font-size: 0.8125rem;
     }
   }
+  /* Short phones: tighter hero so the sketch below it stays visible */
+  @media (max-width: 767px) and (max-height: 760px) {
+    .page-hero__eyebrow {
+      margin-bottom: 10px;
+    }
+    .page-hero__title {
+      font-size: 1.75rem;
+    }
+    .page-hero__lead {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .ph-btn {
+      min-height: 46px;
+    }
+    .page-hero__ctas {
+      margin-top: 14px;
+      gap: 10px;
+    }
+    /* side cards: shorter on small screens */
+    .page-hero__aside > :global(*) {
+      padding: 12px 14px !important;
+    }
+    .page-hero__aside :global(.icon-badge) {
+      display: none;
+    }
+    .page-hero__aside :global(.check-list li:nth-child(n + 3)) {
+      display: none;
+    }
+  }
 </style>

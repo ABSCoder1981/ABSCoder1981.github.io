@@ -597,4 +597,13 @@ const words = ['home', 'buyer', 'land', 'investment'];
       min-height: 46px;
     }
   }
+  /* Short phones (e.g. 320x568, 375x667): drop the description so the tower sketch keeps room below the buttons */
+  @media (max-width: 767px) and (max-height: 700px) {
+    .hero__lead {
+      display: none;
+    }
+    .hero__ctas {
+      margin-top: 16px;
+    }
+  }
 </style>
