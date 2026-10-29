@@ -47,7 +47,10 @@ const words = ['home', 'buyer', 'land', 'investment'];
     <TowerSketch />
     <div class="hero__veil" aria-hidden="true"></div>
 
-    <div class="hero__content">
+    <!-- Phones: the first screen is the route map; the text below follows on scroll -->
+    <MiniRouteMap />
+
+    <div class="hero__content" id="hero-text">
       <h1 id="hero-title" class="hero__title">
         <span class="hero__line">Find the right</span>
         <span class="sr-only">{words[0]}</span>
@@ -85,8 +88,6 @@ const words = ['home', 'buyer', 'land', 'investment'];
           </li>
         </ul>
       </nav>
-      <!-- Phones: compact route map (the desktop pins and routes need a wide screen) -->
-      <MiniRouteMap />
     </div>
   </section>
 
@@ -542,42 +543,45 @@ const words = ['home', 'buyer', 'land', 'investment'];
     }
   }
 
-  /* ---------- Mobile: centred content, bottom-up veil ---------- */
-  /* Phones: the text sits in the top part of the screen and the lower part is kept clear,
-     so the animated tower sketch is actually seen (the veil only covers the text area). */
+  /* ---------- Mobile: first screen = the route map, text below ---------- */
+  /* Phones: like the laptop view, the opening screen is the map (pins, routes, towers behind);
+     the headline, description and buttons come next as the visitor scrolls. */
   @media (max-width: 767px) {
     .hero {
-      align-items: flex-start;
+      flex-direction: column;
+      align-items: stretch;
     }
-    /* the phone route map sits over the towers (as on desktop), so they step back a little once it arrives */
+    /* the desktop map layers are sized for a wide screen; phones use MiniRouteMap instead */
+    .hero :global(.map-stage) {
+      display: none;
+    }
+    /* the towers fill the first screen behind the map and step back a little once it arrives */
     .hero :global(.tower-sketch) {
       animation: towers-settle-phone 2s ease 2.4s forwards;
       opacity: 1;
-      /* the whole skyline (towers, crane) in the clear lower part, above the Call/WhatsApp bar */
-      top: auto;
-      bottom: var(--bar-h, 64px);
-      height: 48%;
+      top: 0;
+      bottom: auto;
+      height: 100vh;
+      height: 100svh;
     }
     .hero__veil {
+      bottom: auto;
+      height: 100vh;
+      height: 100svh;
       background: linear-gradient(
         180deg,
-        rgba(251, 250, 247, 0.9) 0%,
-        rgba(251, 250, 247, 0.9) 52%,
-        rgba(251, 250, 247, 0.5) 62%,
-        rgba(251, 250, 247, 0) 72%
+        rgba(251, 250, 247, 0.6) 0%,
+        rgba(251, 250, 247, 0.25) 45%,
+        rgba(251, 250, 247, 0.55) 85%,
+        rgba(251, 250, 247, 0.95) 100%
       );
     }
-    /* a full-height column, so the route map takes whatever room is left above the Call/WhatsApp bar */
     .hero__content {
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      min-height: 100vh;
-      min-height: 100svh;
-      padding: 100px 20px calc(var(--bar-h, 64px) + 12px);
+      padding: 40px 20px 56px;
     }
-    .hero__content > :global(.mr) {
-      max-width: 440px;
+    /* the map already shows every area, so no chips row on phones */
+    .hero__areas {
+      display: none !important;
     }
     .hero__title {
       font-size: clamp(2rem, 9.5vw, 2.6rem);
@@ -618,15 +622,6 @@ const words = ['home', 'buyer', 'land', 'investment'];
       flex: 1 1 100%;
       max-width: 340px;
       min-height: 46px;
-    }
-  }
-  /* Short phones (e.g. 320x568, 375x667): drop the description so the tower sketch keeps room below the buttons */
-  @media (max-width: 767px) and (max-height: 700px) {
-    .hero__lead {
-      display: none;
-    }
-    .hero__ctas {
-      margin-top: 16px;
     }
   }
 </style>

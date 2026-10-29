@@ -118,7 +118,6 @@ for (const f of htmlFiles) {
   // Conversion: Call + WhatsApp everywhere, canonical, copyright
   if (!html.includes('href="tel:+917499914181"')) fail(route, 'no tel: link');
   if (!/href="https:\/\/wa\.me\/917499914181\?text=/.test(html)) fail(route, 'no WhatsApp link with pre-filled text');
-  if (!html.includes('class="mobile-bar"')) fail(route, 'no mobile Call | WhatsApp bar');
   if (!html.includes('© 2026 Ashiyana Real Estate. All rights reserved.')) fail(route, 'footer copyright missing');
   if (!/<link rel="canonical" href="https:\/\/www\.ashiyanarealestate\.in[^"]*"/.test(html)) fail(route, 'canonical missing');
   if (/<iframe/i.test(visible)) fail(route, 'embedded iframe (PRD: map link only)');

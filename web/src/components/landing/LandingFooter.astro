@@ -383,10 +383,10 @@ const ICONS: Record<string, string> = {
     padding-top: clamp(32px, 4vw, 48px);
     padding-bottom: 20px;
   }
-  /* keep the copyright line above the mobile Call/WhatsApp bar */
+  /* keep the copyright line clear of the phone's home indicator */
   @media (max-width: 767px) {
     .tf {
-      padding-bottom: calc(64px + env(safe-area-inset-bottom) + 20px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
     }
   }
   .tf__sheet {

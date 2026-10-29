@@ -1,60 +1,90 @@
 ---
-// Phones only: a compact version of the hero's route map (PuneMap's pins and routes need a wide screen).
-// Kothrud head office at the bottom centre, routes to each area and to the Baner office. The routes draw in,
-// then a dot travels Kothrud → each area in turn (the route turns solid, like hovering a pin on desktop) and
-// the matching area chip above lights up. Tapping an area on the map plays its route straight away.
-import { localities } from '../../lib/site';
+// Phones only: the hero's first screen is the route map, in the same look as the desktop map
+// (PuneMap's pins and routes need a wide screen). The headline and buttons follow below it.
+// Kothrud head office at the bottom, Baner office and the areas up the sides as pin cards with
+// distances. The routes draw in, then a dot travels Kothrud → each area in turn (the route turns
+// solid and the pin lights up, like hovering a pin on desktop). Pins link to their area pages.
+import { localities, site } from '../../lib/site';
 
-const VB = { w: 400, h: 250 };
-const HUB = { x: 200, y: 214 };
-// Same directions as the desktop map (west left, east right, north up), squeezed to a phone-wide box
-const places: { slug: string; name: string; x: number; y: number; side: 'left' | 'right' }[] = [
-  { slug: 'baner', name: 'Baner office', x: 92, y: 22, side: 'left' },
-  { slug: 'bavdhan', name: 'Bavdhan', x: 64, y: 78, side: 'left' },
-  { slug: 'warje', name: 'Warje', x: 50, y: 160, side: 'left' },
-  { slug: 'prabhat-road', name: 'Prabhat Road', x: 336, y: 40, side: 'right' },
-  { slug: 'erandwane', name: 'Erandwane', x: 350, y: 100, side: 'right' },
-  { slug: 'karvenagar', name: 'Karvenagar', x: 340, y: 164, side: 'right' },
-];
-const known = new Set(['baner', ...localities.map((l) => l.slug)]);
-// Leaves the hub sideways like a road, then bends up to the area (as on the desktop map)
-const routeD = (to: { x: number; y: number }, office = false) => {
-  const c = office ? { x: 30, y: HUB.y } : { x: HUB.x * 0.35 + to.x * 0.65, y: HUB.y * 0.86 + to.y * 0.14 };
+// Portrait stage; SVG and pins share it (pins are placed in %)
+const VB = { w: 400, h: 760 };
+const HUB = { x: 200, y: 640 };
+const branch = site.offices.find((o) => o.id === 'baner')!;
+const shortDistance = (d: string) => {
+  const km = d.match(/([\d.]+)\s*km/);
+  return km ? `~${km[1]} km from our office` : '';
+};
+// West on the left, east on the right, north up (as on the desktop map). Left and right pins
+// alternate in height, so their cards never meet in the middle on narrow phones.
+const layout: Record<string, { x: number; y: number; side: 'left' | 'right' }> = {
+  bavdhan: { x: 46, y: 250, side: 'left' },
+  warje: { x: 40, y: 440, side: 'left' },
+  'prabhat-road': { x: 356, y: 155, side: 'right' },
+  erandwane: { x: 362, y: 345, side: 'right' },
+  karvenagar: { x: 352, y: 530, side: 'right' },
+};
+const routeD = (to: { x: number; y: number }) => {
+  const c = { x: HUB.x * 0.35 + to.x * 0.65, y: HUB.y * 0.86 + to.y * 0.14 };
   return `M${HUB.x} ${HUB.y}Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${to.x} ${to.y}`;
 };
-const routes = places.filter((p) => known.has(p.slug)).map((p, i) => ({ ...p, i, d: routeD(p, p.slug === 'baner') }));
+const BANER = { x: 58, y: 62 };
+const pins = [
+  { slug: 'baner', name: 'Baner', sub: 'Branch office · Directions ↗', href: branch.mapUrl, external: true, ...BANER, side: 'left' as const, d: `M${HUB.x} ${HUB.y}Q14 ${HUB.y} ${BANER.x} ${BANER.y}`, office: true },
+  ...localities
+    .filter((l) => layout[l.slug])
+    .map((l) => ({ slug: l.slug, name: l.name, sub: shortDistance(l.distance), href: `/${l.slug}`, external: false, ...layout[l.slug], d: routeD(layout[l.slug]), office: false })),
+].map((p, i) => ({ ...p, i }));
+const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
 ---
 
 <div class="mr" data-mini-map>
-  <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map: routes from our Kothrud office to the areas we work in">
+  <div class="mr__stage">
+    <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <!-- faint base: river and highway, as on the desktop map -->
+      <path class="mr-river" d="M-10 590C90 560 150 610 230 585S340 520 410 535" />
+      <path class="mr-hwy" d="M96 -10C80 200 112 420 84 770" />
+      {
+        pins.map((p) => (
+          <g class:list={['mr-route', { 'mr-route--office': p.office }]} data-mr={p.slug} style={`--i:${p.i}`}>
+            <path class="mr-line" d={p.d} pathLength="1" />
+            <path class="mr-trail" d={p.d} pathLength="1" />
+            <circle class="mr-lead" r="6">
+              <animateMotion dur="1.2s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" path={p.d} />
+            </circle>
+          </g>
+        ))
+      }
+    </svg>
+
     {
-      routes.map((r) => (
-        <g class:list={['mr-route', { 'mr-route--office': r.slug === 'baner' }]} data-mr={r.slug} style={`--i:${r.i}`}>
-          <path class="mr-line" d={r.d} pathLength="1" />
-          <path class="mr-trail" d={r.d} pathLength="1" />
-          <circle class="mr-lead" r="5.5">
-            <animateMotion dur="1.1s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" path={r.d} />
-          </circle>
-        </g>
+      pins.map((p) => (
+        <a
+          class:list={['mr-pin', `mr-pin--${p.side}`, { 'mr-pin--office': p.office }]}
+          href={p.href}
+          {...(p.external ? { target: '_blank', rel: 'noopener' } : {})}
+          data-mr-node={p.slug}
+          style={`left:${pct(p.x, VB.w)};top:${pct(p.y, VB.h)};--i:${p.i}`}
+        >
+          <span class="mr-pin__dot" aria-hidden="true" />
+          <span class="mr-pin__card">
+            <strong>{p.name}</strong>
+            <span>{p.sub}</span>
+          </span>
+        </a>
       ))
     }
-    {
-      routes.map((r) => (
-        <g class="mr-node" data-mr-node={r.slug} style={`--i:${r.i}`} role="button" tabindex="0" aria-label={`Show the route from Kothrud to ${r.name}`}>
-          <circle class="mr-hit" cx={r.x} cy={r.y} r="22" />
-          <circle class="mr-dot" cx={r.x} cy={r.y} r="5" />
-          <text x={r.side === 'left' ? r.x + 10 : r.x - 10} y={r.y + 4.5} text-anchor={r.side === 'left' ? 'start' : 'end'}>
-            {r.name}
-          </text>
-        </g>
-      ))
-    }
-    <g class="mr-hub">
-      <circle class="mr-hub__pulse" cx={HUB.x} cy={HUB.y} r="7" />
-      <circle class="mr-hub__dot" cx={HUB.x} cy={HUB.y} r="7" />
-      <text x={HUB.x} y={HUB.y + 26} text-anchor="middle">Kothrud · Head office</text>
-    </g>
-  </svg>
+    <a class="mr-pin mr-pin--hub" href="/kothrud" style={`left:${pct(HUB.x, VB.w)};top:${pct(HUB.y, VB.h)}`}>
+      <span class="mr-pin__dot" aria-hidden="true"><span class="mr-pin__pulse" /></span>
+      <span class="mr-pin__card">
+        <strong>Kothrud</strong>
+        <span>Head office · Karve Statue</span>
+      </span>
+    </a>
+    <p class="mr-caption"><span aria-hidden="true"></span> 2 offices · West Pune</p>
+  </div>
+  <a class="mr__more" href="#hero-text" aria-label="Scroll down">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  </a>
 </div>
 
 <style>
@@ -64,38 +94,60 @@ const routes = places.filter((p) => known.has(p.slug)).map((p, i) => ({ ...p, i,
   }
   @media (max-width: 767px) {
     .mr {
-      display: block;
-      flex: 1 1 0;
-      width: 100%;
-      min-height: 150px;
-      max-height: 300px;
-      margin-top: 10px;
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      height: 100vh;
+      height: 100svh;
+      min-height: 520px;
+      padding: 104px 14px calc(44px + env(safe-area-inset-bottom, 0px));
     }
   }
-  .mr {
-    pointer-events: auto; /* the hero's content wrapper turns clicks off for itself */
+  .mr__stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
   }
-  .mr svg {
-    display: block;
+  .mr__stage svg {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     overflow: visible;
   }
 
-  /* routes: dashed, drawn in one after another */
+  /* ---------- base map ---------- */
+  .mr-river {
+    fill: none;
+    stroke: #e8104c;
+    stroke-width: 7;
+    stroke-linecap: round;
+    opacity: 0.07;
+  }
+  .mr-hwy {
+    fill: none;
+    stroke: #3d4a5c;
+    stroke-width: 5;
+    opacity: 0.08;
+  }
+
+  /* ---------- routes: dashed, drawn in one after another ---------- */
   .mr-line {
     fill: none;
     stroke: #c8123f;
-    stroke-width: 1.8;
+    stroke-width: 1.6;
     stroke-linecap: round;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    opacity: 0.6;
-    animation: mr-draw 1.2s ease calc(1.2s + var(--i) * 0.25s) forwards;
+    opacity: 0.55;
+    animation: mr-draw 1.3s ease calc(1s + var(--i) * 0.3s) forwards;
   }
   .mr-route--office .mr-line {
     stroke-width: 2.2;
-    opacity: 0.75;
+    opacity: 0.7;
+    animation-name: mr-draw-solid;
   }
   @keyframes mr-draw {
     99% {
@@ -103,30 +155,26 @@ const routes = places.filter((p) => known.has(p.slug)).map((p, i) => ({ ...p, i,
       stroke-dashoffset: 0;
     }
     100% {
-      stroke-dasharray: 0.018 0.012;
+      stroke-dasharray: 0.012 0.008;
       stroke-dashoffset: 0;
     }
-  }
-  .mr-route--office .mr-line {
-    animation-name: mr-draw-solid;
   }
   @keyframes mr-draw-solid {
     to {
       stroke-dashoffset: 0;
     }
   }
-
   /* the active route: a solid line follows the dot from Kothrud to the area */
   .mr-trail {
     fill: none;
     stroke: #c8123f;
-    stroke-width: 2.8;
+    stroke-width: 2.6;
     stroke-linecap: round;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
   }
   .mr-route.is-hot .mr-trail {
-    animation: mr-trail 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: mr-trail 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   }
   @keyframes mr-trail {
     to {
@@ -144,154 +192,217 @@ const routes = places.filter((p) => known.has(p.slug)).map((p, i) => ({ ...p, i,
     opacity: 1;
   }
 
-  /* area dots and names: drop in after their route */
-  .mr-node {
-    cursor: pointer;
+  /* ---------- pins: dot + white card with name and distance ---------- */
+  .mr-pin {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translate(-11px, -50%);
+    text-decoration: none !important;
+    color: #0d253d;
     opacity: 0;
-    animation: mr-in 0.5s ease calc(1.8s + var(--i) * 0.25s) forwards;
-    outline: none;
+    animation: mr-drop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) calc(1.6s + var(--i, 0) * 0.3s) forwards;
   }
-  .mr-hit {
-    fill: transparent;
+  .mr-pin--right {
+    flex-direction: row-reverse;
+    transform: translate(calc(-100% + 11px), -50%);
   }
-  .mr-dot {
-    fill: #fff;
-    stroke: #e8104c;
-    stroke-width: 2.4;
-    transition: fill 0.25s ease;
+  .mr-pin__dot {
+    position: relative;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #e8104c;
+    box-shadow: 0 0 0 5px rgba(232, 16, 76, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
   }
-  .mr-node text,
-  .mr-hub text {
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 500;
-    fill: #0d253d;
-    paint-order: stroke;
-    stroke: rgba(251, 250, 247, 0.95);
-    stroke-width: 4px;
-    stroke-linejoin: round;
+  .mr-pin__dot::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: #e8104c;
   }
-  .mr-node.is-hot .mr-dot {
-    fill: #e8104c;
+  .mr-pin__card {
+    display: grid;
+    gap: 1px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 6px 18px rgba(13, 37, 61, 0.1);
+    white-space: nowrap;
+    transition: box-shadow 0.3s ease;
   }
-  .mr-node.is-hot text {
-    fill: #b80f3a;
-    font-weight: 600;
+  .mr-pin--right .mr-pin__card {
+    text-align: right;
   }
-  .mr-node:focus-visible .mr-dot {
-    stroke-width: 4;
+  .mr-pin__card strong {
+    font-family: var(--font-head);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .mr-pin__card span {
+    font-size: 0.6875rem;
+    color: #4e5d73;
+  }
+  .mr-pin--office .mr-pin__card strong {
+    color: #b80f3a;
+  }
+  /* the pin whose route is playing */
+  .mr-pin.is-hot .mr-pin__dot {
+    box-shadow: 0 0 0 8px rgba(232, 16, 76, 0.18);
+  }
+  .mr-pin.is-hot .mr-pin__card {
+    box-shadow: 0 0 0 1.5px #e8104c, 0 8px 22px rgba(200, 18, 63, 0.18);
+  }
+  .mr-pin.is-hot .mr-pin__card strong {
+    color: #b80f3a;
   }
 
-  /* the head office: a filled pulsing dot */
-  .mr-hub {
-    opacity: 0;
-    animation: mr-in 0.5s ease 1s forwards;
+  /* Kothrud head office: bigger pulsing dot, card to its right */
+  .mr-pin--hub {
+    animation-delay: 0.8s;
   }
-  .mr-hub__dot {
-    fill: #e8104c;
-    stroke: #fff;
-    stroke-width: 2.5;
+  .mr-pin--hub .mr-pin__dot {
+    width: 30px;
+    height: 30px;
+    border-width: 2.5px;
   }
-  .mr-hub__pulse {
-    fill: #e8104c;
-    transform-box: fill-box;
-    transform-origin: center;
+  .mr-pin--hub .mr-pin__dot::after {
+    inset: 6px;
+  }
+  .mr-pin--hub {
+    flex-direction: column;
+    gap: 6px;
+    transform: translate(-50%, -15px);
+  }
+  .mr-pin--hub .mr-pin__card {
+    text-align: center;
+  }
+  .mr-pin--hub .mr-pin__card strong {
+    color: #b80f3a;
+  }
+  .mr-pin__pulse {
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    border: 2px solid #e8104c;
     animation: mr-pulse 2.4s ease-out 1.6s infinite;
   }
-  .mr-hub text {
-    font-weight: 600;
-    font-size: 12px;
+
+  .mr-caption {
+    position: absolute;
+    right: 0;
+    top: -4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.85);
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #0d253d;
+    opacity: 0;
+    animation: mr-in 0.6s ease 2.6s forwards;
   }
+  .mr-caption span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e8104c;
+  }
+
+  /* "more below" cue */
+  .mr__more {
+    position: absolute;
+    left: 50%;
+    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-left: -22px;
+    border-radius: 50%;
+    color: #b80f3a;
+    opacity: 0;
+    animation: mr-in 0.6s ease 3s forwards, mr-bob 1.8s ease-in-out 3.6s infinite;
+  }
+
   @keyframes mr-in {
     to {
       opacity: 1;
     }
   }
+  @keyframes mr-drop {
+    from {
+      opacity: 0;
+      margin-top: -16px;
+    }
+    to {
+      opacity: 1;
+      margin-top: 0;
+    }
+  }
   @keyframes mr-pulse {
     0% {
       transform: scale(1);
-      opacity: 0.6;
+      opacity: 0.8;
     }
     100% {
-      transform: scale(2.8);
+      transform: scale(2.3);
       opacity: 0;
+    }
+  }
+  @keyframes mr-bob {
+    50% {
+      transform: translateY(6px);
     }
   }
 </style>
 
 <script>
-  // Phones: play one route after another, and the one tapped. Pauses while the hero is off-screen.
+  // Phones: play one route after another. Pauses while the map is off-screen or the tab is hidden.
   const box = document.querySelector<HTMLElement>('[data-mini-map]');
   const phone = window.matchMedia('(max-width: 767px)');
   if (box) {
     const routes = new Map([...box.querySelectorAll<SVGGElement>('[data-mr]')].map((g) => [g.dataset.mr!, g]));
-    const nodes = new Map([...box.querySelectorAll<SVGGElement>('[data-mr-node]')].map((g) => [g.dataset.mrNode!, g]));
+    const pins = new Map([...box.querySelectorAll<HTMLElement>('[data-mr-node]')].map((a) => [a.dataset.mrNode!, a]));
     const order = ['karvenagar', 'erandwane', 'prabhat-road', 'baner', 'bavdhan', 'warje'].filter((s) => routes.has(s));
-    // the area chips above the map (Baner office links to its map, the rest to /<area>)
-    const chips = new Map<string, HTMLAnchorElement>();
-    for (const a of document.querySelectorAll<HTMLAnchorElement>('.hero__areas a')) {
-      const slug = a.getAttribute('href')?.startsWith('/') ? a.getAttribute('href')!.slice(1) : 'baner';
-      chips.set(slug, a);
-    }
-
     let current = '';
     let step = -1;
-    let timer: number | undefined;
     let visible = true;
 
     const play = (slug: string) => {
       if (current) {
         routes.get(current)?.classList.remove('is-hot');
-        nodes.get(current)?.classList.remove('is-hot');
-        chips.get(current)?.classList.remove('is-live');
+        pins.get(current)?.classList.remove('is-hot');
       }
       const g = routes.get(slug);
       if (!g) return;
       current = slug;
       void g.getBoundingClientRect(); // restart the trail animation
       g.classList.add('is-hot');
-      nodes.get(slug)?.classList.add('is-hot');
+      pins.get(slug)?.classList.add('is-hot');
       g.querySelector<SVGAnimationElement>('animateMotion')?.beginElement();
-      const chip = chips.get(slug);
-      if (chip) {
-        chip.classList.add('is-live');
-        const row = chip.closest('ul');
-        if (row && row.scrollWidth > row.clientWidth) {
-          const c = chip.getBoundingClientRect();
-          const r = row.getBoundingClientRect();
-          row.scrollTo({ left: row.scrollLeft + (c.left - r.left) - (r.width - c.width) / 2, behavior: 'smooth' });
-        }
+    };
+    const tick = () => {
+      if (visible && !document.hidden && phone.matches) {
+        step = (step + 1) % order.length;
+        play(order[step]);
       }
+      window.setTimeout(tick, 2800);
     };
-    const next = () => {
-      step = (step + 1) % order.length;
-      play(order[step]);
-    };
-    const schedule = (delay: number) => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(function tick() {
-        if (visible && !document.hidden && phone.matches) next();
-        timer = window.setTimeout(tick, 2800);
-      }, delay);
-    };
-
-    for (const [slug, node] of nodes) {
-      const pick = () => {
-        step = order.indexOf(slug);
-        play(slug);
-        schedule(6000); // let the tapped route be seen before the tour continues
-      };
-      node.addEventListener('click', pick);
-      node.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          pick();
-        }
-      });
-    }
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.2 }).observe(box);
+      new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.3 }).observe(box);
     }
-    schedule(3400); // after the routes have drawn in
+    window.setTimeout(tick, 3600); // after the routes have drawn in
   }
 </script>

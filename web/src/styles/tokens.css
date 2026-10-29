@@ -83,7 +83,7 @@
 
   /* Layout */
   --header-h: 72px;
-  --mobile-bar-h: 64px;
+  --mobile-bar-h: 0px; /* the phone Call/WhatsApp bar was removed */
 }
 
 @media (max-width: 767px) {

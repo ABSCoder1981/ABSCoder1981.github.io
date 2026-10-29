@@ -51,7 +51,7 @@ for (const [vpName, vp] of Object.entries(VIEWPORTS)) {
     // Tap targets on mobile: every visible link/button at least 44px tall (inline text links excluded)
     if (vpName === 'mobile') {
       const small = await page.evaluate(() =>
-        [...document.querySelectorAll('a.btn, button, .mobile-bar a, input, select')]
+        [...document.querySelectorAll('a.btn, button, input, select')]
           .filter((el) => el.offsetParent !== null && el.getBoundingClientRect().height < 44)
           .map((el) => (el.textContent || el.getAttribute('aria-label') || el.tagName).trim().slice(0, 30)),
       );
@@ -134,41 +134,10 @@ if (SUBMIT) {
   await ctx.close();
 }
 
-// --- Mobile contact bar never covers content (UI guidelines P0), on a short phone screen ---
-{
-  const ctx = await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
-  const page = await ctx.newPage();
-  for (const path of ['/contact', '/services/sell', '/']) {
-    await page.goto(BASE + path, { waitUntil: 'networkidle' });
-    const bar = page.locator('.mobile-bar');
-    // 1. Scrolled to the very bottom, the last content (copyright) sits above the bar
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await page.waitForTimeout(200);
-    const legal = await page.locator(':is(.footer__legal, .tf__legal) p').first().boundingBox();
-    const barBox = await bar.boundingBox();
-    if (!legal || !barBox || legal.y + legal.height > barBox.y) problems.push(`mobile bar covers the footer on ${path}`);
-    // 2. Keyboard-focused submit button is fully visible above the bar
-    const submit = page.locator('form.ef button[type=submit]').first();
-    if (await submit.count()) {
-      await submit.focus();
-      await page.waitForTimeout(250);
-      const sb = await submit.boundingBox();
-      const bb = await bar.boundingBox();
-      if (!sb || !bb || sb.y + sb.height > bb.y) problems.push(`mobile bar covers the submit button on ${path}`);
-      // 3. While typing in a field, the bar gets out of the way
-      await page.locator('form.ef input[name=name]').first().focus();
-      await page.waitForTimeout(350);
-      if (await bar.isVisible()) problems.push(`mobile bar stays visible while typing on ${path}`);
-      await page.locator('body').click({ position: { x: 5, y: 5 } }).catch(() => {});
-    }
-  }
-  await ctx.close();
-}
-
 await browser.close();
 
 if (problems.length) {
   console.error(`✖ ${problems.length} problem(s):\n  ` + problems.join('\n  '));
   process.exit(1);
 }
-console.log(`✔ ${PAGES.length} pages × 2 viewports OK; form validation, pre-sets, success and failure paths OK; mobile bar never covers content`);
+console.log(`✔ ${PAGES.length} pages × 2 viewports OK; form validation, pre-sets, success and failure paths OK`);

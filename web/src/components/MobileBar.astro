@@ -10,64 +10,12 @@ const { pageName, waInterest } = Astro.props;
 const wa = waHref(waInterest, pageName);
 ---
 
-<!-- Mobile: fixed Call | WhatsApp bar. Desktop: floating WhatsApp button. -->
-<nav class="mobile-bar" aria-label="Quick contact">
-  <a href={telHref} class="mobile-bar__btn mobile-bar__btn--call" data-cta="mobile-bar"><Icon name="phone" /> Call us</a>
-  <a href={wa} class="mobile-bar__btn mobile-bar__btn--wa" target="_blank" rel="noopener" data-cta="mobile-bar"><Icon name="whatsapp" /> WhatsApp</a>
-</nav>
-
+<!-- Desktop: floating WhatsApp button (phones have no contact bar since 2026-10-29: the navbar menu and the pages carry Call / WhatsApp) -->
 <a href={wa} class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp us" data-cta="floating">
   <Icon name="whatsapp" size={28} />
 </a>
 
 <style>
-  .mobile-bar {
-    display: none;
-  }
-  @media (max-width: 767px) {
-    /* Total height = 8 + 48 + 8 = 64px (--mobile-bar-h) + the safe-area inset; body padding reserves the same */
-    .mobile-bar {
-      position: fixed;
-      inset: auto 0 0 0;
-      z-index: 60;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 8px var(--gutter) calc(8px + env(safe-area-inset-bottom));
-      background: var(--canvas-raised);
-      border-top: 1px solid var(--hairline);
-      transition: transform 0.2s ease;
-    }
-    /* While typing in a form the keyboard is open: get out of the way of fields and the submit button */
-    :global(html.is-typing) .mobile-bar {
-      transform: translateY(110%);
-      visibility: hidden;
-    }
-  }
-  .mobile-bar__btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 48px;
-    border-radius: var(--r-sm);
-    font-weight: var(--fw-medium);
-    text-decoration: none !important;
-  }
-  .mobile-bar__btn :global(svg) {
-    width: 20px;
-    height: 20px;
-  }
-  .mobile-bar__btn--call {
-    background: var(--canvas-raised);
-    color: var(--ink);
-    border: 1px solid var(--hairline-strong);
-  }
-  .mobile-bar__btn--wa {
-    background: var(--whatsapp);
-    color: #fff;
-  }
-
   .wa-float {
     position: fixed;
     right: 24px;

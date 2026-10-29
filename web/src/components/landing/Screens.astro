@@ -14,7 +14,7 @@
   }
   @media (max-width: 767px) {
     :root {
-      --bar-h: calc(64px + env(safe-area-inset-bottom));
+      --bar-h: env(safe-area-inset-bottom, 0px); /* no Call/WhatsApp bar on phones any more */
     }
   }
   html.screens {
