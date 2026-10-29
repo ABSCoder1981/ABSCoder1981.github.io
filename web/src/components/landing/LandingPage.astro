@@ -5,6 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import LandingNav from './LandingNav.astro';
 import TowerSketch from './TowerSketch.astro';
 import PuneMap from './PuneMap.astro';
+import MiniRouteMap from './MiniRouteMap.astro';
 import ProofBoard from './ProofBoard.astro';
 import ServiceFloors from './ServiceFloors.astro';
 import PlotToKeys from './PlotToKeys.astro';
@@ -84,6 +85,8 @@ const words = ['home', 'buyer', 'land', 'investment'];
           </li>
         </ul>
       </nav>
+      <!-- Phones: compact route map (the desktop pins and routes need a wide screen) -->
+      <MiniRouteMap />
     </div>
   </section>
 
@@ -447,6 +450,12 @@ const words = ['home', 'buyer', 'land', 'investment'];
   .hero__areas a:hover {
     border-color: #c8123f;
   }
+  /* the area whose route the phone map is showing */
+  .hero__areas a.is-live {
+    border-color: #c8123f;
+    background: rgba(232, 16, 76, 0.08);
+    color: #b80f3a;
+  }
   @media (max-width: 1179px), (max-height: 540px) {
     .hero__areas {
       display: flex;
@@ -472,6 +481,11 @@ const words = ['home', 'buyer', 'land', 'investment'];
     /* Towers step back slightly once the map arrives, so the pins read clearly */
     .hero :global(.tower-sketch) {
       animation: towers-settle 2s ease 3s forwards;
+    }
+  }
+  @keyframes towers-settle-phone {
+    to {
+      opacity: 0.6;
     }
   }
   @keyframes towers-settle {
@@ -535,9 +549,9 @@ const words = ['home', 'buyer', 'land', 'investment'];
     .hero {
       align-items: flex-start;
     }
-    /* no map pins on phones, so the towers stay at full strength */
+    /* the phone route map sits over the towers (as on desktop), so they step back a little once it arrives */
     .hero :global(.tower-sketch) {
-      animation: none;
+      animation: towers-settle-phone 2s ease 2.4s forwards;
       opacity: 1;
       /* the whole skyline (towers, crane) in the clear lower part, above the Call/WhatsApp bar */
       top: auto;
@@ -553,8 +567,17 @@ const words = ['home', 'buyer', 'land', 'investment'];
         rgba(251, 250, 247, 0) 72%
       );
     }
+    /* a full-height column, so the route map takes whatever room is left above the Call/WhatsApp bar */
     .hero__content {
-      padding: 100px 20px calc(var(--bar-h, 64px) + 16px);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      min-height: 100vh;
+      min-height: 100svh;
+      padding: 100px 20px calc(var(--bar-h, 64px) + 12px);
+    }
+    .hero__content > :global(.mr) {
+      max-width: 440px;
     }
     .hero__title {
       font-size: clamp(2rem, 9.5vw, 2.6rem);
