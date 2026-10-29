@@ -141,7 +141,10 @@ for (const f of htmlFiles) {
 
 // Sitemap + robots
 const robots = await readFile(join(DIST, 'robots.txt'), 'utf8').catch(() => '');
-if (!/Sitemap: https:\/\/www\.ashiyanarealestate\.in\/sitemap-index\.xml/.test(robots)) fail('robots.txt', 'missing sitemap line');
+if (process.env.PUBLIC_NOINDEX === '1') {
+  // staging / preview copies block every crawler instead of pointing at the sitemap
+  if (!/^Disallow: \/\s*$/m.test(robots)) fail('robots.txt', 'noindex build must disallow everything');
+} else if (!/Sitemap: https:\/\/www\.ashiyanarealestate\.in\/sitemap-index\.xml/.test(robots)) fail('robots.txt', 'missing sitemap line');
 const sm = await readFile(join(DIST, 'sitemap-0.xml'), 'utf8').catch(() => '');
 const smCount = (sm.match(/<loc>/g) || []).length;
 if (smCount !== 21) fail('sitemap', `expected 21 URLs (all pages except 404), found ${smCount}`);

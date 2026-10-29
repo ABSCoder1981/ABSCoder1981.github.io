@@ -60,7 +60,7 @@ enquiry API runs from `/opt/ashiyana-api` on its own Node 22 (`/opt/ashiyana-nod
 The careers portal (source: `ashiyana-crm/careers`, never copied here) is built with `CAREERS_BASE=/careers/` into
 each release and served at `/careers` (`deploy/nginx/snippets/ashiyana-careers.conf`).
 
-From Git Bash on the office PC (SSH key `~/.ssh/ashiyana_vps`):
+From Git Bash on the office PC (SSH key `~/.ssh/id_ed25519`):
 
 ```bash
 # once, as root on the VPS, from /root/ashiyana-website-deploy/deploy:

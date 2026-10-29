@@ -5,7 +5,7 @@
 #   bash deploy/deploy.sh production    https://www.ashiyanarealestate.in
 #
 # Runs from Git Bash on the office PC. Needs:
-#   - the SSH key ~/.ssh/ashiyana_vps (its public half in the VPS's /root/.ssh/authorized_keys)
+#   - the SSH key ~/.ssh/id_ed25519 (ashiyana-laptop; see ops/ssh-keys in ashiyana-crm)
 #   - the careers source at ../ashiyana-crm/careers (with its .env.production); it is built, never copied into this repo
 # Each deploy is a new release folder; the live symlink switches only after everything is in place,
 # and the last 3 releases are kept for a quick rollback.
@@ -22,7 +22,7 @@ esac
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CAREERS_DIR="${CAREERS_DIR:-$ROOT/../ashiyana-crm/careers}"
 VPS="${VPS_USER:-root}@${VPS_HOST:-139.84.147.129}"
-KEY="${VPS_KEY:-$HOME/.ssh/ashiyana_vps}"
+KEY="${VPS_KEY:-$HOME/.ssh/id_ed25519}"
 SSH=(ssh -i "$KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o BatchMode=yes)
 SCP=(scp -q -i "$KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o BatchMode=yes)
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -41,10 +41,13 @@ log "API: tests"
 (cd "$ROOT/api" && npm ci --silent && npm test)
 
 log "Website: build for $SITE_URL"
-(cd "$ROOT/web" && SITE_URL="$SITE_URL" PUBLIC_NOINDEX="$NOINDEX" npm run build && npm run check)
+# canonical URLs always name the live site; staging is a noindex copy of it
+(cd "$ROOT/web" && export SITE_URL=https://www.ashiyanarealestate.in PUBLIC_NOINDEX="$NOINDEX" && npm run build && npm run check)
 
 log "Careers portal: build for /careers/"
-(cd "$CAREERS_DIR" && CAREERS_BASE=/careers/ npx vite build --mode production --outDir "$ROOT/web/dist/careers" --emptyOutDir)
+CAREERS_OUT="$ROOT/web/dist/careers"
+command -v cygpath >/dev/null && CAREERS_OUT="$(cygpath -m "$CAREERS_OUT")" # Windows Node needs C:/… here
+(cd "$CAREERS_DIR" && CAREERS_BASE=/careers/ npx vite build --mode production --outDir "$CAREERS_OUT" --emptyOutDir)
 [[ -f "$ROOT/web/dist/careers/index.html" ]] || die "careers build missing"
 grep -q '/careers/assets/' "$ROOT/web/dist/careers/index.html" || die "careers was not built for /careers/"
 
@@ -106,7 +109,7 @@ REMOTE
 
 log "Smoke test"
 for p in / /about /services /contact /careers /careers/jobs /api/health; do
-  code="$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL$p")"
+  code="$(env -u MSYS_NO_PATHCONV -u MSYS2_ARG_CONV_EXCL curl -s -o /dev/null -w '%{http_code}' "$SITE_URL$p")"
   printf '  %-16s %s\n' "$p" "$code"
   [[ "$code" == 200 ]] || die "$SITE_URL$p returned $code"
 done
