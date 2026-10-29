@@ -108,7 +108,7 @@ echo "live: $(readlink "$SITE_ROOT/$TARGET")"
 REMOTE
 
 log "Smoke test"
-for p in / /about /services /contact /careers /careers/jobs /api/health; do
+for p in / /services /contact /careers /careers/jobs /api/health; do
   code="$(env -u MSYS_NO_PATHCONV -u MSYS2_ARG_CONV_EXCL curl -s -o /dev/null -w '%{http_code}' "$SITE_URL$p")"
   printf '  %-16s %s\n' "$p" "$code"
   [[ "$code" == 200 ]] || die "$SITE_URL$p returned $code"

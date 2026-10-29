@@ -72,9 +72,6 @@ export default function MobileMenu({ services, localities, telHref, waHref, phon
           </ul>
           <ul role="list" className="mm-list mm-list--main">
             <li>
-              <a href="/about">About us</a>
-            </li>
-            <li>
               <a href="/contact">Contact</a>
             </li>
           </ul>

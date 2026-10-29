@@ -12,7 +12,7 @@ const EXPECTED_PAGES = [
   '/', '/services', '/services/buy', '/services/sell', '/services/rentals', '/services/valuation',
   '/services/investment', '/services/legal', '/services/property-management',
   '/kothrud', '/karvenagar', '/warje', '/prabhat-road', '/bavdhan', '/erandwane',
-  '/about', '/careers', '/contact', '/projects/sanaswadi-industrial-land', '/privacy', '/terms', '/404',
+  '/careers', '/contact', '/projects/sanaswadi-industrial-land', '/privacy', '/terms', '/404',
 ];
 
 // Claims the audit/PRD say must not appear anywhere
@@ -61,7 +61,7 @@ const fail = (route, msg) => errors.push(`${route}: ${msg}`);
 const routes = htmlFiles.map(toRoute);
 for (const r of EXPECTED_PAGES) if (!routes.includes(r)) fail(r, 'expected page missing');
 const sitePages = routes.filter((r) => !PROTOTYPES.includes(r));
-if (sitePages.length !== 22) fail('dist', `expected 22 pages, found ${sitePages.length}`);
+if (sitePages.length !== 21) fail('dist', `expected 21 pages, found ${sitePages.length}`);
 // Prototypes must never be indexed by search engines
 for (const p of PROTOTYPES) {
   const file = htmlFiles.find((f) => toRoute(f) === p);
@@ -147,7 +147,7 @@ if (process.env.PUBLIC_NOINDEX === '1') {
 } else if (!/Sitemap: https:\/\/www\.ashiyanarealestate\.in\/sitemap-index\.xml/.test(robots)) fail('robots.txt', 'missing sitemap line');
 const sm = await readFile(join(DIST, 'sitemap-0.xml'), 'utf8').catch(() => '');
 const smCount = (sm.match(/<loc>/g) || []).length;
-if (smCount !== 21) fail('sitemap', `expected 21 URLs (all pages except 404), found ${smCount}`);
+if (smCount !== 20) fail('sitemap', `expected 20 URLs (all pages except 404), found ${smCount}`);
 if (/404/.test(sm)) fail('sitemap', '404 page listed');
 
 if (warn.length) console.log(`⚠ ${warn.length} warning(s)\n  ` + warn.slice(0, 10).join('\n  '));

@@ -656,6 +656,22 @@ const wa = waHref('your property services', 'Landing page · services');
       min-height: 52px;
     }
   }
+  /* Phones and small tablets: the building drawing is shown too (between the heading and the list),
+     at a size that still leaves the open service readable; the section grows past one screen if it must */
+  @media (max-width: 899px) {
+    .floors__art {
+      display: block;
+      position: static;
+      max-width: none;
+      margin-bottom: 4px;
+    }
+    .floors__art svg {
+      width: auto;
+      max-width: 100%;
+      height: clamp(170px, 30svh, 270px);
+      max-height: none;
+    }
+  }
 </style>
 
 <script>

@@ -720,6 +720,29 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
   .ptk__cta {
     justify-content: space-between;
   }
+  /* Phones and small tablets: the house drawing gets the full card width (it was a 110px thumbnail),
+     with the stage name and progress bar centred under it */
+  @media (max-width: 899px) {
+    .ptk__art {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      row-gap: 6px;
+      padding: 12px 16px 14px;
+    }
+    .ptk__art svg {
+      grid-row: auto;
+      width: auto;
+      max-width: 100%;
+      height: clamp(150px, 26svh, 240px);
+    }
+    .ptk__stage {
+      justify-content: center;
+      justify-self: stretch;
+    }
+    .ptk__dots {
+      justify-self: stretch;
+    }
+  }
 </style>
 
 <script>
@@ -780,8 +803,10 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
         go(i + 1);
       }),
     );
-    root.addEventListener('mouseenter', stop);
-    root.addEventListener('mouseleave', play);
+    // Pause while a mouse rests on the section. Touch is ignored: a tap fires mouseenter without a
+    // matching mouseleave, which used to stop the house on phones for good.
+    root.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && stop());
+    root.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && play());
     root.addEventListener('focusin', stop);
 
     go(1);

@@ -21,7 +21,7 @@ const PAGES = [
   '/', '/services', '/services/buy', '/services/sell', '/services/rentals', '/services/valuation',
   '/services/investment', '/services/legal', '/services/property-management',
   '/kothrud', '/karvenagar', '/warje', '/prabhat-road', '/bavdhan', '/erandwane',
-  '/about', '/careers', '/contact', '/projects/sanaswadi-industrial-land', '/privacy', '/terms', '/this-page-does-not-exist',
+  '/careers', '/contact', '/projects/sanaswadi-industrial-land', '/privacy', '/terms', '/this-page-does-not-exist',
 ];
 const VIEWPORTS = {
   desktop: { width: 1366, height: 860 },
