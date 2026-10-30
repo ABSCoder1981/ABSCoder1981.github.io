@@ -49,14 +49,16 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 
   <div class="nav__mobile" id="nav-mobile" hidden>
     <ul role="list" class="nav__mobile-list">
-      {links.map((l) => <li><a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
+      {links.map((l, i) => <li style={`--i:${i}`}><a href={l.href} aria-current={isCurrent(l.href) ? 'page' : undefined}>{l.label}</a></li>)}
     </ul>
-    <div class="nav__mobile-cta">
+    <div class="nav__mobile-cta" style={`--i:${links.length}`}>
       <a class="pill pill--gold" href="/contact" data-cta="nav-mobile">Let’s connect</a>
       <a class="pill pill--outline" href={telHref} data-cta="nav-mobile">Call {site.phone.display}</a>
     </div>
   </div>
 </header>
+<!-- dims the page behind the open menu drawer; a tap on it closes the menu -->
+<div class="nav-scrim" data-nav-scrim aria-hidden="true"></div>
 
 <style>
   .nav {
@@ -236,15 +238,65 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
   .nav__burger[aria-expanded='true'] span:nth-child(3) {
     transform: translateY(-7.5px) rotate(-45deg);
   }
+  /* Phone / tablet menu: a drawer that slides down from under the header (like skylinevillas.in) */
   .nav__mobile {
-    max-height: calc(100svh - 72px);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: calc(100vh - 100%);
+    max-height: calc(100svh - 100%);
     overflow-y: auto;
-    padding: 8px 20px 28px;
+    overscroll-behavior: contain;
+    padding: 4px 20px 28px;
     background: #fff;
     border-top: 1px solid rgba(13, 37, 61, 0.08);
+    box-shadow: 0 24px 40px rgba(13, 37, 61, 0.14);
+    /* closed: rolled up behind the header */
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+    transition: clip-path 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s linear 0.45s;
+  }
+  .nav.is-menu-open .nav__mobile {
+    clip-path: inset(0 0 -60px 0); /* room for the shadow */
+    visibility: visible;
+    transition: clip-path 0.5s cubic-bezier(0.2, 0.7, 0.2, 1), visibility 0s;
   }
   .nav__mobile[hidden] {
     display: none;
+  }
+  /* links and buttons follow the drawer down, one after another */
+  .nav__mobile-list li,
+  .nav__mobile-cta {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .nav.is-menu-open .nav__mobile-list li,
+  .nav.is-menu-open .nav__mobile-cta {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.4s ease calc(0.12s + var(--i, 0) * 0.06s), transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) calc(0.12s + var(--i, 0) * 0.06s);
+  }
+  .nav-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 999; /* just under the navbar */
+    background: rgba(13, 37, 61, 0.38);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+  }
+  .nav-scrim.is-on {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease, visibility 0s;
+  }
+  @media (min-width: 992px) {
+    .nav__mobile,
+    .nav-scrim {
+      display: none;
+    }
   }
   .nav__mobile a:not(.pill) {
     display: flex;
@@ -302,17 +354,25 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
     .nav.nav--scrolled .nav__inner {
       padding-block: 10px;
     }
+    /* the header turns solid while the drawer is open, so the two read as one panel */
     .nav.is-menu-open {
       background: #fff;
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      box-shadow: none;
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .nav,
     .nav__inner,
     .nav__logo,
-    .pill {
-      transition: none;
+    .pill,
+    .nav__mobile,
+    .nav.is-menu-open .nav__mobile,
+    .nav__mobile-list li,
+    .nav__mobile-cta,
+    .nav-scrim {
+      transition: none !important;
     }
   }
   .nav__link[aria-current='page'] {
@@ -360,22 +420,35 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
   }
 
   // Mobile menu
+  // Mobile menu: a drawer sliding down from the header, the page dimmed and held still behind it.
+  // Closes on the X, a tap on the dimmed page, Escape, or choosing a link.
   const burger = nav.querySelector<HTMLButtonElement>('.nav__burger')!;
   const panel = document.getElementById('nav-mobile')!;
-  const setMenu = (open: boolean) => {
+  const scrim = document.querySelector<HTMLElement>('[data-nav-scrim]');
+  // rendered hidden for no-JS; from here on CSS slides it in and out, and inert keeps it out of reach when closed
+  panel.hidden = false;
+  panel.inert = true;
+  let open = false;
+  const setMenu = (next: boolean) => {
+    open = next;
     burger.setAttribute('aria-expanded', String(open));
     burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    panel.hidden = !open;
+    panel.inert = !open;
     nav.classList.toggle('is-menu-open', open);
+    scrim?.classList.toggle('is-on', open);
+    document.documentElement.style.overflow = open ? 'hidden' : '';
   };
-  burger.addEventListener('click', () => setMenu(panel.hidden));
+  burger.addEventListener('click', () => setMenu(!open));
+  scrim?.addEventListener('click', () => setMenu(false));
   panel.addEventListener('click', (e) => {
     if ((e.target as Element).closest('a')) setMenu(false);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !panel.hidden) {
+    if (e.key === 'Escape' && open) {
       setMenu(false);
       burger.focus();
     }
   });
+  // turning a phone sideways into the desktop layout closes it
+  window.matchMedia('(min-width: 992px)').addEventListener('change', (m) => m.matches && open && setMenu(false));
 </script>
