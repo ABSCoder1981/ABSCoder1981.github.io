@@ -10,7 +10,7 @@ const { pageName, waInterest } = Astro.props;
 const wa = waHref(waInterest, pageName);
 ---
 
-<!-- Desktop: floating WhatsApp button (phones have no contact bar since 2026-10-29: the navbar menu and the pages carry Call / WhatsApp) -->
+<!-- Floating WhatsApp button, desktop and phones (phones have no Call/WhatsApp bar since 2026-10-29) -->
 <a href={wa} class="wa-float" target="_blank" rel="noopener" aria-label="WhatsApp us" data-cta="floating">
   <Icon name="whatsapp" size={28} />
 </a>
@@ -65,10 +65,19 @@ const wa = waHref(waInterest, pageName);
     transform: translateY(12px);
     pointer-events: none;
   }
+  /* Phones: the same floating button, bottom-right, clear of the home indicator */
   @media (max-width: 767px) {
     .wa-float {
-      display: none;
+      right: 16px;
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      width: 54px;
+      height: 54px;
     }
+  }
+  /* out of the way while typing in a form (keyboard open) */
+  :global(html.is-typing) .wa-float {
+    opacity: 0;
+    pointer-events: none;
   }
 </style>
 
