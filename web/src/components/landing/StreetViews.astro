@@ -140,7 +140,7 @@ const areas = localities.map((l) => {
 <section class="lx" aria-labelledby="lx-h" data-lx data-screen>
   <div class="container">
     <header class="lx__head">
-      <h2 id="lx-h" class="lx__title">Six neighbourhoods. <em>We know every street.</em></h2>
+      <h2 id="lx-h" class="lx__title"><span class="lx__t-wide">Six neighbourhoods. <em>We know every street.</em></span><span class="lx__t-phone">Know the street <em>before you buy.</em></span></h2>
       <p class="lx__lead">Pick an area to see what it's like, the homes you'll find there and how far it is from our Kothrud office.</p>
     </header>
 
@@ -652,6 +652,33 @@ const areas = localities.map((l) => {
     }
     .lx__pill {
       height: 50px;
+    }
+  }
+  /* Phones: own heading line; the drawing sits on top of the card with the facts below it */
+  .lx__t-phone {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    .lx__t-wide {
+      display: none;
+    }
+    .lx__t-phone {
+      display: inline;
+    }
+    .lx__panel {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .lx__scene {
+      padding: 6px 4px 0;
+    }
+    .lx__scene svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 26svh;
+      margin-inline: auto;
     }
   }
 </style>
