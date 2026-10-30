@@ -34,6 +34,12 @@
   :is([data-screen], main > section:not(.hero), main > article) > .container {
     width: 100%;
   }
+  /* Phones: content starts right under the navbar instead of floating in the middle of the screen */
+  @media (max-width: 767px) {
+    :is([data-screen], main > section:not(.hero), main > article) {
+      justify-content: flex-start;
+    }
+  }
   /* the mobile bar's own body padding is not needed here: sections reserve that space themselves */
   @media (max-width: 767px) {
     html.screens body {

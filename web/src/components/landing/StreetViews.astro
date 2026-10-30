@@ -140,7 +140,7 @@ const areas = localities.map((l) => {
 <section class="lx" aria-labelledby="lx-h" data-lx data-screen>
   <div class="container">
     <header class="lx__head">
-      <h2 id="lx-h" class="lx__title"><span class="lx__t-wide">Six neighbourhoods. <em>We know every street.</em></span><span class="lx__t-phone">Know the street <em>before you buy.</em></span></h2>
+      <h2 id="lx-h" class="lx__title">Know the street <em>before you buy.</em></h2>
       <p class="lx__lead">Pick an area to see what it's like, the homes you'll find there and how far it is from our Kothrud office.</p>
     </header>
 
@@ -654,17 +654,8 @@ const areas = localities.map((l) => {
       height: 50px;
     }
   }
-  /* Phones: own heading line; the drawing sits on top of the card with the facts below it */
-  .lx__t-phone {
-    display: none;
-  }
+  /* Phones: the drawing sits on top of the card with the facts below it */
   @media (max-width: 767px) {
-    .lx__t-wide {
-      display: none;
-    }
-    .lx__t-phone {
-      display: inline;
-    }
     .lx__panel {
       grid-template-columns: minmax(0, 1fr);
       gap: 14px;
@@ -679,6 +670,24 @@ const areas = localities.map((l) => {
       height: auto;
       max-height: 26svh;
       margin-inline: auto;
+    }
+  }
+  /* Phones: the six area tabs are one swipeable row; a fade on the right shows more are there.
+     The fade goes once the row is scrolled to its end. */
+  @media (max-width: 767px) {
+    .lx__tabs {
+      width: 100%;
+      scroll-snap-type: x proximity;
+      -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 56px), transparent 100%);
+      mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 56px), transparent 100%);
+    }
+    .lx__tabs.is-end {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .lx__tab {
+      flex: none;
+      scroll-snap-align: start;
     }
   }
 </style>
@@ -701,6 +710,12 @@ const areas = localities.map((l) => {
     };
     placePill(current, false);
     document.fonts?.ready.then(() => placePill(current, false));
+    // phones: drop the right-edge fade once the swipeable tab row reaches its end; keep the chosen tab in view
+    const tabRow = root.querySelector<HTMLElement>('.lx__tabs');
+    const markEnd = () => tabRow?.classList.toggle('is-end', tabRow.scrollLeft + tabRow.clientWidth >= tabRow.scrollWidth - 2);
+    tabRow?.addEventListener('scroll', markEnd, { passive: true });
+    window.addEventListener('resize', markEnd);
+    markEnd();
     window.addEventListener('resize', () => placePill(current, false));
 
     const select = (i: number, focus = false) => {
