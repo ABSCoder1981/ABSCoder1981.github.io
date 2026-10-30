@@ -76,8 +76,9 @@ const blockIndex = noindex || import.meta.env.PUBLIC_NOINDEX === '1';
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {blockIndex && <meta name="robots" content="noindex, nofollow" />}
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0b1526" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" />
+    <!-- light-only design: also keeps Android's "darken websites" from recolouring it -->
+    <meta name="color-scheme" content="only light" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

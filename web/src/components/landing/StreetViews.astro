@@ -737,8 +737,14 @@ const areas = localities.map((l) => {
       });
       // next frame: start the draw-in (so the transition runs after the panel becomes visible)
       requestAnimationFrame(() => requestAnimationFrame(() => panels[i].classList.add('is-drawn')));
-      if (focus) tabs[i].focus();
-      tabs[i].scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reduced ? 'auto' : 'smooth' });
+      if (focus) tabs[i].focus({ preventScroll: true });
+      // Bring the chosen tab into view by scrolling the tab row only. (scrollIntoView also scrolled the whole
+      // page, and wrongly inside a scaled-down section: the page jumped when a tab was tapped on phones.)
+      if (tabRow && tabRow.scrollWidth > tabRow.clientWidth) {
+        const t = tabs[i];
+        const left = Math.min(Math.max(0, t.offsetLeft - (tabRow.clientWidth - t.offsetWidth) / 2), tabRow.scrollWidth - tabRow.clientWidth);
+        tabRow.scrollTo({ left, behavior: reduced ? 'auto' : 'smooth' });
+      }
     };
 
     tabs.forEach((t, i) => {

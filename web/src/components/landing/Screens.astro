@@ -60,6 +60,10 @@
   for (const el of document.querySelectorAll<HTMLElement>('main > section:not(.hero), main > article')) el.setAttribute('data-screen', '');
   const MIN = 0.75;
   const fitAll = () => {
+    // Measuring briefly resets every section to one screen; on small phones that shortens the page for an
+    // instant and the browser shifts the scroll position (the page jumped ~160px after tapping a tab).
+    // Remember where the visitor is and put them back.
+    const keepY = window.scrollY;
     for (const sec of document.querySelectorAll<HTMLElement>('[data-screen]')) {
       const box = sec.querySelector<HTMLElement>(':scope > .container');
       if (!box) continue;
@@ -93,6 +97,7 @@
       // still too tall even at the minimum: let this one section grow rather than cut content
       sec.classList.toggle('is-overfull', h * z > avail + 2);
     }
+    if (Math.abs(window.scrollY - keepY) > 1) window.scrollTo({ top: keepY, behavior: 'instant' as ScrollBehavior });
   };
   let t: number | undefined;
   const queue = () => {

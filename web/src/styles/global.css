@@ -524,3 +524,8 @@ a.card:hover {
   }
 }
 
+
+/* No grey/blue flash on tap (Android): buttons and links have their own pressed and focus styles */
+html {
+  -webkit-tap-highlight-color: transparent;
+}

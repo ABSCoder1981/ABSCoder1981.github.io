@@ -94,33 +94,8 @@
   }
 }
 
-/* Dark theme: deliberate and tested (PRD: light and dark from the same tokens). Follows the OS. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    color-scheme: dark;
-    --primary: #d4134a;
-    --primary-deep: #b80f3a;
-    --primary-press: #a30d34;
-    --primary-subdued: #3a1222;
-    --link: #ff8aa8;
-    --success: #4cc38a;
-    --error: #ff8a80;
-    --ink: #e8eef6;
-    --ink-secondary: #c3cedb;
-    --ink-mute: #98a6b8;
-    --canvas: #0b1526;
-    --canvas-soft: #0f1c31;
-    --canvas-cream: #241f16;
-    --canvas-raised: #111e34;
-    --hairline: #22324b;
-    --hairline-strong: #2e425f;
-    --hairline-input: #4a5f7d;
-    --brand-dark: #170b11;
-    --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
-    --shadow-soft: none;
-  }
-}
-
+/* The site is light-only: the phone's dark mode no longer switches the older form/card colours to a dark
+   palette (which left the locality list unreadable). A dark palette stays available behind data-theme='dark'. */
 :root[data-theme='dark'] {
   color-scheme: dark;
   --primary: #d4134a;
