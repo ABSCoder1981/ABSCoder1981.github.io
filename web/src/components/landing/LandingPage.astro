@@ -659,6 +659,10 @@ const words = ['home', 'buyer', 'land', 'investment'];
     [data-screen] .cb__top .grate {
       justify-self: center !important;
     }
+    /* contact form: "Your requirement" on its own full row (short screens put it beside Locality) */
+    [data-so] .ef--sheet .ef__full {
+      grid-column: 1 / -1 !important;
+    }
   }
   [data-screen] :is(.proof__title, .floors__title, .ptk__title, .lx__title, .pb__title, .cb__title, .so__title) {
     font-size: calc(var(--sec-h) / var(--fit-zoom, 1)) !important;

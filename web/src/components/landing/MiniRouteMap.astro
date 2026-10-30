@@ -38,6 +38,8 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
 ---
 
 <div class="mr" data-mini-map>
+  <!-- on its own line above the map, so it never meets the Baner card (whatever the phone's text size) -->
+  <p class="mr-caption"><span aria-hidden="true"></span> 2 offices · West Pune</p>
   <div class="mr__stage">
     <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <!-- faint base: river and highway, as on the desktop map -->
@@ -80,7 +82,6 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
         <span>Head office · Karve Statue</span>
       </span>
     </a>
-    <p class="mr-caption"><span aria-hidden="true"></span> 2 offices · West Pune</p>
   </div>
   <a class="mr__more" href="#hero-text" aria-label="Scroll down">
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
@@ -295,9 +296,9 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
   }
 
   .mr-caption {
-    position: absolute;
-    right: 0;
-    top: -4px;
+    flex: none;
+    align-self: flex-end;
+    margin-bottom: 14px !important;
     display: inline-flex;
     align-items: center;
     gap: 8px;
