@@ -1,91 +1,85 @@
 ---
-// Phones only: the hero's first screen is the route map, in the same look as the desktop map
-// (PuneMap's pins and routes need a wide screen). The headline and buttons follow below it.
-// Kothrud head office at the bottom, Baner office and the areas up the sides as pin cards with
-// distances. The routes draw in, then a dot travels Kothrud → each area in turn (the route turns
-// solid and the pin lights up, like hovering a pin on desktop). Pins link to their area pages.
+// Phones only: the hero's route map, laid out like the desktop map with the headline, description
+// and buttons in the middle. Baner, Prabhat Road, Bavdhan and Erandwane sit above the text, Warje
+// and Karvenagar below it, and the Kothrud head office at the bottom. West on the left, east on the right.
+// The pins are in normal flow (the wrapper is display: contents, so the two bands become hero rows
+// around .hero__content); the script measures the pin dots and draws each route from Kothrud.
+// The routes draw in, then a dot travels Kothrud → each area in turn (the route turns solid and the
+// pin lights up, like hovering a pin on desktop). Pins link to their area pages.
 import { localities, site } from '../../lib/site';
 
-// Portrait stage; SVG and pins share it (pins are placed in %)
-const VB = { w: 400, h: 760 };
-const HUB = { x: 200, y: 640 };
 const branch = site.offices.find((o) => o.id === 'baner')!;
-const shortDistance = (d: string) => {
-  const km = d.match(/([\d.]+)\s*km/);
-  return km ? `~${km[1]} km from our office` : '';
+const area = (slug: string) => {
+  const l = localities.find((x) => x.slug === slug)!;
+  return { slug, name: l.name, href: `/${slug}`, external: false, office: false };
 };
-// West on the left, east on the right, north up (as on the desktop map). Left and right pins
-// alternate in height, so their cards never meet in the middle on narrow phones.
-const layout: Record<string, { x: number; y: number; side: 'left' | 'right' }> = {
-  bavdhan: { x: 46, y: 250, side: 'left' },
-  warje: { x: 40, y: 440, side: 'left' },
-  'prabhat-road': { x: 356, y: 155, side: 'right' },
-  erandwane: { x: 362, y: 345, side: 'right' },
-  karvenagar: { x: 352, y: 530, side: 'right' },
-};
-const routeD = (to: { x: number; y: number }) => {
-  const c = { x: HUB.x * 0.35 + to.x * 0.65, y: HUB.y * 0.86 + to.y * 0.14 };
-  return `M${HUB.x} ${HUB.y}Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${to.x} ${to.y}`;
-};
-const BANER = { x: 58, y: 62 };
-const pins = [
-  { slug: 'baner', name: 'Baner', sub: 'Branch office · Directions ↗', href: branch.mapUrl, external: true, ...BANER, side: 'left' as const, d: `M${HUB.x} ${HUB.y}Q14 ${HUB.y} ${BANER.x} ${BANER.y}`, office: true },
-  ...localities
-    .filter((l) => layout[l.slug])
-    .map((l) => ({ slug: l.slug, name: l.name, sub: shortDistance(l.distance), href: `/${l.slug}`, external: false, ...layout[l.slug], d: routeD(layout[l.slug]), office: false })),
-].map((p, i) => ({ ...p, i }));
-const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
+const baner = { slug: 'baner', name: 'Baner', href: branch.mapUrl, external: true, office: true };
+// Top band: two rows, west pins on the left, east on the right (in reading order for screen readers)
+const top = [
+  { ...baner, side: 'left' },
+  { ...area('prabhat-road'), side: 'right', indent: true },
+  { ...area('bavdhan'), side: 'left', indent: true },
+  { ...area('erandwane'), side: 'right' },
+];
+const bottom = [
+  { ...area('warje'), side: 'left' },
+  { ...area('karvenagar'), side: 'right' },
+];
+const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
 ---
 
 <div class="mr" data-mini-map>
-  <!-- on its own line above the map, so it never meets the Baner card (whatever the phone's text size) -->
-  <p class="mr-caption"><span aria-hidden="true"></span> 2 offices · West Pune</p>
-  <div class="mr__stage">
-    <svg viewBox={`0 0 ${VB.w} ${VB.h}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
-      <!-- faint base: river and highway, as on the desktop map -->
-      <path class="mr-river" d="M-10 590C90 560 150 610 230 585S340 520 410 535" />
-      <path class="mr-hwy" d="M96 -10C80 200 112 420 84 770" />
-      {
-        pins.map((p) => (
-          <g class:list={['mr-route', { 'mr-route--office': p.office }]} data-mr={p.slug} style={`--i:${p.i}`}>
-            <path class="mr-line" d={p.d} pathLength="1" />
-            <path class="mr-trail" d={p.d} pathLength="1" />
-            <circle class="mr-lead" r="6">
-              <animateMotion dur="1.2s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1" path={p.d} />
-            </circle>
-          </g>
-        ))
-      }
-    </svg>
-
+  <svg class="mr__svg" aria-hidden="true" focusable="false">
+    <!-- faint base: river and highway, as on the desktop map (placed by the script) -->
+    <path class="mr-river" data-mr-base="river" />
+    <path class="mr-hwy" data-mr-base="hwy" />
     {
       pins.map((p) => (
+        <g class:list={['mr-route', { 'mr-route--office': p.office }]} data-mr={p.slug} style={`--i:${p.i}`}>
+          <path class="mr-line" id={`mr-path-${p.slug}`} pathLength="1" />
+          <path class="mr-trail" pathLength="1" />
+          <circle class="mr-lead" r="6">
+            <animateMotion dur="1.2s" begin="indefinite" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1">
+              <mpath href={`#mr-path-${p.slug}`} />
+            </animateMotion>
+          </circle>
+        </g>
+      ))
+    }
+  </svg>
+
+  <div class="mr__band mr__band--top">
+    {
+      pins.slice(0, top.length).map((p) => (
         <a
-          class:list={['mr-pin', `mr-pin--${p.side}`, { 'mr-pin--office': p.office }]}
+          class:list={['mr-pin', `mr-pin--${p.side}`, { 'mr-pin--office': p.office, 'mr-pin--indent': p.indent }]}
           href={p.href}
           {...(p.external ? { target: '_blank', rel: 'noopener' } : {})}
           data-mr-node={p.slug}
-          style={`left:${pct(p.x, VB.w)};top:${pct(p.y, VB.h)};--i:${p.i}`}
+          style={`--i:${p.i}`}
         >
           <span class="mr-pin__dot" aria-hidden="true" />
-          <span class="mr-pin__card">
-            <strong>{p.name}</strong>
-            <span>{p.sub}</span>
-          </span>
+          <span class="mr-pin__card">{p.name}</span>
         </a>
       ))
     }
-    <a class="mr-pin mr-pin--hub" href="/kothrud" style={`left:${pct(HUB.x, VB.w)};top:${pct(HUB.y, VB.h)}`}>
-      <span class="mr-pin__dot" aria-hidden="true"><span class="mr-pin__pulse" /></span>
-      <span class="mr-pin__card">
-        <strong>Kothrud</strong>
-        <span>Head office · Karve Statue</span>
-      </span>
-    </a>
   </div>
-  <a class="mr__more" href="#hero-text" aria-label="Scroll down">
-    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-  </a>
+
+  <div class="mr__band mr__band--bottom">
+    {
+      pins.slice(top.length).map((p) => (
+        <a class:list={['mr-pin', `mr-pin--${p.side}`]} href={p.href} data-mr-node={p.slug} style={`--i:${p.i}`}>
+          <span class="mr-pin__dot" aria-hidden="true" />
+          <span class="mr-pin__card">{p.name}</span>
+        </a>
+      ))
+    }
+    <a class="mr-pin mr-pin--hub" href="/kothrud" data-mr-hub>
+      <span class="mr-pin__dot" aria-hidden="true"><span class="mr-pin__pulse" /></span>
+      <span class="mr-pin__card">Kothrud</span>
+    </a>
+    <p class="mr-caption"><span aria-hidden="true"></span> 2 offices · West Pune</p>
+  </div>
 </div>
 
 <style>
@@ -94,29 +88,36 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
     display: none;
   }
   @media (max-width: 767px) {
+    /* the svg and the two bands become rows of the hero (top band → text → bottom band) */
     .mr {
-      position: relative;
-      z-index: 3;
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      height: 100vh;
-      height: 100svh;
-      min-height: 520px;
-      padding: 104px 14px calc(44px + env(safe-area-inset-bottom, 0px));
+      display: contents;
     }
   }
-  .mr__stage {
-    position: relative;
-    flex: 1 1 auto;
-    min-height: 0;
-  }
-  .mr__stage svg {
+  .mr__svg {
     position: absolute;
     inset: 0;
+    z-index: 2;
     width: 100%;
     height: 100%;
     overflow: visible;
+    pointer-events: none;
+  }
+  .mr__band {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    row-gap: 12px;
+    padding-inline: 14px;
+  }
+  .mr__band--top {
+    order: 1;
+    padding-top: 100px; /* clears the overlay navbar */
+  }
+  .mr__band--bottom {
+    order: 3;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
 
   /* ---------- base map ---------- */
@@ -193,21 +194,32 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
     opacity: 1;
   }
 
-  /* ---------- pins: dot + white card with name and distance ---------- */
+  /* ---------- pins: dot on the outer edge + white card with the area name ---------- */
   .mr-pin {
-    position: absolute;
     display: flex;
     align-items: center;
     gap: 8px;
-    transform: translate(-11px, -50%);
+    width: fit-content;
     text-decoration: none !important;
     color: #0d253d;
     opacity: 0;
     animation: mr-drop 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) calc(1.6s + var(--i, 0) * 0.3s) forwards;
   }
+  .mr-pin--left {
+    grid-column: 1;
+    justify-self: start;
+  }
   .mr-pin--right {
+    grid-column: 2;
+    justify-self: end;
     flex-direction: row-reverse;
-    transform: translate(calc(-100% + 11px), -50%);
+  }
+  /* a little stagger, so the two pins on a side don't share one route line */
+  .mr-pin--left.mr-pin--indent {
+    margin-left: 22px;
+  }
+  .mr-pin--right.mr-pin--indent {
+    margin-right: 22px;
   }
   .mr-pin__dot {
     position: relative;
@@ -228,29 +240,17 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
     background: #e8104c;
   }
   .mr-pin__card {
-    display: grid;
-    gap: 1px;
-    padding: 6px 10px;
+    padding: 6px 12px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.94);
     box-shadow: 0 6px 18px rgba(13, 37, 61, 0.1);
     white-space: nowrap;
-    transition: box-shadow 0.3s ease;
-  }
-  .mr-pin--right .mr-pin__card {
-    text-align: right;
-  }
-  .mr-pin__card strong {
     font-family: var(--font-head);
     font-size: 0.9375rem;
-    font-weight: 400;
     line-height: 1.2;
+    transition: box-shadow 0.3s ease;
   }
-  .mr-pin__card span {
-    font-size: 0.6875rem;
-    color: #4e5d73;
-  }
-  .mr-pin--office .mr-pin__card strong {
+  .mr-pin--office .mr-pin__card {
     color: #b80f3a;
   }
   /* the pin whose route is playing */
@@ -258,14 +258,15 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
     box-shadow: 0 0 0 8px rgba(232, 16, 76, 0.18);
   }
   .mr-pin.is-hot .mr-pin__card {
+    color: #b80f3a;
     box-shadow: 0 0 0 1.5px #e8104c, 0 8px 22px rgba(200, 18, 63, 0.18);
   }
-  .mr-pin.is-hot .mr-pin__card strong {
-    color: #b80f3a;
-  }
 
-  /* Kothrud head office: bigger pulsing dot, card to its right */
+  /* Kothrud head office: centred under the side pins, bigger pulsing dot */
   .mr-pin--hub {
+    grid-column: 1 / -1;
+    justify-self: center;
+    margin-top: 2px;
     animation-delay: 0.8s;
   }
   .mr-pin--hub .mr-pin__dot {
@@ -276,15 +277,7 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
   .mr-pin--hub .mr-pin__dot::after {
     inset: 6px;
   }
-  .mr-pin--hub {
-    flex-direction: column;
-    gap: 6px;
-    transform: translate(-50%, -15px);
-  }
   .mr-pin--hub .mr-pin__card {
-    text-align: center;
-  }
-  .mr-pin--hub .mr-pin__card strong {
     color: #b80f3a;
   }
   .mr-pin__pulse {
@@ -296,9 +289,8 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
   }
 
   .mr-caption {
-    flex: none;
-    align-self: flex-end;
-    margin-bottom: 14px !important;
+    grid-column: 1 / -1;
+    justify-self: center;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -321,22 +313,6 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
     background: #e8104c;
   }
 
-  /* "more below" cue */
-  .mr__more {
-    position: absolute;
-    left: 50%;
-    bottom: calc(6px + env(safe-area-inset-bottom, 0px));
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    margin-left: -22px;
-    border-radius: 50%;
-    color: #b80f3a;
-    opacity: 0;
-    animation: mr-in 0.6s ease 3s forwards, mr-bob 1.8s ease-in-out 3.6s infinite;
-  }
-
   @keyframes mr-in {
     to {
       opacity: 1;
@@ -349,7 +325,6 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
     }
     to {
       opacity: 1;
-      margin-top: 0;
     }
   }
   @keyframes mr-pulse {
@@ -362,20 +337,50 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
       opacity: 0;
     }
   }
-  @keyframes mr-bob {
-    50% {
-      transform: translateY(6px);
-    }
-  }
 </style>
 
 <script>
-  // Phones: play one route after another. Pauses while the map is off-screen or the tab is hidden.
+  // Phones: draw each route from the Kothrud dot to its pin (measured, so it fits any phone and
+  // text size), then play one route after another. Pauses while off-screen or the tab is hidden.
   const box = document.querySelector<HTMLElement>('[data-mini-map]');
   const phone = window.matchMedia('(max-width: 767px)');
-  if (box) {
+  const svg = box?.querySelector<SVGSVGElement>('.mr__svg');
+  const hub = box?.querySelector<HTMLElement>('[data-mr-hub] .mr-pin__dot');
+  if (box && svg && hub) {
     const routes = new Map([...box.querySelectorAll<SVGGElement>('[data-mr]')].map((g) => [g.dataset.mr!, g]));
     const pins = new Map([...box.querySelectorAll<HTMLElement>('[data-mr-node]')].map((a) => [a.dataset.mrNode!, a]));
+
+    // Centre of a pin's dot in svg pixels (ignores the drop-in offset while pins animate)
+    const centre = (dot: Element, origin: DOMRect) => {
+      const r = dot.getBoundingClientRect();
+      const pin = dot.closest<HTMLElement>('.mr-pin');
+      const shift = pin ? parseFloat(getComputedStyle(pin).marginTop) || 0 : 0;
+      return { x: r.left + r.width / 2 - origin.left, y: r.top + r.height / 2 - origin.top - Math.min(shift, 0) };
+    };
+    const layout = () => {
+      if (!phone.matches) return;
+      const o = svg.getBoundingClientRect();
+      if (!o.width) return;
+      svg.setAttribute('viewBox', `0 0 ${o.width.toFixed(1)} ${o.height.toFixed(1)}`);
+      const h = centre(hub, o);
+      for (const [slug, g] of routes) {
+        const dot = pins.get(slug)?.querySelector('.mr-pin__dot');
+        if (!dot) continue;
+        const p = centre(dot, o);
+        // leaves Kothrud sideways (like a road), then runs up the edge of the screen to the area
+        const c = { x: p.x + (p.x < h.x ? -1 : 1) * Math.min(18, Math.abs(p.x - h.x) * 0.1), y: h.y };
+        const d = `M${h.x.toFixed(1)} ${h.y.toFixed(1)}Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+        for (const path of g.querySelectorAll('path')) path.setAttribute('d', d);
+      }
+      const { width: w, height: ht } = o;
+      svg.querySelector('[data-mr-base="river"]')?.setAttribute('d', `M-10 ${h.y - 50}C${w * 0.25} ${h.y - 80} ${w * 0.4} ${h.y - 20} ${w * 0.6} ${h.y - 45}S${w * 0.85} ${h.y - 110} ${w + 10} ${h.y - 95}`);
+      svg.querySelector('[data-mr-base="hwy"]')?.setAttribute('d', `M${w * 0.24} -10C${w * 0.2} ${ht * 0.3} ${w * 0.28} ${ht * 0.6} ${w * 0.21} ${ht + 10}`);
+    };
+    layout();
+    new ResizeObserver(layout).observe(box.parentElement ?? document.body);
+    document.fonts?.ready.then(layout);
+    window.addEventListener('load', layout);
+
     const order = ['karvenagar', 'erandwane', 'prabhat-road', 'baner', 'bavdhan', 'warje'].filter((s) => routes.has(s));
     let current = '';
     let step = -1;
@@ -389,6 +394,7 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
       const g = routes.get(slug);
       if (!g) return;
       current = slug;
+      g.classList.remove('is-hot');
       void g.getBoundingClientRect(); // restart the trail animation
       g.classList.add('is-hot');
       pins.get(slug)?.classList.add('is-hot');
@@ -402,8 +408,33 @@ const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(2)}%`;
       window.setTimeout(tick, 2800);
     };
     if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.3 }).observe(box);
+      new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.3 }).observe(box.parentElement ?? box);
     }
     window.setTimeout(tick, 3600); // after the routes have drawn in
+
+    // The floating WhatsApp button steps aside while it would cover a pin (short phones, or scrolling past)
+    const fab = document.querySelector<HTMLElement>('.wa-float');
+    const marks = [...box.querySelectorAll<HTMLElement>('.mr-pin, .mr-caption')];
+    let queued = false;
+    const checkFab = () => {
+      queued = false;
+      if (!fab) return;
+      // where the button sits when shown (the hidden state is nudged 12px down)
+      const f = fab.getBoundingClientRect();
+      const shift = document.documentElement.classList.contains('wa-over-map') ? 12 : 0;
+      const over =
+        phone.matches &&
+        marks.some((m) => {
+          const r = m.getBoundingClientRect();
+          return r.left < f.right + 8 && r.right > f.left - 8 && r.top < f.bottom - shift + 8 && r.bottom > f.top - shift - 8;
+        });
+      document.documentElement.classList.toggle('wa-over-map', over);
+    };
+    const queue = () => {
+      if (!queued) (queued = true), requestAnimationFrame(checkFab);
+    };
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    checkFab();
   }
 </script>

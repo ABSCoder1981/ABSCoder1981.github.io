@@ -47,7 +47,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
     <TowerSketch />
     <div class="hero__veil" aria-hidden="true"></div>
 
-    <!-- Phones: the first screen is the route map; the text below follows on scroll -->
+    <!-- Phones: the route map, with the text below centred between its pins -->
     <MiniRouteMap />
 
     <div class="hero__content" id="hero-text">
@@ -543,9 +543,9 @@ const words = ['home', 'buyer', 'land', 'investment'];
     }
   }
 
-  /* ---------- Mobile: first screen = the route map, text below ---------- */
-  /* Phones: like the laptop view, the opening screen is the map (pins, routes, towers behind);
-     the headline, description and buttons come next as the visitor scrolls. */
+  /* ---------- Mobile: the text in the middle of the route map ---------- */
+  /* Phones: like the laptop view, one screen with the headline, description and buttons centred
+     and the map pins around them (MiniRouteMap: areas above, Warje, Karvenagar and Kothrud below). */
   @media (max-width: 767px) {
     .hero {
       flex-direction: column;
@@ -555,29 +555,30 @@ const words = ['home', 'buyer', 'land', 'investment'];
     .hero :global(.map-stage) {
       display: none;
     }
-    /* the towers fill the first screen behind the map and step back a little once it arrives */
+    /* the towers fill the screen behind the map and step back a little once it arrives */
     .hero :global(.tower-sketch) {
       animation: towers-settle-phone 2s ease 2.4s forwards;
       opacity: 1;
-      top: 0;
-      bottom: auto;
-      height: 100vh;
-      height: 100svh;
     }
+    /* soft white behind the text so it reads over the towers and routes */
     .hero__veil {
-      bottom: auto;
-      height: 100vh;
-      height: 100svh;
-      background: linear-gradient(
-        180deg,
-        rgba(251, 250, 247, 0.6) 0%,
-        rgba(251, 250, 247, 0.25) 45%,
-        rgba(251, 250, 247, 0.55) 85%,
-        rgba(251, 250, 247, 0.95) 100%
-      );
+      background:
+        linear-gradient(180deg, rgba(251, 250, 247, 0.6) 0%, rgba(251, 250, 247, 0) 20%),
+        radial-gradient(
+          ellipse 75% 34% at 50% 50%,
+          rgba(251, 250, 247, 0.92) 0%,
+          rgba(251, 250, 247, 0.8) 55%,
+          rgba(251, 250, 247, 0.35) 85%,
+          rgba(251, 250, 247, 0.15) 100%
+        );
     }
     .hero__content {
-      padding: 40px 20px 56px;
+      order: 2;
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 22px 28px;
     }
     /* the map already shows every area, so no chips row on phones */
     .hero__areas {

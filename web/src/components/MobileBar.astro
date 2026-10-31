@@ -59,8 +59,10 @@ const wa = waHref(waInterest, pageName);
     background: #1ebe5d;
     transform: scale(1.06);
   }
-  /* Step aside while an enquiry form is on screen (it has its own WhatsApp option) */
-  :global(html.form-in-view) .wa-float {
+  /* Step aside while an enquiry form is on screen (it has its own WhatsApp option),
+     or while it would cover a pin of the home hero's phone map (the hero has its own WhatsApp button) */
+  :global(html.form-in-view) .wa-float,
+  :global(html.wa-over-map) .wa-float {
     opacity: 0;
     transform: translateY(12px);
     pointer-events: none;
