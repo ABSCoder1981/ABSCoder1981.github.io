@@ -316,23 +316,8 @@ const wa = waHref('your property services', 'Landing page · services');
     border-bottom: 1px solid rgba(13, 37, 61, 0.12);
     transition: background-color 0.3s ease;
   }
-  .floor::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: -1px;
-    bottom: -1px;
-    width: 3px;
-    background: #e8104c;
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform 0.35s ease;
-  }
   .floor.is-open {
     background: linear-gradient(90deg, rgba(232, 16, 76, 0.05), rgba(232, 16, 76, 0) 70%);
-  }
-  .floor.is-open::before {
-    transform: scaleY(1);
   }
   .floor__h {
     margin: 0;

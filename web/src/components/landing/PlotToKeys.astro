@@ -557,8 +557,10 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     margin-top: clamp(16px, 2.5vh, 28px);
     padding: 14px 22px;
     border-radius: 18px;
-    background: #1d0f16;
-    color: #f6e8ec;
+    /* same bar as "Not sure which service you need?" and "Talk to the team directly" */
+    border: 1px dashed rgba(200, 18, 63, 0.4);
+    background: rgba(253, 236, 240, 0.45);
+    color: #344559;
   }
   .ptk__cta p {
     margin: 0;
@@ -568,7 +570,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
   .ptk__cta strong {
     font-family: var(--font-sans);
     font-weight: 600;
-    color: #fff;
+    color: #0d253d;
   }
   .ptk__btns {
     display: flex;
@@ -678,7 +680,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
     .step__problem { display: none; }
     .ptk__cta { justify-content: center; }
   }
-  /* Dark bar: text left, button centre, call right (as in the services box) */
+  /* CTA bar: text left, button centre, call right (as in the services box) */
   @media (min-width: 900px) {
     .ptk__btns {
       display: contents;
@@ -716,7 +718,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
       text-align: center;
     }
   }
-  /* Dark bar: text at the left, button at the right */
+  /* CTA bar: text at the left, button at the right */
   .ptk__cta {
     justify-content: space-between;
   }
@@ -743,7 +745,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
       justify-self: stretch;
     }
   }
-  /* Phones: the "Start with step 1" button centred in the dark bar */
+  /* Phones: the "Start with step 1" button centred in the bar */
   @media (max-width: 767px) {
     .ptk__cta {
       justify-content: center;
@@ -788,7 +790,7 @@ const wa = waHref('starting with a requirement call', 'Landing page · how we wo
       list.style.minHeight = max + 'px';
     };
 
-    const STEP_MS = 7000;
+    const STEP_MS = 4000; // a stage every 4s
     root.style.setProperty('--step-ms', STEP_MS + 'ms');
     let timer: number | undefined;
     let userTook = false;

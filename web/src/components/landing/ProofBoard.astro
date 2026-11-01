@@ -594,7 +594,7 @@ const story = people.reviews[0];
       cancelAnimationFrame(raf);
       const t0 = performance.now();
       const tick = (now: number) => {
-        const p = Math.min(1, (now - t0) / 2400);
+        const p = Math.min(1, (now - t0) / 4200);
         show(p);
         if (p < 1) raf = requestAnimationFrame(tick);
       };

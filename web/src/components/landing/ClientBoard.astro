@@ -1,7 +1,9 @@
 ---
 // Section 7 — "The Handover Board" (option B).
-// Real handover photos pinned like prints on a site-office board, with the two written reviews
-// (Priya Sharma, Rajesh Patel) pinned in among them. Rajesh Kulkarni's review stays in section 02.
+// Real handover photos, all pinned like prints on a site-office board at once; hovering a print
+// (tapping, on phones) lifts it to the front, enlarged, and clicking it (tapping again) opens the viewer.
+// The two written reviews (Priya Sharma, Rajesh Patel) are pinned beside the photos on wide screens.
+// Rajesh Kulkarni's review stays in section 02.
 // Ratings strip: Google (Kothrud office) as the main badge, Justdial and magicpin as smaller chips.
 // "View all photos" / clicking a print opens a full-screen viewer (keyboard + swipe).
 import { Picture, getImage } from 'astro:assets';
@@ -16,14 +18,6 @@ const photos = await Promise.all(
     return { key: p, i, full: full.src, tilt: [-2.2, 1.6, -1, 2.4, -1.8, 1.2, -2.6, 1.8, -1.2, 2.2, -1.6][i % 11] };
   }),
 );
-// Board order: photos with the two review notes pinned in among them
-type Item = { kind: 'photo'; p: (typeof photos)[number] } | { kind: 'note'; r: (typeof reviews)[number]; tilt: number };
-const items: Item[] = [];
-photos.forEach((p, i) => {
-  items.push({ kind: 'photo', p });
-  if (i === 1 && reviews[0]) items.push({ kind: 'note', r: reviews[0], tilt: 1.8 });
-  if (i === 6 && reviews[1]) items.push({ kind: 'note', r: reviews[1], tilt: -1.6 });
-});
 const ratings = site.ratings.items;
 const google = ratings.find((r) => r.primary)!;
 const others = ratings.filter((r) => !r.primary);
@@ -46,46 +40,48 @@ const stars = (r: number) => Math.round((r / 5) * 100);
       </a>
     </div>
 
-    <!-- The board -->
-    <div class="board">
-      <button type="button" class="board__nav board__nav--prev" data-board-prev aria-label="Previous photos">‹</button>
-      <button type="button" class="board__nav board__nav--next" data-board-next aria-label="Next photos">›</button>
+    <!-- The board: every photo pinned at once; hovering (or tapping, on phones) brings one to the front, enlarged -->
+    <div class="board" data-board>
       <ul role="list" class="board__grid">
         {
-          items.map((it, n) =>
-            it.kind === 'photo' ? (
-              <li class="pin-item" style={`--t:${it.p.tilt}deg;--n:${n}`}>
-                <button type="button" class="print" data-open={it.p.i} aria-label={`Open photo ${it.p.i + 1} of ${photos.length}`}>
-                  <span class="pinhead" aria-hidden="true" />
-                  <Picture
-                    src={img(it.p.key)}
-                    alt="Ashiyana Real Estate clients and team at a property handover"
-                    formats={['avif', 'webp']}
-                    fallbackFormat="jpg"
-                    width={520}
-                    widths={[300, 420, 520]}
-                    sizes="(max-width: 699px) 72vw, (max-width: 1099px) 30vw, 280px"
-                    loading="lazy"
-                    class="print__img"
-                  />
-                </button>
-              </li>
-            ) : (
-              <li class="pin-item pin-item--note" style={`--t:${it.tilt}deg;--n:${n}`}>
-                <figure class="cnote">
-                  <span class="pinhead" aria-hidden="true" />
-                  <p class="cnote__k">Client story · {it.r.area}</p>
-                  <blockquote>
-                    <p>“{it.r.quote}”</p>
-                  </blockquote>
-                  <figcaption>
-                    <strong>{it.r.name}</strong>
-                    <span>{it.r.label}</span>
-                  </figcaption>
-                </figure>
-              </li>
-            ),
-          )
+          photos.map((p, n) => (
+            <li class="pin-item" style={`--t:${p.tilt}deg;--n:${n}`}>
+              <button type="button" class="print" data-open={p.i} aria-label={`Open photo ${p.i + 1} of ${photos.length}`}>
+                <span class="pinhead" aria-hidden="true" />
+                <Picture
+                  src={img(p.key)}
+                  alt="Ashiyana Real Estate clients and team at a property handover"
+                  formats={['avif', 'webp']}
+                  fallbackFormat="jpg"
+                  width={520}
+                  widths={[300, 420, 520]}
+                  sizes="(max-width: 699px) 70vw, (max-width: 1099px) 40vw, 300px"
+                  loading="lazy"
+                  class="print__img"
+                />
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+      <!-- the two written reviews, pinned beside the photos (wide screens) -->
+      <ul role="list" class="board__notes">
+        {
+          reviews.slice(0, 2).map((r, k) => (
+            <li class="pin-item pin-item--note" style={`--t:${k ? -1.6 : 1.8}deg;--n:${photos.length + k}`}>
+              <figure class="cnote">
+                <span class="pinhead" aria-hidden="true" />
+                <p class="cnote__k">Client story · {r.area}</p>
+                <blockquote>
+                  <p>“{r.quote}”</p>
+                </blockquote>
+                <figcaption>
+                  <strong>{r.name}</strong>
+                  <span>{r.label}</span>
+                </figcaption>
+              </figure>
+            </li>
+          ))
         }
       </ul>
     </div>
@@ -340,14 +336,19 @@ const stars = (r: number) => Math.round((r / 5) * 100);
     filter: saturate(0.8);
     transition: filter 0.35s ease;
   }
-  .print:hover,
-  .print:focus-visible {
-    transform: rotate(0deg) translateY(-6px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(13, 37, 61, 0.2);
-    z-index: 2;
+  /* lifted print: straightened, enlarged and in front of the others (the script keeps it inside the board) */
+  .pin-item {
+    position: relative;
+    z-index: 1;
   }
-  .print:hover :global(.print__img),
-  .print:focus-visible :global(.print__img) {
+  .pin-item.is-lifted {
+    z-index: 10;
+  }
+  .pin-item.is-lifted .print {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--s, 1.8));
+    box-shadow: 0 28px 60px rgba(13, 37, 61, 0.32), 0 4px 10px rgba(13, 37, 61, 0.14);
+  }
+  .pin-item.is-lifted :global(.print__img) {
     filter: none;
   }
   .print:focus-visible {
@@ -555,25 +556,6 @@ const stars = (r: number) => Math.round((r / 5) * 100);
     }
   }
   @media (max-width: 699px) {
-    /* phones: a swipeable stack of prints and notes */
-    .board {
-      padding: 22px 0 18px;
-      border-radius: 18px;
-    }
-    .board__grid {
-      columns: auto;
-      display: flex;
-      align-items: flex-start; /* each print keeps its own height */
-      gap: 16px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 8px 20px 14px;
-    }
-    .pin-item {
-      flex: 0 0 74%;
-      margin: 0;
-      scroll-snap-align: center;
-    }
     .viewer[open] {
       grid-template-columns: 0 minmax(0, 1fr) 0;
     }
@@ -591,42 +573,97 @@ const stars = (r: number) => Math.round((r / 5) * 100);
 
   /* ===== One-screen compaction ===== */
 
-  /* the board becomes one sliding row */
-  .board { position: relative; margin-top: clamp(14px, 2.6vh, 36px); padding: clamp(14px, 2.4vh, 28px) 0; }
+  /* the board: every print pinned at once, overlapping a little like a real board.
+     Wide screens: 6 per row (the last row centred) with the review notes in a column beside them. */
+  .board {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(220px, 22vw, 290px);
+    gap: clamp(18px, 2.4vw, 32px);
+    align-items: center;
+    margin-top: clamp(14px, 2.6vh, 36px);
+    padding: clamp(18px, 2.6vh, 30px) clamp(18px, 2.4vw, 32px);
+  }
   .board__grid {
     columns: auto;
-    display: flex;
-    align-items: center;
-    gap: clamp(16px, 2vw, 28px);
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 56px;
-    padding: 14px 56px 10px;
-    scrollbar-width: none;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(10px, 1.6vh, 18px) 0;
+    margin: 0;
   }
-  .board__grid::-webkit-scrollbar { display: none; }
-  .pin-item { flex: 0 0 clamp(200px, 21vw, 280px); margin: 0; scroll-snap-align: start; }
-  .print :global(.print__img) { aspect-ratio: 4 / 3; max-height: calc(100svh - 430px); object-fit: cover; }
-  .cnote blockquote { font-size: 1rem; }
+  .board__grid .pin-item {
+    grid-column: span 2;
+    margin: 0 -4px; /* neighbouring prints overlap slightly */
+    padding-top: 8px;
+  }
+  .board__grid .pin-item:nth-child(7) {
+    grid-column: 2 / span 2; /* 6 on top, 5 below: centre the second row */
+  }
+  .print {
+    padding: 7px 7px 20px;
+  }
+  .print :global(.print__img) { aspect-ratio: 4 / 3; max-height: calc((100svh - 400px) / 2); object-fit: cover; }
+  .board__notes {
+    display: grid;
+    gap: clamp(14px, 2vh, 22px);
+    margin: 0;
+  }
+  .board__notes .pin-item {
+    margin: 0;
+    padding-top: 8px;
+  }
+  .cnote {
+    padding: 18px 16px 14px;
+  }
+  .cnote blockquote { font-size: 0.9375rem; }
+  .cnote figcaption {
+    margin-top: 10px;
+    padding-top: 8px;
+  }
   .cb__btns { margin-top: clamp(12px, 2.4vh, 32px); }
-  .board__nav {
-    position: absolute; top: 50%; z-index: 3; display: grid; place-items: center;
-    width: 44px; height: 44px; margin-top: -22px; border-radius: 50%;
-    border: 1px solid rgba(13, 37, 61, 0.15); background: #fff; box-shadow: 0 8px 18px rgba(13, 37, 61, 0.14);
-    font-size: 1.375rem; line-height: 1; color: #0d253d; cursor: pointer;
+  @media (max-width: 899px) {
+    /* phones and small tablets: photos only, the notes would not fit one screen */
+    .board {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .board__notes {
+      display: none;
+    }
   }
-  .board__nav:hover { background: #c8123f; border-color: #c8123f; color: #fff; }
-  .board__nav--prev { left: 8px; }
-  .board__nav--next { right: 8px; }
   @media (max-width: 699px) {
     .cb__lead, .cb__share { display: none; }
     .cb__title { font-size: 1.8rem; }
     .cb__top { grid-template-columns: minmax(0, 1fr); gap: 10px; }
     .grate { justify-self: start; padding: 8px 14px; }
-    .board__grid { padding-inline: 20px; scroll-padding-inline: 20px; }
-    .pin-item { flex-basis: 72%; }
-    .print :global(.print__img) { max-height: 32svh; }
-    .board__nav { display: none; }
+    /* 3 per row (the last row of 2 centred) */
+    .board {
+      padding: 16px 14px 18px;
+      border-radius: 18px;
+    }
+    .board__grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      row-gap: 10px;
+    }
+    .board__grid .pin-item:nth-child(7) {
+      grid-column: span 2;
+    }
+    .board__grid .pin-item:nth-child(10) {
+      grid-column: 2 / span 2;
+    }
+    .board__grid .pin-item {
+      margin: 0 -2px;
+      padding-top: 6px;
+    }
+    .print {
+      padding: 4px 4px 12px;
+    }
+    .print :global(.print__img) { max-height: none; }
+    .pinhead {
+      top: -6px;
+      width: 12px;
+      height: 12px;
+      margin-left: -6px;
+    }
   }
 </style>
 
@@ -647,11 +684,58 @@ const stars = (r: number) => Math.round((r / 5) * 100);
       io.observe(root);
     }
 
-    // Board arrows: slide the row by most of its width
-    const row = root.querySelector<HTMLElement>(".board__grid")!;
-    const slide = (dir: number) => row.scrollBy({ left: dir * row.clientWidth * 0.8, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    root.querySelector("[data-board-prev]")!.addEventListener("click", () => slide(-1));
-    root.querySelector("[data-board-next]")!.addEventListener("click", () => slide(1));
+    // Board: hover (mouse), focus (keyboard) or a first tap (touch) lifts a print to the front, enlarged.
+    // The shift keeps the enlarged print inside the board, so prints at the edges grow inwards.
+    const board = root.querySelector<HTMLElement>('[data-board]')!;
+    const items = [...board.querySelectorAll<HTMLElement>('.board__grid .pin-item')];
+    let lifted: HTMLElement | null = null;
+    const drop = () => {
+      lifted?.classList.remove('is-lifted');
+      lifted = null;
+    };
+    const lift = (li: HTMLElement) => {
+      if (lifted === li) return;
+      drop();
+      const r = li.getBoundingClientRect();
+      const b = board.getBoundingClientRect();
+      const s = Math.min(window.innerWidth < 700 ? 2.4 : 1.9, (b.width - 16) / r.width);
+      const half = { w: (r.width * s) / 2, h: (r.height * s) / 2 };
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), Math.max(lo, hi));
+      const dx = clamp(cx, b.left + 8 + half.w, b.right - 8 - half.w) - cx;
+      const dy = clamp(cy, b.top + 8 + half.h, b.bottom - 8 - half.h) - cy;
+      li.style.setProperty('--s', s.toFixed(3));
+      li.style.setProperty('--dx', `${dx.toFixed(1)}px`);
+      li.style.setProperty('--dy', `${dy.toFixed(1)}px`);
+      li.classList.add('is-lifted');
+      lifted = li;
+    };
+    let touch = false;
+    for (const li of items) {
+      li.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && lift(li));
+      li.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && drop());
+      li.addEventListener('pointerdown', (e) => (touch = e.pointerType !== 'mouse'));
+      const print = li.querySelector<HTMLElement>('.print')!;
+      print.addEventListener('focus', () => !touch && lift(li));
+      print.addEventListener('blur', () => lifted === li && !touch && drop());
+      // touch: the first tap lifts the print, a second tap opens the viewer (capture: runs before it)
+      print.addEventListener(
+        'click',
+        (e) => {
+          if (touch && lifted !== li) {
+            e.stopImmediatePropagation();
+            lift(li);
+          }
+        },
+        true,
+      );
+    }
+    // a tap anywhere else puts the print back
+    document.addEventListener('pointerdown', (e) => {
+      if (lifted && e.pointerType !== 'mouse' && !lifted.contains(e.target as Node)) drop();
+    });
+    window.addEventListener('resize', drop);
 
     // Full-screen viewer
     const dlg = root.querySelector<HTMLDialogElement>('[data-viewer]')!;

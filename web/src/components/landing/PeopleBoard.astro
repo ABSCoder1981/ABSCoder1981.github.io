@@ -58,7 +58,7 @@ const wa = waHref('talking to your team', 'Landing page · our people');
         {msg.body.map((p) => <p class="founder__body">{p}</p>)}
         <p class="founder__sig">
           <strong>{msg.name}</strong>
-          <span>{msg.role} · {msg.meta}</span>
+          <span>{msg.role}<span class="founder__meta"> · {msg.meta}</span></span>
         </p>
       </div>
     </article>
@@ -329,8 +329,6 @@ const wa = waHref('talking to your team', 'Landing page · our people');
     flex-direction: column;
     gap: 2px;
     margin: 22px 0 0;
-    padding-left: 16px;
-    border-left: 2px solid #e8104c;
   }
   .founder__sig strong {
     font-size: 1.125rem;
@@ -370,8 +368,6 @@ const wa = waHref('talking to your team', 'Landing page · our people');
   .mcard__who {
     position: relative;
     margin-top: 18px;
-    padding-left: 16px;
-    border-left: 3px solid #e8104c;
   }
   .mcard__name {
     margin: 0;
@@ -715,15 +711,22 @@ const wa = waHref('talking to your team', 'Landing page · our people');
     .pb > .container { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'head' 'founder' 'team' 'pillars'; gap: 14px; }
     .pb__lead, .founder__k, .team__k, .pillars__intro { display: none; }
     .pb__title { font-size: 1.8rem; }
-    .founder { grid-template-columns: 84px minmax(0, 1fr); align-items: center; }
+    /* the director gets the biggest photo: about 40% of the width, taller than the team photos */
+    .founder { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 14px; align-items: center; }
+    .frame--lg { padding: 6px; }
+    .frame--lg :global(.photo) { aspect-ratio: 3 / 4; }
     .frame--lg :global(.photo) { max-height: none; }
     .frame__corner { display: none; }
-    .founder__quote { margin: 0; font-size: 0.9375rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .founder__sig { margin-top: 6px; padding-left: 10px; }
-    .founder__sig span { display: none; }
+    .founder__quote { margin: 0; font-size: 0.9375rem; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+    .founder__sig { margin-top: 6px; }
+    .founder__sig { gap: 0; }
+    .founder__sig strong { font-size: 1rem; }
+    .founder__sig span { font-size: 0.75rem; line-height: 1.35; }
+    .founder__meta { display: none; }
     .team__grid { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
-    .mcard { flex: 0 0 44%; scroll-snap-align: start; }
-    .mcard .frame :global(.photo) { max-height: 20svh; }
+    .mcard { flex: 0 0 34%; scroll-snap-align: start; }
+    .mcard .frame { padding: 5px; }
+    .mcard .frame :global(.photo) { max-height: 15svh; }
     .mcard__name { font-size: 1rem; }
     .mcard__role { font-size: 0.625rem; letter-spacing: 0.1em; }
     .pillars__row { margin-top: 0; }
