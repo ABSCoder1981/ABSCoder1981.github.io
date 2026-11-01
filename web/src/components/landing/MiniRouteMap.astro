@@ -268,6 +268,9 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     justify-self: center;
     margin-top: 2px;
     animation-delay: 0.8s;
+    /* the Kothrud circle itself on the centre line (the name sits beside it): shift the pin by half its
+       width less half the 30px circle */
+    transform: translateX(calc(50% - 15px));
   }
   .mr-pin--hub .mr-pin__dot {
     width: 30px;
