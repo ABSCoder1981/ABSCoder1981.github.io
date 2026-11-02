@@ -1,9 +1,10 @@
 ---
 // Phones only: the hero's route map, laid out like the desktop map with the headline in the middle.
 // Baner, Prabhat Road, Bavdhan and Erandwane sit above it, Warje and Karvenagar below it, and the
-// Kothrud head office at the bottom; the description and buttons follow below the map. West on the
-// left, east on the right. The pins are in normal flow (the wrapper is display: contents, so the two
-// bands become hero rows around the headline); the script measures the pin dots and draws each route from Kothrud.
+// Kothrud head office at the bottom; it fills the first screen and the description and buttons follow
+// below it. West on the left, east on the right. The pins are in normal flow (the wrapper is display:
+// contents, so the two bands become hero rows around the headline); the script measures the pin dots
+// and draws each route from Kothrud.
 // The routes draw in, then a dot travels Kothrud → each area in turn (the route turns solid and the
 // pin lights up, like hovering a pin on desktop). Pins link to their area pages.
 import { localities, site } from '../../lib/site';
@@ -112,11 +113,13 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     padding-inline: 14px;
   }
   .mr__band--top {
-    order: 1;
+    grid-column: 1;
+    grid-row: 1;
     padding-top: 100px; /* clears the overlay navbar */
   }
   .mr__band--bottom {
-    order: 3;
+    grid-column: 1;
+    grid-row: 3;
     padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   }
 

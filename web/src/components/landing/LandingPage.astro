@@ -544,12 +544,40 @@ const words = ['home', 'buyer', 'land', 'investment'];
   }
 
   /* ---------- Mobile: the text in the middle of the route map ---------- */
-  /* Phones: one screen with the headline centred and the map pins around it (MiniRouteMap: areas above,
-     Warje, Karvenagar and Kothrud below), then the description and buttons below the map. */
+  /* Phones: the map fills the first screen, with the headline centred and the pins around it (MiniRouteMap:
+     areas above, Warje, Karvenagar and Kothrud below). The description and buttons follow on a plain block,
+     seen after scrolling. Rows: 1 top pins, 2 headline, 3 bottom pins, 4 description, 5 buttons. */
   @media (max-width: 767px) {
     .hero {
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto 1fr auto auto auto;
       align-items: stretch;
+    }
+    /* rows 1 to 3 together are one screen tall: the headline row takes up whatever the pins leave */
+    .hero::before {
+      content: '';
+      grid-column: 1;
+      grid-row: 1 / 4;
+      min-height: 100vh; /* fallback */
+      min-height: 100svh;
+      pointer-events: none;
+    }
+    /* the plain block behind the description and buttons */
+    .hero::after {
+      content: '';
+      grid-column: 1;
+      grid-row: 4 / 6;
+      z-index: 2;
+      background: #fff;
+      border-top: 1px solid rgba(13, 37, 61, 0.08);
+    }
+    /* the drawing layers cover the map rows only */
+    .hero__veil,
+    .hero :global(.tower-sketch),
+    .hero :global(.mr__svg) {
+      grid-column: 1;
+      grid-row: 1 / 4;
     }
     /* the desktop map layers are sized for a wide screen; phones use MiniRouteMap instead */
     .hero :global(.map-stage) {
@@ -564,20 +592,19 @@ const words = ['home', 'buyer', 'land', 'investment'];
     .hero__veil {
       background:
         linear-gradient(180deg, rgba(251, 250, 247, 0.6) 0%, rgba(251, 250, 247, 0) 20%),
-        linear-gradient(0deg, rgba(251, 250, 247, 0.92) 0%, rgba(251, 250, 247, 0.92) 24%, rgba(251, 250, 247, 0) 38%),
         radial-gradient(
-          ellipse 75% 26% at 50% 38%,
+          ellipse 75% 26% at 50% 50%,
           rgba(251, 250, 247, 0.92) 0%,
           rgba(251, 250, 247, 0.8) 55%,
           rgba(251, 250, 247, 0.35) 85%,
           rgba(251, 250, 247, 0.15) 100%
         );
     }
-    /* the headline stays in the map (row 2); the description and buttons drop below it (rows 4 and 5) */
     .hero__content {
       display: contents;
     }
     .hero__content > * {
+      grid-column: 1;
       position: relative;
       z-index: 3;
     }
@@ -586,7 +613,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
       display: none !important;
     }
     .hero__title {
-      order: 2;
+      grid-row: 2;
       margin-block: auto; /* centred in the map, between the top pins and the bottom pins */
       font-size: clamp(2rem, 9.5vw, 2.6rem);
     }
@@ -614,18 +641,18 @@ const words = ['home', 'buyer', 'land', 'investment'];
       flex: none;
     }
     .hero__lead {
-      order: 4;
+      grid-row: 4;
       width: min(100% - 56px, 560px);
-      margin-top: 14px;
+      margin-top: 28px;
       font-size: 0.9375rem;
       line-height: 1.55;
     }
     .hero__ctas {
-      order: 5;
+      grid-row: 5;
       width: min(100% - 56px, 340px);
       gap: 10px;
-      margin-top: 14px;
-      margin-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+      margin-top: 16px;
+      margin-bottom: 32px;
     }
     .hero-btn {
       flex: 1 1 100%;
