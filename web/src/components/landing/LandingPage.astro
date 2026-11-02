@@ -611,18 +611,21 @@ const words = ['home', 'buyer', 'land', 'investment'];
       flex: none;
     }
     .hero__lead {
-      font-size: 0.9375rem;
-      line-height: 1.55;
-      margin-top: 12px;
+      display: none;
     }
+    /* both buttons inside the curved route lines, which pass at most 70px in from the screen edge */
     .hero__ctas {
+      width: min(100vw - 160px, 260px);
       gap: 10px;
       margin-top: 18px;
     }
     .hero-btn {
       flex: 1 1 100%;
-      max-width: 340px;
+      gap: 6px;
       min-height: 46px;
+      padding: 0 8px;
+      font-size: clamp(0.6875rem, 3.4vw, 0.8125rem);
+      letter-spacing: 0.08em;
     }
   }
 </style>
