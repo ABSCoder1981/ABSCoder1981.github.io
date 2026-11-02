@@ -248,8 +248,8 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
      their routes leave the dot downwards. Raised more on taller phones; short phones keep clear of the headline. */
   .mr-pin--inner {
     position: relative;
-    top: calc(54px - 20vh); /* fallback */
-    top: calc(54px - 20svh);
+    top: max(156px - 38vh, 14px - 20vh); /* fallback */
+    top: max(156px - 38svh, 14px - 20svh);
     justify-self: center;
     flex-direction: column-reverse;
     gap: 5px;
@@ -404,9 +404,9 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
         if (!dot) continue;
         const p = centre(dot, o);
         // leaves Kothrud sideways (like a road), then runs up the edge of the screen to the area
-        // the inner pins (Warje, Karvenagar) go almost straight, staying inside the outer routes
+        // the inner pins (Warje, Karvenagar) get a gentle curve that stays inside the outer routes
         const c = g.classList.contains('mr-route--inner')
-          ? { x: h.x + (p.x - h.x) * 0.625, y: h.y + (p.y - h.y) * 0.375 }
+          ? { x: h.x + (p.x - h.x) * 0.8, y: h.y + (p.y - h.y) * 0.3 }
           : { x: p.x + (p.x < h.x ? -1 : 1) * Math.min(18, Math.abs(p.x - h.x) * 0.1), y: h.y };
         const d = `M${h.x.toFixed(1)} ${h.y.toFixed(1)}Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
         for (const path of g.querySelectorAll('path')) path.setAttribute('d', d);

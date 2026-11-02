@@ -82,28 +82,36 @@ function wall(gateX: number): Part[] {
   return [{ d: `M0 ${GY - 16}H${gateX}M${gateX + 50} ${GY - 16}H600M${gateX} ${GY}V${GY - 30}M${gateX + 50} ${GY}V${GY - 30}`, k: 'ln' }];
 }
 
-const scenes: Record<string, { parts: Part[][]; caption: string }> = {
+// top / bottom: where the drawing starts and ends in the viewBox, so wide screens can crop the empty canvas
+const scenes: Record<string, { parts: Part[][]; caption: string; top: number; bottom?: number }> = {
   kothrud: {
+    top: 108,
     caption: 'Settled societies, redevelopment and the metro line',
     parts: [metro(118), block(20, 120, 6), tree(160), block(180, 110, 7), block(310, 130, 5), tree(458, 1.1), block(480, 100, 6)],
   },
   karvenagar: {
+    top: 156,
     caption: 'Quiet, green lanes with societies and independent homes',
     parts: [tree(20, 1.2), block(50, 110, 4), bungalow(190, 100), tree(312, 1.3), block(340, 120, 5), tree(475), bungalow(495, 90)],
   },
   warje: {
+    top: 6,
+    bottom: 310,
     caption: 'Newer high-rise projects along the highway',
     parts: [road(), tower(40, 70, 14), tower(130, 70, 16), block(222, 110, 5), tower(352, 76, 15), tower(450, 64, 12), tree(538)],
   },
   'prabhat-road': {
+    top: 178,
     caption: 'Tree-lined lanes, bungalows and premium low-rise',
     parts: [tree(18, 1.3), bungalow(40, 110), tree(175, 1.4), bungalow(205, 100), block(330, 120, 4), tree(468, 1.3), bungalow(490, 96)],
   },
   bavdhan: {
+    top: 21,
     caption: 'Gated towers against the Bavdhan hills',
     parts: [hill(), tower(70, 80, 13), tower(180, 80, 15), tower(300, 80, 14), tree(410, 1.2), block(450, 110, 5), wall(240)],
   },
   erandwane: {
+    top: 90,
     caption: 'Older societies and redeveloped buildings, central and quiet',
     parts: [block(20, 110, 4), block(150, 120, 8), tree(292, 1.2), block(320, 100, 4), bungalow(445, 110)],
   },
@@ -175,7 +183,7 @@ const areas = localities.map((l) => {
           hidden={i !== 0}
         >
           <figure class="lx__scene">
-            <svg viewBox="0 0 600 320" aria-hidden="true" focusable="false">
+            <svg viewBox="0 0 600 320" data-crop={`0 ${a.scene.top} 600 ${(a.scene.bottom ?? 292) - a.scene.top}`} aria-hidden="true" focusable="false">
               <path class="sv-ground" d={`M0 ${GY}H600`} />
               {a.scene.parts.map((group, gi) => (
                 <g style={`--g:${gi}`}>
@@ -704,6 +712,26 @@ const areas = localities.map((l) => {
       margin-inline: auto;
     }
   }
+  /* Laptops and desktops: the drawing fills its panel (the script crops the empty canvas), caption centred.
+     The facts beside it set the panel's height, so the panel doesn't grow. */
+  @media (min-width: 900px) {
+    .lx__panel {
+      align-items: stretch;
+    }
+    .lx__scene {
+      display: flex;
+      flex-direction: column;
+    }
+    .lx__scene svg {
+      flex: 1 1 0;
+      min-height: 0;
+      height: auto;
+      max-height: none;
+    }
+    .lx__scene figcaption {
+      text-align: center;
+    }
+  }
   /* Phones: the six area tabs are one swipeable row; a fade on the right shows more are there.
      The fade goes once the row is scrolled to its end. */
   @media (max-width: 767px) {
@@ -730,6 +758,16 @@ const areas = localities.map((l) => {
     const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
     const panels = tabs.map((t) => document.getElementById(t.getAttribute('aria-controls')!)!);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // laptops and desktops: crop each drawing to its buildings, so it fills the panel
+    const wide = window.matchMedia('(min-width: 900px)');
+    const fit = () => {
+      for (const svg of root.querySelectorAll<SVGSVGElement>('.lx__scene svg')) {
+        svg.setAttribute('viewBox', wide.matches ? svg.dataset.crop! : '0 0 600 320');
+      }
+    };
+    fit();
+    wide.addEventListener('change', fit);
 
     // move the highlight pill under tab i (instantly on first paint and on resize)
     const pill = root.querySelector<HTMLElement>('.lx__pill');

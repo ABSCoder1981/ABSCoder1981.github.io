@@ -347,6 +347,7 @@ const stars = (r: number) => Math.round((r / 5) * 100);
   .pin-item.is-lifted .print {
     transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--s, 1.8));
     box-shadow: 0 28px 60px rgba(13, 37, 61, 0.32), 0 4px 10px rgba(13, 37, 61, 0.14);
+    transition: transform 1s cubic-bezier(0.45, 0, 0.3, 1), box-shadow 1s ease; /* enlarges slowly */
   }
   .pin-item.is-lifted :global(.print__img) {
     filter: none;
@@ -459,7 +460,8 @@ const stars = (r: number) => Math.round((r / 5) * 100);
   /* ---------- Viewer ---------- */
   .viewer {
     width: 100vw;
-    height: 100vh;
+    height: 100vh; /* fallback */
+    height: 100dvh; /* phones: excludes the browser toolbars, so the buttons stay on screen */
     max-width: none;
     max-height: none;
     margin: 0;
@@ -477,6 +479,7 @@ const stars = (r: number) => Math.round((r / 5) * 100);
     background: rgba(0, 0, 0, 0.6);
   }
   .viewer__fig {
+    grid-column: 2; /* on phones the arrows float, and the photo would otherwise land in an empty first column */
     margin: 0;
     display: grid;
     justify-items: center;
@@ -558,6 +561,14 @@ const stars = (r: number) => Math.round((r / 5) * 100);
   @media (max-width: 699px) {
     .viewer[open] {
       grid-template-columns: 0 minmax(0, 1fr) 0;
+    }
+    /* the photo across the full width, clear of the close button and arrows */
+    .viewer__fig {
+      padding-inline: 8px;
+    }
+    .viewer__fig img {
+      max-height: calc(100vh - 190px); /* fallback */
+      max-height: calc(100dvh - 190px);
     }
     .viewer__nav {
       position: absolute;
