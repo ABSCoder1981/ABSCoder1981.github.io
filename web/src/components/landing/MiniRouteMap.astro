@@ -19,8 +19,8 @@ const baner = { slug: 'baner', name: 'Baner', href: branch.mapUrl, external: tru
 const top = [
   { ...baner, side: 'left' },
   { ...area('prabhat-road'), side: 'right', indent: true },
-  { ...area('bavdhan'), side: 'left', indent: true },
-  { ...area('erandwane'), side: 'right' },
+  { ...area('bavdhan'), side: 'left', indent: true, shift: 'down' },
+  { ...area('erandwane'), side: 'right', shift: 'down' },
 ];
 const bottom = [
   { ...area('warje'), side: 'left' },
@@ -53,7 +53,7 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     {
       pins.slice(0, top.length).map((p) => (
         <a
-          class:list={['mr-pin', `mr-pin--${p.side}`, { 'mr-pin--office': p.office, 'mr-pin--indent': p.indent }]}
+          class:list={['mr-pin', `mr-pin--${p.side}`, { 'mr-pin--office': p.office, 'mr-pin--indent': p.indent, 'mr-pin--down': p.shift === 'down' }]}
           href={p.href}
           {...(p.external ? { target: '_blank', rel: 'noopener' } : {})}
           data-mr-node={p.slug}
@@ -69,7 +69,7 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
   <div class="mr__band mr__band--bottom">
     {
       pins.slice(top.length).map((p) => (
-        <a class:list={['mr-pin', `mr-pin--${p.side}`]} href={p.href} data-mr-node={p.slug} style={`--i:${p.i}`}>
+        <a class:list={['mr-pin', `mr-pin--${p.side}`, 'mr-pin--up']} href={p.href} data-mr-node={p.slug} style={`--i:${p.i}`}>
           <span class="mr-pin__dot" aria-hidden="true" />
           <span class="mr-pin__card">{p.name}</span>
         </a>
@@ -223,6 +223,17 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
   }
   .mr-pin--right.mr-pin--indent {
     margin-right: 22px;
+  }
+  /* Bavdhan and Erandwane sit lower, Warje and Karvenagar higher: closer to the headline, by a share of the screen height */
+  .mr-pin--down {
+    position: relative;
+    top: 9vh; /* fallback */
+    top: 9svh;
+  }
+  .mr-pin--up {
+    position: relative;
+    top: -13vh; /* fallback */
+    top: -13svh;
   }
   .mr-pin__dot {
     position: relative;
