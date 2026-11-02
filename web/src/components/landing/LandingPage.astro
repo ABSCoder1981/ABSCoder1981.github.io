@@ -47,7 +47,7 @@ const words = ['home', 'buyer', 'land', 'investment'];
     <TowerSketch />
     <div class="hero__veil" aria-hidden="true"></div>
 
-    <!-- Phones: the route map, with the text below centred between its pins -->
+    <!-- Phones: the route map, with the headline centred between its pins -->
     <MiniRouteMap />
 
     <div class="hero__content" id="hero-text">
@@ -544,8 +544,8 @@ const words = ['home', 'buyer', 'land', 'investment'];
   }
 
   /* ---------- Mobile: the text in the middle of the route map ---------- */
-  /* Phones: like the laptop view, one screen with the headline, description and buttons centred
-     and the map pins around them (MiniRouteMap: areas above, Warje, Karvenagar and Kothrud below). */
+  /* Phones: one screen with the headline centred and the map pins around it (MiniRouteMap: areas above,
+     Warje, Karvenagar and Kothrud below), then the description and buttons below the map. */
   @media (max-width: 767px) {
     .hero {
       flex-direction: column;
@@ -564,27 +564,30 @@ const words = ['home', 'buyer', 'land', 'investment'];
     .hero__veil {
       background:
         linear-gradient(180deg, rgba(251, 250, 247, 0.6) 0%, rgba(251, 250, 247, 0) 20%),
+        linear-gradient(0deg, rgba(251, 250, 247, 0.92) 0%, rgba(251, 250, 247, 0.92) 24%, rgba(251, 250, 247, 0) 38%),
         radial-gradient(
-          ellipse 75% 34% at 50% 50%,
+          ellipse 75% 26% at 50% 38%,
           rgba(251, 250, 247, 0.92) 0%,
           rgba(251, 250, 247, 0.8) 55%,
           rgba(251, 250, 247, 0.35) 85%,
           rgba(251, 250, 247, 0.15) 100%
         );
     }
+    /* the headline stays in the map (row 2); the description and buttons drop below it (rows 4 and 5) */
     .hero__content {
-      order: 2;
-      flex: 1 0 auto;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 22px 28px;
+      display: contents;
+    }
+    .hero__content > * {
+      position: relative;
+      z-index: 3;
     }
     /* the map already shows every area, so no chips row on phones */
     .hero__areas {
       display: none !important;
     }
     .hero__title {
+      order: 2;
+      margin-block: auto; /* centred in the map, between the top pins and the bottom pins */
       font-size: clamp(2rem, 9.5vw, 2.6rem);
     }
     .hero__areas {
@@ -611,21 +614,22 @@ const words = ['home', 'buyer', 'land', 'investment'];
       flex: none;
     }
     .hero__lead {
-      display: none;
+      order: 4;
+      width: min(100% - 56px, 560px);
+      margin-top: 14px;
+      font-size: 0.9375rem;
+      line-height: 1.55;
     }
-    /* both buttons inside the curved route lines, which pass at most 70px in from the screen edge */
     .hero__ctas {
-      width: min(100vw - 160px, 260px);
+      order: 5;
+      width: min(100% - 56px, 340px);
       gap: 10px;
-      margin-top: 18px;
+      margin-top: 14px;
+      margin-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     }
     .hero-btn {
       flex: 1 1 100%;
-      gap: 6px;
       min-height: 46px;
-      padding: 0 8px;
-      font-size: clamp(0.6875rem, 3.4vw, 0.8125rem);
-      letter-spacing: 0.08em;
     }
   }
 </style>

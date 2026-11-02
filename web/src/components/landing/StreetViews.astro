@@ -208,11 +208,6 @@ const areas = localities.map((l) => {
               <div>
                 <dt>Price range</dt>
                 <dd>
-                  <span class="lx__scale" aria-hidden="true">
-                    {[1, 2, 3, 4].map((n) => (
-                      <span class:list={{ on: n >= a.lo && n <= a.hi }} />
-                    ))}
-                  </span>
                   <span class="lx__heat" aria-hidden="true">
                     {scaleNames.map((name, s) => (
                       <span class:list={['lx__cell', `lx__cell--${s + 1}`, { on: s + 1 >= a.lo && s + 1 <= a.hi }]}>{name}</span>
@@ -565,81 +560,55 @@ const areas = localities.map((l) => {
     color: #c8123f;
     font-weight: 700;
   }
-  .lx__scale {
-    display: inline-flex;
-    gap: 4px;
-    margin-right: 10px;
-    vertical-align: middle;
+  /* The price range as a heat strip. The steps in this area's range glow, pale to deep crimson;
+     the words stay for screen readers. */
+  .lx__heat {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 3px;
+    margin-top: 2px;
   }
-  .lx__scale span {
-    width: 26px;
-    height: 8px;
-    border-radius: 4px;
-    background: rgba(13, 37, 61, 0.1);
+  .lx__cell {
+    padding: 8px 2px;
+    background: rgba(13, 37, 61, 0.06);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+    color: #4e5d73;
   }
-  .lx__scale span.on {
-    background: #e8104c;
+  .lx__cell:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+  .lx__cell:last-child {
+    border-radius: 0 8px 8px 0;
+  }
+  .lx__cell.on {
+    font-weight: 600;
+  }
+  .lx__cell--1.on {
+    background: #fbd0da;
+    color: #0d253d;
+  }
+  .lx__cell--2.on {
+    background: #f58ea6;
+    color: #0d253d;
+  }
+  .lx__cell--3.on {
+    background: #d80f46;
+    color: #fff;
+  }
+  .lx__cell--4.on {
+    background: #8f0a2e;
+    color: #fff;
   }
   .lx__range {
-    vertical-align: middle;
-  }
-  .lx__heat {
-    display: none;
-  }
-  /* Phones: the price range as a heat strip. The steps in this area's range glow, pale to deep crimson;
-     the words stay for screen readers. */
-  @media (max-width: 767px) {
-    .lx__scale {
-      display: none;
-    }
-    .lx__heat {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 3px;
-      margin-top: 2px;
-    }
-    .lx__cell {
-      padding: 8px 2px;
-      background: rgba(13, 37, 61, 0.06);
-      font-size: 0.6875rem;
-      font-weight: 500;
-      line-height: 1.2;
-      text-align: center;
-      color: #4e5d73;
-    }
-    .lx__cell:first-child {
-      border-radius: 8px 0 0 8px;
-    }
-    .lx__cell:last-child {
-      border-radius: 0 8px 8px 0;
-    }
-    .lx__cell.on {
-      font-weight: 600;
-    }
-    .lx__cell--1.on {
-      background: #fbd0da;
-      color: #0d253d;
-    }
-    .lx__cell--2.on {
-      background: #f58ea6;
-      color: #0d253d;
-    }
-    .lx__cell--3.on {
-      background: #d80f46;
-      color: #fff;
-    }
-    .lx__cell--4.on {
-      background: #8f0a2e;
-      color: #fff;
-    }
-    .lx__range {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-      white-space: nowrap;
-    }
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   /* ---------- Sanaswadi site plan ---------- */

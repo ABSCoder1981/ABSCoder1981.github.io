@@ -641,7 +641,7 @@ const wa = waHref('your property services', 'Landing page · services');
       min-height: 52px;
     }
   }
-  /* Phones and small tablets: the building drawing is shown too (between the heading and the list),
+  /* Small tablets: the building drawing is shown too (between the heading and the list),
      at a size that still leaves the open service readable; the section grows past one screen if it must */
   @media (max-width: 899px) {
     .floors__art {
@@ -655,6 +655,15 @@ const wa = waHref('your property services', 'Landing page · services');
       max-width: 100%;
       height: clamp(170px, 30svh, 270px);
       max-height: none;
+    }
+  }
+  /* Phones: no building drawing, the list follows the heading */
+  @media (max-width: 767px) {
+    .floors__art {
+      display: none;
+    }
+    .floors__grid {
+      row-gap: 20px;
     }
   }
 </style>

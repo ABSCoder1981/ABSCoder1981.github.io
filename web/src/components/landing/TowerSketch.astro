@@ -61,6 +61,12 @@ import sketch from '../../assets/tower-sketch.svg?raw';
   .tower-sketch {
     --sk-speed: 0.6;
   }
+  /* Phones: twice as fast */
+  @media (max-width: 767px) {
+    .tower-sketch {
+      --sk-speed: 0.3;
+    }
+  }
 
   @media all {
     /* ---- 1. Every line draws itself, in its own time ----

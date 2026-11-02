@@ -1,9 +1,9 @@
 ---
-// Phones only: the hero's route map, laid out like the desktop map with the headline, description
-// and buttons in the middle. Baner, Prabhat Road, Bavdhan and Erandwane sit above the text, Warje
-// and Karvenagar below it, and the Kothrud head office at the bottom. West on the left, east on the right.
-// The pins are in normal flow (the wrapper is display: contents, so the two bands become hero rows
-// around .hero__content); the script measures the pin dots and draws each route from Kothrud.
+// Phones only: the hero's route map, laid out like the desktop map with the headline in the middle.
+// Baner, Prabhat Road, Bavdhan and Erandwane sit above it, Warje and Karvenagar below it, and the
+// Kothrud head office at the bottom; the description and buttons follow below the map. West on the
+// left, east on the right. The pins are in normal flow (the wrapper is display: contents, so the two
+// bands become hero rows around the headline); the script measures the pin dots and draws each route from Kothrud.
 // The routes draw in, then a dot travels Kothrud → each area in turn (the route turns solid and the
 // pin lights up, like hovering a pin on desktop). Pins link to their area pages.
 import { localities, site } from '../../lib/site';
@@ -415,9 +415,9 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     }
     window.setTimeout(tick, 3600); // after the routes have drawn in
 
-    // The floating WhatsApp button steps aside while it would cover a pin (short phones, or scrolling past)
+    // The floating WhatsApp button steps aside while it would cover a pin or a hero button (short phones, or scrolling past)
     const fab = document.querySelector<HTMLElement>('.wa-float');
-    const marks = [...box.querySelectorAll<HTMLElement>('.mr-pin, .mr-caption')];
+    const marks = [...document.querySelectorAll<HTMLElement>('.mr-pin, .mr-caption, .hero-btn')];
     let queued = false;
     const checkFab = () => {
       queued = false;
