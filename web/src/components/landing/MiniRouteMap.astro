@@ -1,7 +1,7 @@
 ---
 // Phones only: the hero's route map, laid out like the desktop map with the headline in the middle.
-// Baner, Prabhat Road, Bavdhan and Erandwane sit above it, Warje and Karvenagar below it, and the
-// Kothrud head office at the bottom; it fills the first screen and the description and buttons follow
+// Baner, Prabhat Road, Bavdhan and Erandwane sit above it, Warje and Karvenagar below it (inside the
+// outer routes), and the Kothrud head office at the bottom; it fills the first screen and the description and buttons follow
 // below it. West on the left, east on the right. The pins are in normal flow (the wrapper is display:
 // contents, so the two bands become hero rows around the headline); the script measures the pin dots
 // and draws each route from Kothrud.
@@ -23,8 +23,8 @@ const top = [
   { ...area('erandwane'), side: 'right', shift: 'down' },
 ];
 const bottom = [
-  { ...area('warje'), side: 'left' },
-  { ...area('karvenagar'), side: 'right' },
+  { ...area('warje'), side: 'left', inner: true },
+  { ...area('karvenagar'), side: 'right', inner: true },
 ];
 const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
 ---
@@ -36,7 +36,7 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     <path class="mr-hwy" data-mr-base="hwy" />
     {
       pins.map((p) => (
-        <g class:list={['mr-route', { 'mr-route--office': p.office }]} data-mr={p.slug} style={`--i:${p.i}`}>
+        <g class:list={['mr-route', { 'mr-route--office': p.office, 'mr-route--inner': p.inner }]} data-mr={p.slug} style={`--i:${p.i}`}>
           <path class="mr-line" id={`mr-path-${p.slug}`} pathLength="1" />
           <path class="mr-trail" pathLength="1" />
           <circle class="mr-lead" r="6">
@@ -69,7 +69,7 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
   <div class="mr__band mr__band--bottom">
     {
       pins.slice(top.length).map((p) => (
-        <a class:list={['mr-pin', `mr-pin--${p.side}`, 'mr-pin--up']} href={p.href} data-mr-node={p.slug} style={`--i:${p.i}`}>
+        <a class:list={['mr-pin', `mr-pin--${p.side}`, 'mr-pin--inner']} href={p.href} data-mr-node={p.slug} style={`--i:${p.i}`}>
           <span class="mr-pin__dot" aria-hidden="true" />
           <span class="mr-pin__card">{p.name}</span>
         </a>
@@ -154,6 +154,9 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     opacity: 0.7;
     animation-name: mr-draw-solid;
   }
+  .mr-route--inner .mr-line {
+    animation-name: mr-draw-inner;
+  }
   @keyframes mr-draw {
     99% {
       stroke-dasharray: 1;
@@ -161,6 +164,17 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     }
     100% {
       stroke-dasharray: 0.012 0.008;
+      stroke-dashoffset: 0;
+    }
+  }
+  /* the inner routes are shorter, so a larger share of the line gives the same dash on screen */
+  @keyframes mr-draw-inner {
+    99% {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dasharray: 0.042 0.028;
       stroke-dashoffset: 0;
     }
   }
@@ -224,16 +238,21 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
   .mr-pin--right.mr-pin--indent {
     margin-right: 22px;
   }
-  /* Bavdhan and Erandwane sit lower, Warje and Karvenagar higher: closer to the headline, by a share of the screen height */
+  /* Bavdhan and Erandwane sit lower, closer to the headline, by a share of the screen height */
   .mr-pin--down {
     position: relative;
     top: 9vh; /* fallback */
     top: 9svh;
   }
-  .mr-pin--up {
+  /* Warje and Karvenagar sit inside the outer routes, centred in each half of the screen: name on top, so
+     their routes leave the dot downwards. Raised more on taller phones; short phones keep clear of the headline. */
+  .mr-pin--inner {
     position: relative;
-    top: -13vh; /* fallback */
-    top: -13svh;
+    top: calc(54px - 20vh); /* fallback */
+    top: calc(54px - 20svh);
+    justify-self: center;
+    flex-direction: column-reverse;
+    gap: 5px;
   }
   .mr-pin__dot {
     position: relative;
@@ -385,7 +404,10 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
         if (!dot) continue;
         const p = centre(dot, o);
         // leaves Kothrud sideways (like a road), then runs up the edge of the screen to the area
-        const c = { x: p.x + (p.x < h.x ? -1 : 1) * Math.min(18, Math.abs(p.x - h.x) * 0.1), y: h.y };
+        // the inner pins (Warje, Karvenagar) go almost straight, staying inside the outer routes
+        const c = g.classList.contains('mr-route--inner')
+          ? { x: h.x + (p.x - h.x) * 0.625, y: h.y + (p.y - h.y) * 0.375 }
+          : { x: p.x + (p.x < h.x ? -1 : 1) * Math.min(18, Math.abs(p.x - h.x) * 0.1), y: h.y };
         const d = `M${h.x.toFixed(1)} ${h.y.toFixed(1)}Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
         for (const path of g.querySelectorAll('path')) path.setAttribute('d', d);
       }
@@ -397,6 +419,7 @@ const pins = [...top, ...bottom].map((p, i) => ({ ...p, i }));
     new ResizeObserver(layout).observe(box.parentElement ?? document.body);
     document.fonts?.ready.then(layout);
     window.addEventListener('load', layout);
+    box.addEventListener('animationend', layout); // a pin dropping in shifts its row until it lands
 
     const order = ['karvenagar', 'erandwane', 'prabhat-road', 'baner', 'bavdhan', 'warje'].filter((s) => routes.has(s));
     let current = '';
