@@ -73,7 +73,7 @@ export default function EnquiryForm({
   waHref,
   phoneDisplay,
   heading = 'Tell us what you need',
-  requirementPlaceholder = 'e.g. 3BHK, under 3 cr',
+  requirementPlaceholder = 'e.g. 3BHK, under ₹3 cr',
   endpoint = '/api/enquiry',
   headingLevel: H = 'h3',
   variant = 'default',

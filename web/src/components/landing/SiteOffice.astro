@@ -481,7 +481,17 @@ const offices = site.offices;
   .sheet :global(.ef--sheet textarea) {
     height: 46px;
     min-height: 46px !important;
+    padding-block: 8px; /* one line fits without a scrollbar */
     resize: none;
+  }
+  /* Laptops and desktops: compact "I want to" tiles, icon close above the label */
+  @media (min-width: 1000px) {
+    .sheet :global(.ef__tiles .ef__pill > span) {
+      gap: 2px;
+      min-height: 52px;
+      padding: 5px 6px;
+      line-height: 1.25;
+    }
   }
   /* Phones: the locality picker gets the full row, so its value isn't cut short */
   @media (max-width: 767px) {
