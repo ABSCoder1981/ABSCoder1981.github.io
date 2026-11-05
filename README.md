@@ -71,9 +71,9 @@ bash deploy/deploy.sh staging        # or: production
 ```
 
 A read-only copy of this repo is kept at `/srv/ashiyana/AshiyanaWebsite` on the VPS, as a backup and for viewing code
-there. A push to `main` updates it through `.github/workflows/sync-vps.yml`, and the VPS also checks once a day and
-after a restart to catch a missed update. It doesn't change the live site, and any edit made in that copy is
-overwritten. Setup and checks are in `deploy/setup-repo-sync.sh`.
+there. A push to `main` updates it through `.github/workflows/sync-vps.yml`, and the VPS also checks after a restart.
+A missed update waits for the next push or restart. It doesn't change the live site, and any edit made in that copy
+is overwritten. Setup and checks are in `deploy/setup-repo-sync.sh`.
 
 Until SMTP is filled in `/etc/ashiyana-api.env` (and `NODE_ENV=production` set there), enquiries are only logged.
 

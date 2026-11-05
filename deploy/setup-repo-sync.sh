@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Keep a read-only copy of this repo on the VPS, as a backup and for viewing code on the server.
 # Direction: PC -> GitHub -> VPS. A push to main runs .github/workflows/sync-vps.yml, which starts the update.
-# To catch a missed update, the VPS also checks by itself once a day (03:00 IST) and after a restart.
+# The VPS also checks by itself after a restart. There's no scheduled check: a missed update waits for the next push.
 #
 #   ssh root@139.84.147.129 'bash -s' < deploy/setup-repo-sync.sh     (from Git Bash on the PC; safe to re-run)
 #
@@ -80,12 +80,10 @@ EOF
 
 cat > /etc/systemd/system/ashiyana-repo-sync.timer <<EOF
 [Unit]
-Description=Catch missed Ashiyana code updates: daily at 03:00 IST and after a restart
+Description=Catch missed Ashiyana code updates after a server restart
 
 [Timer]
-OnCalendar=*-*-* 21:30:00 UTC
 OnBootSec=2min
-Persistent=true
 
 [Install]
 WantedBy=timers.target

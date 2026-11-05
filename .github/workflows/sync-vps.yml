@@ -2,7 +2,7 @@ name: Update code copy on the VPS
 
 # Push to main -> tell the VPS to update its read-only code copy at /srv/ashiyana/AshiyanaWebsite.
 # The key in VPS_SYNC_KEY can only start that update (see deploy/setup-repo-sync.sh).
-# This never changes the live site. If a run fails, the VPS catches up at its daily check.
+# This never changes the live site. If a run fails, the VPS catches up at the next push or server restart.
 on:
   push:
     branches: [main]
