@@ -70,6 +70,10 @@ bash setup-shared-vps.sh staging     # certificate + nginx site for staging.ashi
 bash deploy/deploy.sh staging        # or: production
 ```
 
+A read-only copy of this repo is kept at `/srv/ashiyana/AshiyanaWebsite` on the VPS, as a backup and for viewing code
+there. It checks GitHub every 5 minutes, so anything pushed to `main` arrives by itself. It doesn't change the live
+site, and any edit made in that copy is overwritten. Setup and checks are in `deploy/setup-repo-sync.sh`.
+
 Until SMTP is filled in `/etc/ashiyana-api.env` (and `NODE_ENV=production` set there), enquiries are only logged.
 
 **Dedicated-server setup (reference)** (Ubuntu 22.04/24.04). Copy the repo's `deploy/` and `api/.env.example` to the server, then:
