@@ -22,11 +22,26 @@ jobs:
       - name: Start the update on the VPS
         env:
           VPS_SYNC_KEY: ${{ secrets.VPS_SYNC_KEY }}
+          VPS_SYNC_PUBKEY: AAAAC3NzaC1lZDI1NTE5AAAAIEz6WjS17F/rq/49NhY9WEqgkswKOZhuzgQ81ibTsZ83
           VPS_HOST_KEY: 139.84.147.129 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUCxvX8jGEOuxNrZzWCKdsy6lbl5NHEGMYXC6//I1ak
         run: |
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$VPS_SYNC_KEY" > ~/.ssh/sync_key
+          if [ -z "$VPS_SYNC_KEY" ]; then
+            echo "::error::The VPS_SYNC_KEY secret is empty or missing"
+            exit 1
+          fi
+          # Pasting from Windows can add invisible line endings that SSH rejects
+          printf '%s\n' "$VPS_SYNC_KEY" | tr -d '\r' > ~/.ssh/sync_key
           chmod 600 ~/.ssh/sync_key
+          # Check the key here first, so a bad one never counts as a failed login on the VPS
+          if ! actual="$(ssh-keygen -y -f ~/.ssh/sync_key 2>/dev/null)"; then
+            echo "::error::VPS_SYNC_KEY is not a readable private key"
+            exit 1
+          fi
+          if [ "$(printf '%s' "$actual" | cut -d' ' -f2)" != "$VPS_SYNC_PUBKEY" ]; then
+            echo "::error::VPS_SYNC_KEY is a valid key, but not the one the VPS expects"
+            exit 1
+          fi
           printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
           ssh -i ~/.ssh/sync_key -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 \
             -o StrictHostKeyChecking=yes ashiyana-sync@139.84.147.129
