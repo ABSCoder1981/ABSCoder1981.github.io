@@ -1,0 +1,32 @@
+name: Update code copy on the VPS
+
+# Push to main -> tell the VPS to update its read-only code copy at /srv/ashiyana/AshiyanaWebsite.
+# The key in VPS_SYNC_KEY can only start that update (see deploy/setup-repo-sync.sh).
+# This never changes the live site. If a run fails, the VPS catches up at its daily check.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: sync-vps
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Start the update on the VPS
+        env:
+          VPS_SYNC_KEY: ${{ secrets.VPS_SYNC_KEY }}
+          VPS_HOST_KEY: 139.84.147.129 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPUCxvX8jGEOuxNrZzWCKdsy6lbl5NHEGMYXC6//I1ak
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SYNC_KEY" > ~/.ssh/sync_key
+          chmod 600 ~/.ssh/sync_key
+          printf '%s\n' "$VPS_HOST_KEY" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/sync_key -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=20 \
+            -o StrictHostKeyChecking=yes ashiyana-sync@139.84.147.129
